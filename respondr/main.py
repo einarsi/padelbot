@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from logging import StreamHandler
+from logging import FileHandler, StreamHandler
 from logging.handlers import QueueHandler, QueueListener
 from queue import Queue
 
@@ -14,7 +14,7 @@ async def init_logger():
     que = Queue()
     log.addHandler(QueueHandler(que))
     log.setLevel(logging.DEBUG)
-    listener = QueueListener(que, StreamHandler())
+    listener = QueueListener(que, FileHandler("app.log"), StreamHandler())
     try:
         listener.start()
         logging.debug("Logger initialized")
