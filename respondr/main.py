@@ -1,34 +1,11 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from logging import FileHandler, StreamHandler
-from logging.handlers import QueueHandler, QueueListener
-from queue import Queue
 
 from dotenv import dotenv_values
+from logger import start_logger
 from spond import spond
 
-
-async def init_logger():
-    log = logging.getLogger()
-    que = Queue()
-    log.addHandler(QueueHandler(que))
-    log.setLevel(logging.DEBUG)
-    listener = QueueListener(que, FileHandler("app.log"), StreamHandler())
-    try:
-        listener.start()
-        logging.debug("Logger initialized")
-        while True:
-            await asyncio.sleep(60)
-    finally:
-        logging.debug("Stopping logger")
-        listener.stop()
-
-LOGGER_TASK = None
-
-async def start_logger():
-    LOGGER_TASK = asyncio.create_task(init_logger())
-    await asyncio.sleep(0)
 
 async def _get_practices(
     s: spond.Spond,
