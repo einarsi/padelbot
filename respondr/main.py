@@ -1,9 +1,34 @@
 import asyncio
+import logging
 from datetime import datetime, timedelta
+from logging import StreamHandler
+from logging.handlers import QueueHandler, QueueListener
+from queue import Queue
 
 from dotenv import dotenv_values
 from spond import spond
 
+
+async def init_logger():
+    log = logging.getLogger()
+    que = Queue()
+    log.addHandler(QueueHandler(que))
+    log.setLevel(logging.DEBUG)
+    listener = QueueListener(que, StreamHandler())
+    try:
+        listener.start()
+        logging.debug("Logger initialized")
+        while True:
+            await asyncio.sleep(60)
+    finally:
+        logging.debug("Stopping logger")
+        listener.stop()
+
+LOGGER_TASK = None
+
+async def start_logger():
+    LOGGER_TASK = asyncio.create_task(init_logger())
+    await asyncio.sleep(0)
 
 async def _get_practices(
     s: spond.Spond,
@@ -36,17 +61,20 @@ async def get_previous_practices(s: spond.Spond, cfg: dict[str, str]):
     return events
 
 async def main():
+    await start_logger()
+    logging.info("Starting main")
     cfg = dotenv_values(".env")
     s = spond.Spond(cfg["USERNAME"], cfg["PASSWORD"])
     next_practices = await get_next_practices(s, cfg)
     previous_practices = await get_previous_practices(s, cfg)
 
     for event in previous_practices:
-        print(event["heading"], event["startTimestamp"])
+        logging.info(f"Upcoming: {event['heading']}, {event['startTimestamp']}")
     for event in next_practices:
-        print(event["heading"], event["startTimestamp"])
+        logging.info(f"Previous: {event['heading']}, {event['startTimestamp']}")
 
     await s.clientsession.close()
+    logging.info("Main complete")
 
 if __name__ == "__main__":
     asyncio.run(main())
