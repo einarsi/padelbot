@@ -32,13 +32,11 @@ async def start_logger():
 
 async def _get_practices(
     s: spond.Spond,
-    cfg: dict[str, str],
+    group_id: str,
     min_start: datetime | None = None,
     max_start: datetime | None = None,
 ):
-    events = await s.get_events(
-        cfg["GROUP_ID"], min_start=min_start, max_start=max_start
-    )
+    events = await s.get_events(group_id=group_id, min_start=min_start, max_start=max_start) or []
     retval = []
     for event in events:
         start_time = datetime.strptime(event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ")
@@ -49,14 +47,14 @@ async def _get_practices(
     return retval
 
 
-async def get_next_practices(s: spond.Spond, cfg: dict[str, str]):
-    events = await _get_practices(s, cfg, min_start=datetime.now())
+async def get_next_practices(s: spond.Spond, group_id: str):
+    events = await _get_practices(s, group_id=group_id, min_start=datetime.now())
     return events
 
 
-async def get_previous_practices(s: spond.Spond, cfg: dict[str, str]):
+async def get_previous_practices(s: spond.Spond, group_id: str):
     events = await _get_practices(
-        s, cfg, min_start=datetime.now() - timedelta(days=7), max_start=datetime.now()
+        s, group_id=group_id, min_start=datetime.now() - timedelta(days=7), max_start=datetime.now()
     )
     return events
 
@@ -64,9 +62,16 @@ async def main():
     await start_logger()
     logging.info("Starting main")
     cfg = dotenv_values(".env")
-    s = spond.Spond(cfg["USERNAME"], cfg["PASSWORD"])
-    next_practices = await get_next_practices(s, cfg)
-    previous_practices = await get_previous_practices(s, cfg)
+    username = cfg.get("USERNAME")
+    password = cfg.get("PASSWORD")
+    group_id = cfg.get("GROUP_ID")
+    if username is None or password is None or group_id is None:
+        logging.error("USERNAME, PASSWORD or GROUP_ID is None. Bailing.")
+        return
+    
+    s = spond.Spond(username, password)
+    next_practices = await get_next_practices(s, group_id)
+    previous_practices = await get_previous_practices(s, group_id)
 
     for event in previous_practices:
         logging.info(f"Upcoming: {event['heading']}, {event['startTimestamp']}")
@@ -78,4 +83,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
