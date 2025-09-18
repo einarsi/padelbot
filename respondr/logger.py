@@ -10,7 +10,12 @@ async def init_logger():
     que = Queue()
     log.addHandler(QueueHandler(que))
     log.setLevel(logging.DEBUG)
-    listener = QueueListener(que, FileHandler("app.log"), StreamHandler())
+    file_handler = FileHandler("app.log")
+    stream_handler = StreamHandler()
+    formatter = logging.Formatter("%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    file_handler.setFormatter(formatter)
+    stream_handler.setFormatter(formatter)
+    listener = QueueListener(que, file_handler, stream_handler)
     try:
         listener.start()
         logging.debug("Logger initialized")
