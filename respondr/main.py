@@ -79,6 +79,28 @@ def memberid_to_member(member_id: str, members: list[dict]) -> dict | None:
             return member
     return None
 
+async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, event: dict) -> datetime | None:
+        logging.debug(f"Working on {event['startTimestamp']} \"{event['heading']}\"")
+        event_end = datetime.strptime(event["endTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
+        now = datetime.now(tz.utc)
+        if (event_end - now).days > 6:
+            return None
+        logging.info(f"\"{event['heading']}\" is in quarantine for players that played last time")
+        last_event = await get_last_practice_in_series(s, group_id, event)
+        if not last_event:
+            logging.info(f"No last event found for \"{event['heading']}\"")
+            return None
+        previous_player_ids = last_event["responses"]["acceptedIds"]
+        player_ids = event["responses"]["acceptedIds"]
+        for id in player_ids:
+            if id in previous_player_ids:
+                player = memberid_to_member(id, last_event["recipients"]["group"]["members"])
+                if player:
+                    logging.debug(f"Player {player['firstName']} {player['lastName']} played last time, removing from this event")
+                    # await s.change_response(event["id"], player["id"], {"accepted": "false"})
+                    # await s.send_message(f"You were removed from the event \"{event['heading']}\" because you played last time. Please wait for at least 24 hours after the event ended before signing up.", user=player["profile"]["id"], group_uid=group_id)
+        return event_end - timedelta(days=6)
+
 async def main():
     await start_logger()
 
@@ -94,30 +116,17 @@ async def main():
     s = spond.Spond(username, password)
 
     while True:
+        next_quarantine_ends = datetime.strptime("2100-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
         upcoming_events = await get_next_practices(s, group_id)
         if upcoming_events:
             for event in reversed(upcoming_events):
-                logging.debug(f"Working on {event['startTimestamp']} \"{event['heading']}\"")
-                seconds_to_event_end = (datetime.strptime(event["endTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc) - datetime.now(tz.utc)).total_seconds()
-                if not seconds_to_event_end > 6*24*60:
-                    continue
-                logging.info(f"\"{event['heading']}\" in quarantine for players that played last time")
-                last_event = await get_last_practice_in_series(s, group_id, event)
-                if not last_event:
-                    logging.info(f"No last event found for \"{event['heading']}\"")
-                    continue
-                logging.info(f"Last event for \"{event['heading']}\" is \"{last_event['heading']}\"")
-                previous_player_ids = last_event["responses"]["acceptedIds"]
-                player_ids = event["responses"]["acceptedIds"]
-                for id in player_ids:
-                    if id in previous_player_ids:
-                        player = memberid_to_member(id, last_event["recipients"]["group"]["members"])
-                        if player:
-                            logging.debug(f"Player {player['firstName']} {player['lastName']} played last time, removing from this event")
-                            await s.change_response(event["id"], player["id"], {"accepted": "false"})
-                            await s.send_message(f"You were removed from the event \"{event['heading']}\" because you played last time. Please wait for at least 24 hours after the event ended before signing up.", user=player["profile"]["id"], group_uid=group_id)
+                quarantine_ends = await quarantine_players_from_last_event(s, group_id, event)
+                if quarantine_ends is not None and quarantine_ends < next_quarantine_ends:
+                    next_quarantine_ends = quarantine_ends
 
-            await asyncio.sleep(60)
+        seconds_to_next_quarantine = (next_quarantine_ends - datetime.now(tz.utc)).seconds
+        logging.debug(f"Time to sleep: {seconds_to_next_quarantine} seconds")
+        await asyncio.sleep(min(seconds_to_next_quarantine-2, 15))
 
     await s.clientsession.close()
     logging.info("Main complete")
