@@ -5,8 +5,10 @@ from datetime import timezone as tz
 
 from async_lru import alru_cache
 from dotenv import dotenv_values
-from logger import start_logger
 from spond import spond
+
+from padelbot.config import readconfig
+from padelbot.logger import start_logger
 
 
 async def _get_practices(
@@ -105,14 +107,19 @@ async def main():
     await start_logger()
 
     logging.info("Starting main")
-    cfg = dotenv_values(".env")
-    username = cfg.get("USERNAME")
-    password = cfg.get("PASSWORD")
-    group_id = cfg.get("GROUP_ID")
-    if username is None or password is None or group_id is None:
-        logging.error("USERNAME, PASSWORD or GROUP_ID is None. Bailing.")
-        return
     
+    cfg = readconfig()
+    if cfg is None:
+        logging.error("Missing configuration")
+        return
+    username = cfg["AUTH"]["USERNAME"]
+    password = cfg["AUTH"]["PASSWORD"]
+    group_id = cfg["AUTH"]["GROUP_ID"]
+    if cfg["LOGGING"]["LEVEL"] is None:
+        logging.getLogger().setLevel(logging.INFO)
+    else:
+        logging.getLogger().setLevel(cfg["LOGGING"]["LEVEL"])
+
     s = spond.Spond(username, password)
 
     while True:

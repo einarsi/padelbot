@@ -1,5 +1,5 @@
 [project]
-name = "responder"
+name = "padelbot"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "aiofiles>=24.1.0",
     "async-lru>=2.0.5",
+    "configparser>=7.2.0",
     "python-dotenv>=1.1.1",
     "ruff>=0.13.0",
     "spond>=1.1.1",

@@ -24,7 +24,6 @@ async def init_logger():
     listener = QueueListener(que, file_handler, stream_handler)
     try:
         listener.start()
-        logging.debug("Logger initialized")
         while True:
             await asyncio.sleep(60)
     finally:
