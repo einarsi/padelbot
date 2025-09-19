@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from datetime import timezone as tz
 
+from async_lru import alru_cache
 from dotenv import dotenv_values
 from logger import start_logger
 from spond import spond
@@ -38,8 +39,9 @@ async def get_next_practices(s: spond.Spond, group_id: str):
             retval.append(event)
     return retval
 
-
+@alru_cache(ttl=3600)
 async def get_previous_practices(s: spond.Spond, group_id: str):
+    logging.debug("Getting previous practices")
     timestamp_now = datetime.now(tz.utc)
     # Events that have already completed but are in the same calendar day are not included
     # unless we include tomorrow in the search. Then filter out any future events based
@@ -60,9 +62,25 @@ async def periodic(interval: int, coro, result_queue: asyncio.Queue, *args, **kw
         await result_queue.put(res)
         await asyncio.sleep(interval)
 
+async def get_last_practice_in_series(s: spond.Spond, group_id: str, event: dict) -> dict | None:
+    events = await get_previous_practices(s, group_id)
+    start_time = datetime.strptime(event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
+
+    for previous_event in events:
+        # Keep it simple: If startTimestamp was exactly 7 days before, it is in the same series
+        previous_start_time = datetime.strptime(previous_event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
+        if (start_time- previous_start_time).days == 7 and (start_time-previous_start_time).seconds == 0:
+            return previous_event
+    return None
+
+def memberid_to_member(member_id: str, members: list[dict]) -> dict | None:
+    for member in members:
+        if member["id"] == member_id:
+            return member
+    return None
+
 async def main():
     await start_logger()
-    upcoming_queue = asyncio.Queue()
 
     logging.info("Starting main")
     cfg = dotenv_values(".env")
@@ -74,19 +92,32 @@ async def main():
         return
     
     s = spond.Spond(username, password)
-    _task_upcoming = asyncio.create_task(periodic(10, get_next_practices, upcoming_queue, s, group_id))
+
     while True:
-            try:
-                upcoming_events = await asyncio.wait_for(upcoming_queue.get(), timeout=1)
-            except asyncio.TimeoutError:
-                pass
-            except Exception as e:
-                logging.error(f"Error occurred while fetching upcoming events: {e}")
-            else:
-                logging.debug(f"Found {len(upcoming_events)} upcoming events")
-                for event in upcoming_events:
-                    logging.debug(f"-> {event['startTimestamp']} \"{event['heading']}\"")
-                upcoming_queue.task_done()          
+        upcoming_events = await get_next_practices(s, group_id)
+        if upcoming_events:
+            for event in reversed(upcoming_events):
+                logging.debug(f"Working on {event['startTimestamp']} \"{event['heading']}\"")
+                seconds_to_event_end = (datetime.strptime(event["endTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc) - datetime.now(tz.utc)).total_seconds()
+                if not seconds_to_event_end > 6*24*60:
+                    continue
+                logging.info(f"\"{event['heading']}\" in quarantine for players that played last time")
+                last_event = await get_last_practice_in_series(s, group_id, event)
+                if not last_event:
+                    logging.info(f"No last event found for \"{event['heading']}\"")
+                    continue
+                logging.info(f"Last event for \"{event['heading']}\" is \"{last_event['heading']}\"")
+                previous_player_ids = last_event["responses"]["acceptedIds"]
+                player_ids = event["responses"]["acceptedIds"]
+                for id in player_ids:
+                    if id in previous_player_ids:
+                        player = memberid_to_member(id, last_event["recipients"]["group"]["members"])
+                        if player:
+                            logging.debug(f"Player {player['firstName']} {player['lastName']} played last time, removing from this event")
+                            await s.change_response(event["id"], player["id"], {"accepted": "false"})
+                            await s.send_message(f"You were removed from the event \"{event['heading']}\" because you played last time. Please wait for at least 24 hours after the event ended before signing up.", user=player["profile"]["id"], group_uid=group_id)
+
+            await asyncio.sleep(60)
 
     await s.clientsession.close()
     logging.info("Main complete")
