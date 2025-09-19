@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from datetime import timezone as tz
 
 from async_lru import alru_cache
-from dotenv import dotenv_values
 from spond import spond
 
 from padelbot.config import readconfig
@@ -39,6 +38,7 @@ async def get_next_practices(s: spond.Spond, group_id: str):
         startTimestamp = datetime.strptime(event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
         if startTimestamp > datetime.now(tz.utc):
             retval.append(event)
+    logging.debug(f" -> Found {len(retval)} upcoming practices")
     return retval
 
 @alru_cache(ttl=3600)
@@ -56,6 +56,7 @@ async def get_previous_practices(s: spond.Spond, group_id: str):
         endTimestamp = datetime.strptime(event["endTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
         if endTimestamp < datetime.now(tz.utc):
             retval.append(event)
+    logging.debug(f" -> Found {len(retval)} previous practices")
     return retval   
 
 async def periodic(interval: int, coro, result_queue: asyncio.Queue, *args, **kwargs):
@@ -81,16 +82,16 @@ def memberid_to_member(member_id: str, members: list[dict]) -> dict | None:
             return member
     return None
 
-async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, event: dict) -> datetime | None:
-        logging.debug(f"Working on {event['startTimestamp']} \"{event['heading']}\"")
+async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, event: dict, quarantine_days: int = 1) -> datetime | None:
         event_end = datetime.strptime(event["endTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
         now = datetime.now(tz.utc)
-        if (event_end - now).days > 6:
+        logging.debug(f"Event ends at {event_end}, now is {now}")
+        if (event_end - now).days < (7 - quarantine_days):
             return None
         logging.info(f"\"{event['heading']}\" is in quarantine for players that played last time")
         last_event = await get_last_practice_in_series(s, group_id, event)
         if not last_event:
-            logging.info(f"No last event found for \"{event['heading']}\"")
+            logging.info(f" -> No last event found for \"{event['heading']}\". Skipping further processing.")
             return None
         previous_player_ids = last_event["responses"]["acceptedIds"]
         player_ids = event["responses"]["acceptedIds"]
@@ -98,10 +99,10 @@ async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, even
             if id in previous_player_ids:
                 player = memberid_to_member(id, last_event["recipients"]["group"]["members"])
                 if player:
-                    logging.debug(f"Player {player['firstName']} {player['lastName']} played last time, removing from this event")
+                    logging.info(f"Player {player['firstName']} {player['lastName']} played last time, removing from this event")
                     # await s.change_response(event["id"], player["id"], {"accepted": "false"})
                     # await s.send_message(f"You were removed from the event \"{event['heading']}\" because you played last time. Please wait for at least 24 hours after the event ended before signing up.", user=player["profile"]["id"], group_uid=group_id)
-        return event_end - timedelta(days=6)
+        return event_end - timedelta(days=7-quarantine_days)
 
 async def main():
     await start_logger()
@@ -115,6 +116,7 @@ async def main():
     username = cfg["AUTH"]["USERNAME"]
     password = cfg["AUTH"]["PASSWORD"]
     group_id = cfg["AUTH"]["GROUP_ID"]
+
     if cfg["LOGGING"]["LEVEL"] is None:
         logging.getLogger().setLevel(logging.INFO)
     else:
@@ -123,17 +125,23 @@ async def main():
     s = spond.Spond(username, password)
 
     while True:
-        next_quarantine_ends = datetime.strptime("2100-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
+        next_quarantine_end_time = None
         upcoming_events = await get_next_practices(s, group_id)
         if upcoming_events:
             for event in reversed(upcoming_events):
+                logging.debug(f"Handling {event['startTimestamp']} \"{event['heading']}\"")
                 quarantine_ends = await quarantine_players_from_last_event(s, group_id, event)
-                if quarantine_ends is not None and quarantine_ends < next_quarantine_ends:
-                    next_quarantine_ends = quarantine_ends
+                if quarantine_ends is not None and (next_quarantine_end_time is None or quarantine_ends < next_quarantine_end_time):
+                    next_quarantine_end_time = quarantine_ends
 
-        seconds_to_next_quarantine = (next_quarantine_ends - datetime.now(tz.utc)).seconds
-        logging.debug(f"Time to sleep: {seconds_to_next_quarantine} seconds")
-        await asyncio.sleep(min(seconds_to_next_quarantine-2, 15))
+        seconds_to_sleep = 900
+        
+        if next_quarantine_end_time is not None:
+            seconds_to_next_quarantine_end = (next_quarantine_end_time - datetime.now(tz.utc)).seconds
+            seconds_to_sleep = min(max(1, seconds_to_next_quarantine_end-2), seconds_to_sleep)
+            logging.debug(f"Next quarantine ends at {next_quarantine_end_time}.")
+        logging.debug(f"Sleeping for {seconds_to_sleep} seconds")
+        await asyncio.sleep(seconds_to_sleep)
 
     await s.clientsession.close()
     logging.info("Main complete")
