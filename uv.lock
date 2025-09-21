@@ -199,9 +199,13 @@ dependencies = [
     { name = "async-lru" },
     { name = "configparser" },
     { name = "python-dotenv" },
-    { name = "ruff" },
     { name = "spond" },
     { name = "types-aiofiles" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -210,10 +214,12 @@ requires-dist = [
     { name = "async-lru", specifier = ">=2.0.5" },
     { name = "configparser", specifier = ">=7.2.0" },
     { name = "python-dotenv", specifier = ">=1.1.1" },
-    { name = "ruff", specifier = ">=0.13.0" },
     { name = "spond", specifier = ">=1.1.1" },
     { name = "types-aiofiles", specifier = ">=24.1.0.20250822" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ruff", specifier = ">=0.13.0" }]
 
 [[package]]
 name = "propcache"
