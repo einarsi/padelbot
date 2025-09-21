@@ -1,7 +1,5 @@
-# Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+FROM python:3.13-alpine3.22 AS builder
 
-# Install the project into `/app`
 WORKDIR /app
 
 # Enable bytecode compilation
@@ -13,24 +11,27 @@ ENV UV_LINK_MODE=copy
 # Ensure installed tools can be executed out of the box
 ENV UV_TOOL_BIN_DIR=/usr/local/bin
 
+# Install uv
+RUN apk add uv
+
 # Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --no-install-project --no-dev
-    #uv sync --locked --no-install-project --no-dev
+    uv sync --locked --no-install-project --no-dev
 
-COPY . /app
+FROM python:3.13-alpine3.22
 
-RUN ls /
-RUN ls /app
+WORKDIR /app
 
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-dev
+# Copy generated .venv dir from builder
+COPY --from=builder /app /app
+
+COPY ./src/ /app/
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
 ENTRYPOINT []
 
-CMD ["python3", "src/main.py"]
+CMD ["python3", "main.py"]
