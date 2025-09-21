@@ -125,21 +125,29 @@ async def main():
     s = spond.Spond(username, password)
 
     while True:
-        next_quarantine_end_time = None
         upcoming_events = await get_next_practices(s, group_id)
+
+        quarantine_end_times = []
         if upcoming_events:
             for event in reversed(upcoming_events):
                 logging.debug(f"Handling {event['startTimestamp']} \"{event['heading']}\"")
-                quarantine_ends = await quarantine_players_from_last_event(s, group_id, event)
-                if quarantine_ends is not None and (next_quarantine_end_time is None or quarantine_ends < next_quarantine_end_time):
-                    next_quarantine_end_time = quarantine_ends
+                quarantine_end_time = await quarantine_players_from_last_event(s, group_id, event)
+                if quarantine_end_time is not None:
+                    quarantine_end_times.append(quarantine_end_time)
 
-        seconds_to_sleep = 900
-        
-        if next_quarantine_end_time is not None:
-            seconds_to_next_quarantine_end = (next_quarantine_end_time - datetime.now(tz.utc)).seconds
-            seconds_to_sleep = min(max(1, seconds_to_next_quarantine_end-2), seconds_to_sleep)
+        # Identify next quarantine end time. Must be in the future.
+        now = datetime.now(tz.utc)
+        next_quarantine_end_time = min((dt for dt in quarantine_end_times if dt > now), default=None)
+
+        seconds_to_sleep = 600
+        if next_quarantine_end_time:
             logging.debug(f"Next quarantine ends at {next_quarantine_end_time}.")
+            seconds_to_next_quarantine_end_time = (next_quarantine_end_time - now).seconds
+            if 1 < seconds_to_next_quarantine_end_time < 10:
+                seconds_to_sleep = max(1, seconds_to_next_quarantine_end_time-1)    
+            elif seconds_to_next_quarantine_end_time < 60:
+                seconds_to_sleep = 10
+            
         logging.debug(f"Sleeping for {seconds_to_sleep} seconds")
         await asyncio.sleep(seconds_to_sleep)
 
