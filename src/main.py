@@ -64,9 +64,10 @@ async def get_last_practice_in_series(s: spond.Spond, group_id: str, event: dict
     start_time = datetime.strptime(event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
 
     for previous_event in events:
-        # Keep it simple: If startTimestamp was exactly 7 days before, it is in the same series
+        # Keep it simple: If startTimestamp was exactly 7 days before, +/- 5 minutes, it is in the same series.
+        # Times are timezoned, so no DST issues.
         previous_start_time = datetime.strptime(previous_event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
-        if (start_time- previous_start_time).days == 7 and (start_time-previous_start_time).seconds == 0:
+        if abs((start_time - previous_start_time).total_seconds() - 7*24*60*60) <= 5*60:
             return previous_event
     return None
 
@@ -152,12 +153,13 @@ async def main():
 
         seconds_to_sleep = 600
         if next_quarantine_end_time:
-            logging.debug(f"Next quarantine ends at {next_quarantine_end_time}.")
-            seconds_to_next_quarantine_end_time = (next_quarantine_end_time - now).seconds
-            if 1 < seconds_to_next_quarantine_end_time < 10:
-                seconds_to_sleep = max(1, seconds_to_next_quarantine_end_time-1)    
-            elif seconds_to_next_quarantine_end_time < 60:
-                seconds_to_sleep = 10
+            seconds_to_next_quarantine_end_time = (next_quarantine_end_time - now).total_seconds()
+            logging.debug(f"Next quarantine ends in {seconds_to_next_quarantine_end_time} seconds (at {next_quarantine_end_time})")
+
+            if 1 < seconds_to_next_quarantine_end_time <= 60: # Aim for 1 second before, every 10 secs until then
+                seconds_to_sleep = min(10, seconds_to_next_quarantine_end_time - 1)
+            else: # Aim for 59 seconds before to enter interval above
+                seconds_to_sleep = min(600, seconds_to_next_quarantine_end_time - 59)
             
         logging.debug(f"Sleeping for {seconds_to_sleep} seconds")
         await asyncio.sleep(seconds_to_sleep)
