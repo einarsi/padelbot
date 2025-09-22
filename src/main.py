@@ -82,9 +82,15 @@ async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, even
         now = datetime.now(tz.utc)
         logging.debug(f"Event ends at {event_end}, now is {now}")
 
+        # Event is not in quarantine
         if now > event_end + timedelta(days=quarantine_days-7):
             return None
-        
+
+        # In case fetching the event information was initiated shortly before quarantine expiry, but took too long
+        if now > event_end:
+            logging.info(f" -> Quarantine is already over ({now}). Skipping further processing.")
+            return None
+
         logging.info(f"\"{event['heading']}\" is in quarantine for players that played last time")
 
         player_ids = event["responses"]["acceptedIds"] + event["responses"]["waitinglistIds"]
@@ -98,12 +104,6 @@ async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, even
         last_event = await get_last_practice_in_series(s, group_id, event)
         if not last_event:
             logging.warning(f" -> No last event found for \"{event['heading']}\". Skipping further processing.")
-            return None
-
-        # Refresh `now` in case fetching last event took a while
-        now = datetime.now(tz.utc)
-        if now > event_end:
-            logging.info(f" -> Quarantine is already over ({now}). Skipping further processing.")
             return None
 
         previous_player_ids = last_event["responses"]["acceptedIds"]
