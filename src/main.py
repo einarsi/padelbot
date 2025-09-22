@@ -59,12 +59,6 @@ async def get_previous_practices(s: spond.Spond, group_id: str):
     logging.debug(f" -> Found {len(retval)} previous practices")
     return retval   
 
-async def periodic(interval: int, coro, result_queue: asyncio.Queue, *args, **kwargs):
-    while True:
-        res = await coro(*args, **kwargs)
-        await result_queue.put(res)
-        await asyncio.sleep(interval)
-
 async def get_last_practice_in_series(s: spond.Spond, group_id: str, event: dict) -> dict | None:
     events = await get_previous_practices(s, group_id)
     start_time = datetime.strptime(event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
@@ -86,15 +80,26 @@ async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, even
         event_end = datetime.strptime(event["endTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
         now = datetime.now(tz.utc)
         logging.debug(f"Event ends at {event_end}, now is {now}")
-        if (event_end - now).days < (7 - quarantine_days):
+
+        if now > event_end + timedelta(days=quarantine_days-7):
             return None
+        
         logging.info(f"\"{event['heading']}\" is in quarantine for players that played last time")
+
+        player_ids = event["responses"]["acceptedIds"] + event["responses"]["waitinglistIds"]
+        registered_names = [
+            f"{player['firstName']} {player['lastName']}"
+            for pid in player_ids
+            if (player := memberid_to_member(pid, event["recipients"]["group"]["members"]))
+        ]
+        logging.debug(f" -> Registered players: {', '.join(registered_names)}")
+
         last_event = await get_last_practice_in_series(s, group_id, event)
         if not last_event:
-            logging.info(f" -> No last event found for \"{event['heading']}\". Skipping further processing.")
+            logging.warning(f" -> No last event found for \"{event['heading']}\". Skipping further processing.")
             return None
+
         previous_player_ids = last_event["responses"]["acceptedIds"]
-        player_ids = event["responses"]["acceptedIds"]
         for id in player_ids:
             if id in previous_player_ids:
                 player = memberid_to_member(id, last_event["recipients"]["group"]["members"])
@@ -102,7 +107,7 @@ async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, even
                     logging.info(f"Player {player['firstName']} {player['lastName']} played last time, removing from this event")
                     # await s.change_response(event["id"], player["id"], {"accepted": "false"})
                     # await s.send_message(f"You were removed from the event \"{event['heading']}\" because you played last time. Please wait for at least 24 hours after the event ended before signing up.", user=player["profile"]["id"], group_uid=group_id)
-        return event_end - timedelta(days=7-quarantine_days)
+        return event_end + timedelta(days=quarantine_days-7)
 
 async def main():
     await start_logger()
