@@ -99,6 +99,12 @@ async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, even
             logging.warning(f" -> No last event found for \"{event['heading']}\". Skipping further processing.")
             return None
 
+        # Refresh `now` in case fetching last event took a while
+        now = datetime.now(tz.utc)
+        if now > event_end:
+            logging.info(f" -> Quarantine is already over ({now}). Skipping further processing.")
+            return None
+
         previous_player_ids = last_event["responses"]["acceptedIds"]
         for id in player_ids:
             if id in previous_player_ids:
