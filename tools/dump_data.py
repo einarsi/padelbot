@@ -12,6 +12,7 @@ async def write_dump(filename, data):
     async with aiofiles.open(dumps / filename, "w") as f:
         await f.write(pprint.pformat(data))
 
+
 async def main():
     cfg = dotenv_values(".env")
     username = cfg.get("USERNAME")
@@ -19,7 +20,9 @@ async def main():
     group_id = cfg.get("GROUP_ID")
 
     if not username or not password or not group_id:
-        raise ValueError("USERNAME, PASSWORD, and GROUP_ID must be set in the .env file")
+        raise ValueError(
+            "USERNAME, PASSWORD, and GROUP_ID must be set in the .env file"
+        )
 
     s = spond.Spond(username, password)
 
@@ -32,7 +35,7 @@ async def main():
     write_group = asyncio.create_task(write_dump("group", group))
     if not events:
         raise ValueError("No events found")
-    
+
     write_event = asyncio.create_task(write_dump("event", events[0]))
 
     userid = events[0]["recipients"]["group"]["members"][0]["id"]
@@ -41,8 +44,8 @@ async def main():
 
     await asyncio.gather(write_group, write_event, write_person)
 
-
     await s.clientsession.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

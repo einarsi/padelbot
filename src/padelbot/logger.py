@@ -18,7 +18,9 @@ async def init_logger():
     log_filename = f"app_{timestamp}.log"
     file_handler = FileHandler(os.path.join(log_dir, log_filename))
     stream_handler = StreamHandler()
-    formatter = logging.Formatter("%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    formatter = logging.Formatter(
+        "%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
     listener = QueueListener(que, file_handler, stream_handler)
@@ -30,7 +32,9 @@ async def init_logger():
         logging.debug("Stopping logger")
         listener.stop()
 
+
 LOGGER_TASK = None
+
 
 async def start_logger():
     LOGGER_TASK = asyncio.create_task(init_logger())
