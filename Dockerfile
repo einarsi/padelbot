@@ -29,6 +29,10 @@ COPY --from=builder /app /app
 
 COPY ./src/ /app/
 
+RUN apk add --no-cache tzdata
+
+ENV TZ=Europe/Oslo
+
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
