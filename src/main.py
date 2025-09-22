@@ -19,7 +19,7 @@ async def _get_practices(
     events = await s.get_events(group_id=group_id, min_start=min_start, max_start=max_start) or []
     retval = []
     for event in events:
-        start_time = datetime.strptime(event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
+        start_time = datetime.fromisoformat(event["startTimestamp"])
         if start_time.weekday() in (0, 3) and (
             "Mondays" in event["heading"] or "Thursdays" in event["heading"]
         ):
@@ -29,14 +29,14 @@ async def _get_practices(
 
 async def get_next_practices(s: spond.Spond, group_id: str):
     logging.debug("Getting next practices")
-    timestamp_now = datetime.now(tz.utc)
+    timestamp_now = datetime.now().astimezone()
     events = await _get_practices(s, group_id=group_id, min_start=timestamp_now)
     # Events that have already completed but are in the same calendar day are included
     # Filter them out based on start time
     retval = []
     for event in events:
-        startTimestamp = datetime.strptime(event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
-        if startTimestamp > datetime.now(tz.utc):
+        startTimestamp = datetime.fromisoformat(event["startTimestamp"])
+        if startTimestamp > datetime.now().astimezone():
             retval.append(event)
     logging.debug(f" -> Found {len(retval)} upcoming practices")
     return retval
@@ -44,7 +44,7 @@ async def get_next_practices(s: spond.Spond, group_id: str):
 @alru_cache(ttl=3600)
 async def get_previous_practices(s: spond.Spond, group_id: str):
     logging.debug("Getting previous practices")
-    timestamp_now = datetime.now(tz.utc)
+    timestamp_now = datetime.now().astimezone()
     # Events that have already completed but are in the same calendar day are not included
     # unless we include tomorrow in the search. Then filter out any future events based
     # on end time.
@@ -53,20 +53,20 @@ async def get_previous_practices(s: spond.Spond, group_id: str):
     )
     retval = []
     for event in events:
-        endTimestamp = datetime.strptime(event["endTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
-        if endTimestamp < datetime.now(tz.utc):
+        endTimestamp = datetime.fromisoformat(event["endTimestamp"])
+        if endTimestamp < datetime.now().astimezone():
             retval.append(event)
     logging.debug(f" -> Found {len(retval)} previous practices")
     return retval   
 
 async def get_last_practice_in_series(s: spond.Spond, group_id: str, event: dict) -> dict | None:
     events = await get_previous_practices(s, group_id)
-    start_time = datetime.strptime(event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
+    start_time = datetime.fromisoformat(event["startTimestamp"])
 
     for previous_event in events:
         # Keep it simple: If startTimestamp was exactly 7 days before, +/- 5 minutes, it is in the same series.
         # Times are timezoned, so no DST issues.
-        previous_start_time = datetime.strptime(previous_event["startTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
+        previous_start_time = datetime.fromisoformat(previous_event["startTimestamp"])
         if abs((start_time - previous_start_time).total_seconds() - 7*24*60*60) <= 5*60:
             return previous_event
     return None
@@ -78,9 +78,9 @@ def memberid_to_member(member_id: str, members: list[dict]) -> dict | None:
     return None
 
 async def quarantine_players_from_last_event(s: spond.Spond, group_id: str, event: dict, quarantine_days: int = 1) -> datetime | None:
-        event_end = datetime.strptime(event["endTimestamp"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=tz.utc)
-        now = datetime.now(tz.utc)
-        logging.debug(f"Event ends at {event_end}, now is {now}")
+        event_end = datetime.fromisoformat(event["endTimestamp"]).astimezone()
+        now = datetime.now().astimezone()
+        logging.debug(f"Event ends at {event_end.replace(tzinfo=None)}, now is {now.replace(tzinfo=None)}")
 
         # Event is not in quarantine
         if now > event_end + timedelta(days=quarantine_days-7):
@@ -142,19 +142,19 @@ async def main():
         quarantine_end_times = []
         if upcoming_events:
             for event in reversed(upcoming_events):
-                logging.debug(f"Handling {event['startTimestamp']} \"{event['heading']}\"")
+                logging.debug(f"Handling {datetime.fromisoformat(event['startTimestamp']).astimezone().replace(tzinfo=None)} \"{event['heading']}\"")
                 quarantine_end_time = await quarantine_players_from_last_event(s, group_id, event)
                 if quarantine_end_time is not None:
                     quarantine_end_times.append(quarantine_end_time)
 
         # Identify next quarantine end time. Must be in the future.
-        now = datetime.now(tz.utc)
+        now = datetime.now().astimezone()
         next_quarantine_end_time = min((dt for dt in quarantine_end_times if dt > now), default=None)
 
         seconds_to_sleep = 600
         if next_quarantine_end_time:
             seconds_to_next_quarantine_end_time = (next_quarantine_end_time - now).total_seconds()
-            logging.debug(f"Next quarantine ends in {seconds_to_next_quarantine_end_time} seconds (at {next_quarantine_end_time})")
+            logging.debug(f"Next quarantine ends in {seconds_to_next_quarantine_end_time} seconds (at {next_quarantine_end_time.astimezone().replace(tzinfo=None)})")
 
             if 1 < seconds_to_next_quarantine_end_time <= 60: # Aim for 1 second before, every 10 secs until then
                 seconds_to_sleep = min(10, seconds_to_next_quarantine_end_time - 1)
