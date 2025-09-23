@@ -37,5 +37,5 @@ LOGGER_TASK = None
 
 
 async def start_logger():
-    LOGGER_TASK = asyncio.create_task(init_logger())
+    asyncio.create_task(init_logger())
     await asyncio.sleep(0)

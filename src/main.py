@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from datetime import timezone as tz
 
 from async_lru import alru_cache
 from spond import spond
@@ -201,9 +200,9 @@ async def main():
             if (
                 1 < seconds_to_next_quarantine_end_time <= 60
             ):  # Aim for 1 second before, every 10 secs until then
-                seconds_to_sleep = min(10, seconds_to_next_quarantine_end_time - 1)
+                seconds_to_sleep = max(1, min(10, seconds_to_next_quarantine_end_time - 1))
             else:  # Aim for 59 seconds before to enter interval above
-                seconds_to_sleep = min(600, seconds_to_next_quarantine_end_time - 59)
+                seconds_to_sleep = max(1, min(600, seconds_to_next_quarantine_end_time - 59))
 
         logging.debug(f"Sleeping for {seconds_to_sleep} seconds")
         await asyncio.sleep(seconds_to_sleep)
