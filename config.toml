@@ -1,0 +1,10 @@
+[AUTH] # Authentication parameters can be overridden in .env file
+USERNAME = "your_username"
+PASSWORD = "your_password"
+GROUP_ID = "your_group_id"
+
+[LOGGING]
+LEVEL = "DEBUG"
+
+[RULES]
+QUARANTINE_DAYS = 1
