@@ -195,19 +195,17 @@ async def main():
 
         seconds_to_sleep = 600
         if next_quarantine_end_time:
-            seconds_to_next_quarantine_end_time = (
-                next_quarantine_end_time - now
-            ).total_seconds()
+            secs_to_quarantine_end = (next_quarantine_end_time - now).total_seconds()
             logging.debug(
-                f"Next quarantine ends in {seconds_to_next_quarantine_end_time} seconds (at {next_quarantine_end_time.astimezone().replace(tzinfo=None)})"
+                f"Next quarantine ends in {secs_to_quarantine_end} seconds (at {next_quarantine_end_time.astimezone().replace(tzinfo=None)})"
             )
 
             if (
-                1 < seconds_to_next_quarantine_end_time <= 60
+                1 < secs_to_quarantine_end <= 60
             ):  # Aim for 1 second before, every 10 secs until then
-                seconds_to_sleep = max(1, min(10, seconds_to_next_quarantine_end_time - 1))
+                seconds_to_sleep = max(1, min(10, secs_to_quarantine_end - 1))
             else:  # Aim for 59 seconds before to enter interval above
-                seconds_to_sleep = max(1, min(600, seconds_to_next_quarantine_end_time - 59))
+                seconds_to_sleep = max(1, min(600, secs_to_quarantine_end - 59))
 
         logging.debug(f"Sleeping for {seconds_to_sleep} seconds")
         await asyncio.sleep(seconds_to_sleep)

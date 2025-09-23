@@ -1,9 +1,8 @@
 import asyncio
 import logging
 import os
-from datetime import datetime
-from logging import FileHandler, StreamHandler
-from logging.handlers import QueueHandler, QueueListener
+from logging import StreamHandler
+from logging.handlers import QueueHandler, QueueListener, RotatingFileHandler
 from queue import Queue
 
 
@@ -14,12 +13,13 @@ async def init_logger():
     log.setLevel(logging.DEBUG)
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_filename = f"app_{timestamp}.log"
-    file_handler = FileHandler(os.path.join(log_dir, log_filename))
+    log_filename = "spondbot.log"
+    file_handler = RotatingFileHandler(
+        os.path.join(log_dir, log_filename), maxBytes=5 * 1024 * 1024, backupCount=5
+    )
     stream_handler = StreamHandler()
     formatter = logging.Formatter(
-        "%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        "%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S%z"
     )
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
