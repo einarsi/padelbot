@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import tomllib
 from datetime import datetime, timedelta
 
 from async_lru import alru_cache
@@ -150,7 +151,11 @@ async def quarantine_players_from_last_event(
 async def main():
     await start_logger()
 
-    logging.info("Starting main")
+    with open("pyproject.toml", "rb") as f:
+        data = tomllib.load(f)
+    version = data["project"]["version"]
+
+    logging.info(f"Starting padelbot v{version}")
 
     cfg = readconfig()
     if cfg is None:
