@@ -1,9 +1,9 @@
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import List
+from typing import Any
 
-from padelbot.utils import get_last_practice_in_series, memberid_to_member
+from padelbot.utils import Event, get_last_practice_in_series, memberid_to_member
 
 
 @dataclass
@@ -19,14 +19,14 @@ class RemovalInfo:
 
 @dataclass
 class RuleResult:
-    removals: List[RemovalInfo] = field(default_factory=list)
+    removals: list[RemovalInfo] = field(default_factory=list)
     rule_end_time: datetime | None = None
 
 
 class RuleQuarantineAfterEvent:
     def __init__(
         self,
-        event: dict,
+        event: dict[str, Any],
         quarantine_days: int,
         message: str,
         rule_name: str,
@@ -44,16 +44,19 @@ class RuleQuarantineAfterEvent:
 
         # Event is not in quarantine
         if now > event_end + timedelta(days=self.quarantine_days - 7):
+            logging.debug(
+                f'[{self.name}]: "{self.event["heading"]}" is not in quarantine'
+            )
             return False
 
         logging.info(
-            f'"{self.event["heading"]}" is in quarantine for players that played last time'
+            f'[{self.name}]: "{self.event["heading"]}" is in quarantine for players that played last time'
         )
 
         return True
 
-    def enforce(self, last_events: list) -> RuleResult | None:
-        player_ids = (
+    def enforce(self, last_events: list[Event]) -> RuleResult | None:
+        player_ids: list[str] = (
             self.event["responses"]["acceptedIds"]
             + self.event["responses"]["waitinglistIds"]
         )
@@ -66,13 +69,15 @@ class RuleQuarantineAfterEvent:
                 )
             )
         ]
-        logging.debug(f" -> Registered players: {', '.join(registered_names)}")
+        logging.debug(
+            f"[{self.name}]: Registered players: {', '.join(registered_names)}"
+        )
 
         last_event = get_last_practice_in_series(self.event, last_events)
 
         if not last_event:
             logging.warning(
-                f' -> No last event found for "{self.event["heading"]}". Skipping further processing.'
+                f'[{self.name}]: No last event found for "{self.event["heading"]}". Skipping further processing.'
             )
             return None
 
@@ -87,7 +92,7 @@ class RuleQuarantineAfterEvent:
                 )
                 if player:
                     logging.debug(
-                        f'Rule [{self.name}] Scheduling {player["firstName"]} {player["lastName"]} for removal from "{self.event["heading"]}"'
+                        f'[{self.name}]: Scheduling {player["firstName"]} {player["lastName"]} for removal from "{self.event["heading"]}"'
                     )
                     # Merge self.event and player, ignoring duplicate keys (player takes precedence)
                     merged = {

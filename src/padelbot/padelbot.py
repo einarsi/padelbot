@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from async_lru import alru_cache
 from spond import spond
 
-from .rulesets import RuleQuarantineAfterEvent  # noqa: F401
-from .utils import memberid_to_member
+from .rulesets import RuleQuarantineAfterEvent, RuleResult  # noqa: F401
+from .utils import Event, memberid_to_member
 
 
 class PadelBot:
@@ -18,7 +18,7 @@ class PadelBot:
         self,
         min_start: datetime | None = None,
         max_start: datetime | None = None,
-    ):
+    ) -> list[Event]:
         events = (
             await self.spond.get_events(
                 group_id=self.cfg["auth"]["group_id"],
@@ -27,7 +27,7 @@ class PadelBot:
             )
             or []
         )
-        retval = []
+        retval: list[Event] = []
         for event in events:
             start_time = datetime.fromisoformat(event["startTimestamp"])
             if start_time.weekday() in (0, 3) and (
@@ -36,7 +36,7 @@ class PadelBot:
                 retval.append(event)
         return retval
 
-    async def get_next_practices(self):
+    async def get_next_practices(self) -> list[Event]:
         logging.debug("Getting next practices")
         timestamp_now = datetime.now().astimezone()
         events = await self._get_practices(min_start=timestamp_now)
@@ -51,7 +51,7 @@ class PadelBot:
         return retval
 
     @alru_cache(ttl=3600)
-    async def get_previous_practices(self):
+    async def get_previous_practices(self) -> list[Event]:
         logging.debug("Getting previous practices")
         timestamp_now = datetime.now().astimezone()
         # Events that have already completed but are in the same calendar day are not included
@@ -89,7 +89,7 @@ class PadelBot:
                 return previous_event
         return None
 
-    def get_rule(self, rule_name: str, rule_def: dict, event):
+    def get_rule(self, rule_name: str, rule_def: dict, event: dict):
         rule_class = rule_def["class"]
 
         # Dynamically import and instantiate rule classes by name
@@ -105,12 +105,12 @@ class PadelBot:
 
         return rule
 
-    async def handle_event(self, event: dict):
+    async def handle_event(self, event: dict) -> list[datetime]:
         logging.debug(
             f'Handling {datetime.fromisoformat(event["startTimestamp"]).astimezone().replace(tzinfo=None)} "{event["heading"]}"'
         )
 
-        results = []
+        results: list[RuleResult] = []
         for rule_name, rule_def in self.cfg["rules"].items():
             rule = self.get_rule(rule_name, rule_def, event)
             if not rule:
@@ -150,7 +150,7 @@ class PadelBot:
         ]
         return rules_end_times
 
-    def get_sleep_time(self, all_rule_end_times):
+    def get_sleep_time(self, all_rule_end_times: list[datetime]) -> float:
         # Identify next quarantine end time. Must be in the future.
         now = datetime.now().astimezone()
         next_rule_end_time = min(

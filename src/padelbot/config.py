@@ -1,9 +1,10 @@
 import logging
 import tomllib
+from typing import Any
 
 from dotenv import dotenv_values
 
-defaults = {
+defaults: dict[str, Any] = {
     "auth": {
         "username": "your_username",
         "password": "your_password",
@@ -19,7 +20,7 @@ defaults = {
 }
 
 
-def readconfig():
+def readconfig() -> dict[str, Any] | None:
     with open("config.toml", "rb") as f:
         config = tomllib.load(f)
 
@@ -30,6 +31,6 @@ def readconfig():
 
     if not all(config["auth"].get(k) for k in ("username", "password", "group_id")):
         logging.error("username, password or group_id is missing. Bailing.")
-        return
+        return None
 
     return config
