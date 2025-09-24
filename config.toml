@@ -3,6 +3,9 @@ username = "your_username"
 password = "your_password"
 group_id = "your_group_id"
 
+[general]
+seconds_to_sleep = 600
+
 [logging]
 level = "DEBUG"
 

@@ -15,9 +15,7 @@ defaults = {
     "general": {
         "seconds_to_sleep": 600,
     },
-    "rules": {
-        "quarantine_days": 1,
-    },
+    "rules": {},
 }
 
 
