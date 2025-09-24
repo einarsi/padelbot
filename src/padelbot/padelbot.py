@@ -145,24 +145,22 @@ class PadelBot:
                     #     user=player["profile"]["id"],
                     #     group_uid=self.cfg["auth"]["group_id"],
                     # )
+        rules_end_times = [
+            result.rule_end_time for result in results if result.rule_end_time
+        ]
+        return rules_end_times
 
-        next_rule_end_time = min(
-            (result.rule_end_time for result in results if result.rule_end_time),
-            default=None,
-        )
-        return next_rule_end_time
-
-    def get_sleep_time(self, quarantine_end_times):
+    def get_sleep_time(self, all_rule_end_times):
         # Identify next quarantine end time. Must be in the future.
         now = datetime.now().astimezone()
-        next_quarantine_end_time = min(
-            (dt for dt in quarantine_end_times if dt > now), default=None
+        next_rule_end_time = min(
+            (dt for dt in all_rule_end_times if dt > now), default=None
         )
         seconds_to_sleep = self.cfg["general"]["seconds_to_sleep"]
-        if next_quarantine_end_time:
-            secs_to_quarantine_end = (next_quarantine_end_time - now).total_seconds()
+        if next_rule_end_time:
+            secs_to_quarantine_end = (next_rule_end_time - now).total_seconds()
             logging.debug(
-                f"Next quarantine ends in {secs_to_quarantine_end} seconds (at {next_quarantine_end_time.astimezone().replace(tzinfo=None)})"
+                f"Next quarantine ends in {secs_to_quarantine_end} seconds (at {next_rule_end_time.astimezone().replace(tzinfo=None)})"
             )
 
             if (
@@ -182,13 +180,12 @@ class PadelBot:
     async def run(self):
         upcoming_events = await self.get_next_practices()
 
-        quarantine_end_times = []
+        all_rules_end_times = []
         for event in reversed(upcoming_events):
-            rule_end_time = await self.handle_event(event)
-            if rule_end_time:
-                quarantine_end_times.append(rule_end_time)
+            event_rules_end_times = await self.handle_event(event)
+            all_rules_end_times.extend(event_rules_end_times)
 
-        seconds_to_sleep = self.get_sleep_time(quarantine_end_times)
+        seconds_to_sleep = self.get_sleep_time(all_rules_end_times)
 
         logging.debug(f"Sleeping for {seconds_to_sleep} seconds")
         await asyncio.sleep(seconds_to_sleep)
