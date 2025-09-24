@@ -4,19 +4,19 @@ import tomllib
 from dotenv import dotenv_values
 
 defaults = {
-    "AUTH": {
-        "USERNAME": "your_username",
-        "PASSWORD": "your_password",
-        "GROUP_ID": "your_group_id",
+    "auth": {
+        "username": "your_username",
+        "password": "your_password",
+        "group_id": "your_group_id",
     },
-    "LOGGING": {
-        "LEVEL": "INFO",
+    "logging": {
+        "level": "INFO",
     },
-    "GENERAL": {
-        "SECONDS_TO_SLEEP": 600,
+    "general": {
+        "seconds_to_sleep": 600,
     },
-    "RULES": {
-        "QUARANTINE_DAYS": 1,
+    "rules": {
+        "quarantine_days": 1,
     },
 }
 
@@ -26,12 +26,12 @@ def readconfig():
         config = tomllib.load(f)
 
     env = dotenv_values(".env")
-    config["AUTH"].update({k: v for k, v in env.items() if v is not None})
+    config["auth"].update({k.lower(): v for k, v in env.items() if v is not None})
 
     config = {**defaults, **config}
 
-    if not all(config["AUTH"].get(k) for k in ("USERNAME", "PASSWORD", "GROUP_ID")):
-        logging.error("USERNAME, PASSWORD or GROUP_ID is missing. Bailing.")
+    if not all(config["auth"].get(k) for k in ("username", "password", "group_id")):
+        logging.error("username, password or group_id is missing. Bailing.")
         return
 
     return config

@@ -1,10 +1,14 @@
-[AUTH] # Authentication parameters can be overridden in .env file
-USERNAME = "your_username"
-PASSWORD = "your_password"
-GROUP_ID = "your_group_id"
+[auth] # Authentication parameters can be overridden in .env file
+username = "your_username"
+password = "your_password"
+group_id = "your_group_id"
 
-[LOGGING]
-LEVEL = "DEBUG"
+[logging]
+level = "DEBUG"
 
-[RULES]
-QUARANTINE_DAYS = 1
+[rules]
+[rules.quarantine_after_event]
+class = "RuleQuarantineAfterEvent"
+quarantine_days = 1
+message = "Hi {firstName},\nYou were removed from the event \"{heading}\" because you played last time.\nPlease wait for at least 24 hours after the event ended before signing up."
+enforced = false

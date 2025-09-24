@@ -21,7 +21,7 @@ async def main():
         logging.error("Missing configuration")
         return
 
-    logging.getLogger().setLevel(cfg["LOGGING"]["LEVEL"])
+    logging.getLogger().setLevel(cfg["logging"]["level"])
 
     padelbot = PadelBot(cfg)
 
