@@ -136,15 +136,14 @@ class PadelBot:
                         f'Removing player {removal.firstname} {removal.lastname} from event "{removal.event_heading}" ({removal.event_starttime})'
                     )
                     if removal.enforced:
-                        logging.info("I'D ACTUALLY DO THIS!!!")
-                    # await self.spond.change_response(
-                    #     event["id"], player["id"], {"accepted": "false"}
-                    # )
-                    # await self.spond.send_message(
-                    #     result.message.format(event=event),
-                    #     user=player["profile"]["id"],
-                    #     group_uid=self.cfg["auth"]["group_id"],
-                    # )
+                        await self.spond.change_response(
+                            event["id"], player["id"], {"accepted": "false"}
+                        )
+                        await self.spond.send_message(
+                            text=removal.message,
+                            user=player["profile"]["id"],
+                            group_uid=self.cfg["auth"]["group_id"],
+                        )
         rules_end_times = [
             result.rule_end_time for result in results if result.rule_end_time
         ]
