@@ -1,29 +1,13 @@
 import logging
-from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any
 
 from padelbot.utils import Event, get_last_practice_in_series, memberid_to_member
 
-
-@dataclass
-class RemovalInfo:
-    player_id: str
-    firstname: str
-    lastname: str
-    message: str
-    event_heading: str
-    event_starttime: datetime
-    enforced: bool = False
+from .rulebase import RemovalInfo, RuleBase, RuleResult, register_rule
 
 
-@dataclass
-class RuleResult:
-    removals: list[RemovalInfo] = field(default_factory=list)
-    rule_end_time: datetime | None = None
-
-
-class RuleQuarantineAfterEvent:
+class RuleQuarantineAfterEvent(RuleBase):
     def __init__(
         self,
         event: dict[str, Any],
@@ -115,3 +99,6 @@ class RuleQuarantineAfterEvent:
         event_end = datetime.fromisoformat(self.event["endTimestamp"]).astimezone()
         result.rule_end_time = event_end + timedelta(days=self.quarantine_days - 7)
         return result
+
+
+register_rule("QuarantineAfterEvent", RuleQuarantineAfterEvent)

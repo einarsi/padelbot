@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from async_lru import alru_cache
 from spond import spond
 
-from .rulesets import RuleQuarantineAfterEvent, RuleResult  # noqa: F401
+from .rules.rulebase import RuleResult, create_rule
 from .utils import Event, memberid_to_member
 
 
@@ -89,30 +89,15 @@ class PadelBot:
                 return previous_event
         return None
 
-    def get_rule(self, rule_name: str, rule_def: dict, event: dict):
-        rule_class = rule_def["class"]
-
-        # Dynamically import and instantiate rule classes by name
-        try:
-            rule_class_obj = globals()[rule_class]
-        except KeyError:
-            return None
-
-        # Pass event and any additional rule_def parameters except 'class'
-        rule_params = {k: v for k, v in rule_def.items() if k not in ("class",)}
-        rule_params["rule_name"] = rule_name
-        rule = rule_class_obj(event, **rule_params)
-
-        return rule
-
     async def handle_event(self, event: dict) -> list[datetime]:
         logging.debug(
             f'Handling {datetime.fromisoformat(event["startTimestamp"]).astimezone().replace(tzinfo=None)} "{event["heading"]}"'
         )
 
         results: list[RuleResult] = []
+
         for rule_name, rule_def in self.cfg["rules"].items():
-            rule = self.get_rule(rule_name, rule_def, event)
+            rule = create_rule(rule_name, event, rule_def)
             if not rule:
                 logging.error(f'Skipping unsupported rule class "{rule_def["rule"]}"')
                 continue

@@ -11,7 +11,7 @@ level = "DEBUG"
 
 [rules]
 [rules.quarantine_after_event]
-class = "RuleQuarantineAfterEvent"
+type = "QuarantineAfterEvent"
 quarantine_days = 1
 message = "Hi {firstName},\nYou were removed from the event \"{heading}\" because you played last time.\nPlease wait for at least 24 hours after the event ended before signing up."
 enforced = false
