@@ -10,7 +10,9 @@ dependencies = [
     "configparser>=7.2.0",
     "python-dotenv>=1.1.1",
     "spond>=1.1.1",
+    "starlette>=0.48.0",
     "types-aiofiles>=24.1.0.20250822",
+    "uvicorn>=0.37.0",
 ]
 
 [dependency-groups]
