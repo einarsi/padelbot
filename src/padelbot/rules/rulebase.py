@@ -37,7 +37,7 @@ def register_rule(rule_type: str, rule_class: type[RuleBase]) -> None:
 def create_rule(rule_name: str, events: Events, rule_def) -> RuleBase:
     rule_cls = RULE_REGISTRY.get(rule_def["type"])
     if not rule_cls:
-        raise ValueError(f"Unknown rule type: {rule_name}")
+        raise ValueError(f'Unknown rule type "{rule_def["type"]}" for {rule_name}')
     # Pass event and any additional rule_def parameters except 'type'
     rule_params = {k: v for k, v in rule_def.items() if k not in ("type",)}
     return rule_cls(rule_name, events, **rule_params)
