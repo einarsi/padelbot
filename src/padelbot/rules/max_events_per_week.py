@@ -1,7 +1,12 @@
 import logging
 from datetime import datetime, timedelta
 
-from padelbot.utils import Event, Events, memberid_to_member
+from padelbot.utils import (
+    Event,
+    Events,
+    get_registered_player_names,
+    memberid_to_member,
+)
 
 from .rulebase import RemovalInfo, RuleBase, register_rule
 
@@ -45,6 +50,14 @@ class RuleMaxEventsPerWeek(RuleBase):
         for event in self.events.upcoming:
             if not self._include(event):
                 continue
+
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                logging.debug(f'[{self.name}]: Processing "{event["heading"]}"')
+                registered_names = get_registered_player_names(event)
+                logging.debug(
+                    f"[{self.name}]: -> Registered players: {', '.join(registered_names)}"
+                )
+
             for player_id in (
                 event["responses"]["acceptedIds"] + event["responses"]["waitinglistIds"]
             ):
@@ -75,27 +88,8 @@ class RuleMaxEventsPerWeek(RuleBase):
                     if num_events <= self.max_events:
                         break
                     if player_id in event["responses"][key]:
-                        player = memberid_to_member(
-                            player_id, event["recipients"]["group"]["members"]
-                        )
-                        if player:
-                            logging.debug(
-                                f'[{self.name}]: Scheduling {player["firstName"]} {player["lastName"]} for removal from "{event["heading"]}"'
-                            )
-                            # Merge self.event and player, ignoring duplicate keys (player takes precedence)
-                            merged = {
-                                **event,
-                                **{k: v for k, v in player.items() if k not in event},
-                            }
-                            removals.append(
-                                RemovalInfo(
-                                    player_id=player_id,
-                                    event_id=event["id"],
-                                    message=self.message.format(**merged),
-                                    enforced=self.enforced,
-                                )
-                            )
-
+                        removalinfo = self.schedule_removal(player_id, event)
+                        removals.append(removalinfo)
                         num_events -= 1
                 if num_events <= self.max_events:
                     break

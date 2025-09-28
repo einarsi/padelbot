@@ -81,25 +81,8 @@ class RuleQuarantineAfterEvent(RuleBase):
 
             for id in player_ids:
                 if id in previous_player_ids:
-                    player = memberid_to_member(
-                        id, last_event["recipients"]["group"]["members"]
-                    )
-                    if player:
-                        logging.debug(
-                            f'[{self.name}]: Scheduling {player["firstName"]} {player["lastName"]} for removal from "{event["heading"]}"'
-                        )
-                        # Merge self.event and player, ignoring duplicate keys (player takes precedence)
-                        merged = {
-                            **event,
-                            **{k: v for k, v in player.items() if k not in event},
-                        }
-                        removalinfo = RemovalInfo(
-                            player_id=id,
-                            event_id=event["id"],
-                            message=self.message.format(**merged),
-                            enforced=self.enforced,
-                        )
-                        removals.append(removalinfo)
+                    removalinfo = self.schedule_removal(id, event)
+                    removals.append(removalinfo)
         return removals
 
 

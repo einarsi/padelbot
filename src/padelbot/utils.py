@@ -12,13 +12,11 @@ class Events:
     upcoming: list[Event] = field(default_factory=list)
 
 
-def memberid_to_member(
-    member_id: str, members: list[dict[str, Any]]
-) -> dict[str, Any] | None:
+def memberid_to_member(member_id: str, members: list[dict[str, Any]]) -> dict[str, Any]:
     for member in members:
         if member["id"] == member_id:
             return member
-    return None
+    raise ValueError(f"Member ID {member_id} not found in members list")
 
 
 def eventid_to_event(event_id: str, events: list[Event]) -> Event | None:

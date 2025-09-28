@@ -1,8 +1,9 @@
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 
-from padelbot.utils import Events
+from padelbot.utils import Events, memberid_to_member
 
 
 @dataclass
@@ -14,6 +15,10 @@ class RemovalInfo:
 
 
 class RuleBase(ABC):
+    name: str = ""
+    message: str = ""
+    enforced: bool = False
+
     @abstractmethod
     def __init__(self, rule_name: str, events: Events, *args) -> None:
         pass
@@ -25,6 +30,25 @@ class RuleBase(ABC):
     @abstractmethod
     def expirationtimes(self) -> list[datetime]:
         pass
+
+    def schedule_removal(self, id, event) -> RemovalInfo:
+        player = memberid_to_member(id, event["recipients"]["group"]["members"])
+
+        logging.debug(
+            f'[{self.name}]: Scheduling {player["firstName"]} {player["lastName"]} for removal from "{event["heading"]}"'
+        )
+        # Merge self.event and player, ignoring duplicate keys (player takes precedence)
+        merged = {
+            **event,
+            **{k: v for k, v in player.items() if k not in event},
+        }
+        removalinfo = RemovalInfo(
+            player_id=id,
+            event_id=event["id"],
+            message=self.message.format(**merged),
+            enforced=self.enforced,
+        )
+        return removalinfo
 
 
 RULE_REGISTRY: dict[str, type[RuleBase]] = {}
