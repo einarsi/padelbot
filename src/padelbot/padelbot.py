@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from async_lru import alru_cache
 from spond import spond
 
-from .rules.rulebase import RuleResult, create_rule
-from .utils import Event, memberid_to_member
+from .rules.rulebase import RuleBase, create_rule
+from .utils import Event, Events, eventid_to_event, memberid_to_member
 
 
 class PadelBot:
@@ -69,78 +69,16 @@ class PadelBot:
         logging.debug(f" -> Found {len(retval)} previous practices")
         return retval
 
-    async def get_last_practice_in_series(self, event: dict) -> dict | None:
-        events = await self.get_previous_practices()
-        start_time = datetime.fromisoformat(event["startTimestamp"])
-
-        for previous_event in events:
-            # Keep it simple: If startTimestamp was exactly 7 days before, +/- 5 minutes, it is in the same series.
-            # Times are timezoned, so no DST issues.
-            previous_start_time = datetime.fromisoformat(
-                previous_event["startTimestamp"]
-            )
-            if (
-                abs(
-                    (start_time - previous_start_time).total_seconds()
-                    - 7 * 24 * 60 * 60
-                )
-                <= 5 * 60
-            ):
-                return previous_event
-        return None
-
-    async def handle_event(self, event: dict) -> list[datetime]:
-        logging.debug(
-            f'Handling {datetime.fromisoformat(event["startTimestamp"]).astimezone().replace(tzinfo=None)} "{event["heading"]}"'
-        )
-
-        results: list[RuleResult] = []
-
-        for rule_name, rule_def in self.cfg["rules"].items():
-            rule = create_rule(rule_name, event, rule_def)
-            if not rule:
-                logging.error(f'Skipping unsupported rule class "{rule_def["rule"]}"')
-                continue
-
-            if not rule.isactive():
-                continue
-
-            last_events = await self.get_previous_practices()
-            result = rule.enforce(last_events)
-
-            if result is not None:
-                results.append(result)
-
-        for result in results:
-            for removal in result.removals:
-                player = memberid_to_member(
-                    removal.player_id, event["recipients"]["group"]["members"]
-                )
-                if player:
-                    logging.info(
-                        f'Removing player {removal.firstname} {removal.lastname} from event "{removal.event_heading}" ({removal.event_starttime})'
-                    )
-                    if removal.enforced:
-                        await self.spond.change_response(
-                            event["id"], player["id"], {"accepted": "false"}
-                        )
-                        await self.spond.send_message(
-                            text=removal.message,
-                            user=player["profile"]["id"],
-                            group_uid=self.cfg["auth"]["group_id"],
-                        )
-        rules_end_times = [
-            result.rule_end_time for result in results if result.rule_end_time
+    def get_sleep_time(self, default_sleep_time: float, events: Events) -> float:
+        # Identify next rule/quarantine end time. Must be in the future.
+        all_rule_end_times = [
+            dt for rule in self.get_rules(events) for dt in rule.expirationtimes()
         ]
-        return rules_end_times
-
-    def get_sleep_time(self, all_rule_end_times: list[datetime]) -> float:
-        # Identify next quarantine end time. Must be in the future.
         now = datetime.now().astimezone()
         next_rule_end_time = min(
             (dt for dt in all_rule_end_times if dt > now), default=None
         )
-        seconds_to_sleep = self.cfg["general"]["seconds_to_sleep"]
+        seconds_to_sleep = default_sleep_time
         if next_rule_end_time:
             secs_to_quarantine_end = (next_rule_end_time - now).total_seconds()
             logging.debug(
@@ -155,21 +93,101 @@ class PadelBot:
                 seconds_to_sleep = max(
                     1,
                     min(
-                        self.cfg["general"]["seconds_to_sleep"],
+                        default_sleep_time,
                         secs_to_quarantine_end - 59,
                     ),
                 )
         return seconds_to_sleep
 
+    async def remove_player_from_event(
+        self,
+        player_id: str,
+        event_id: str,
+        message: str,
+        events: list[Event],
+        enforced: bool = False,
+    ) -> list[Event]:
+        logging.info(f"Removing player ID {player_id} from event ID {event_id}")
+        event = eventid_to_event(event_id, events)
+        if not event:
+            logging.error(f"Event ID {event_id} not found")
+            return events
+
+        player = memberid_to_member(
+            player_id,
+            event["recipients"]["group"]["members"],
+        )
+        if not player:
+            logging.error(f"Player ID {player_id} not found in event ID {event_id}")
+            return events
+
+        logging.info(
+            f'Removing player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}" ({event["starttime"]})'
+        )
+        if enforced:
+            await self.spond.change_response(event_id, player_id, {"accepted": "false"})
+            await self.spond.send_message(
+                text=message,
+                user=player["profile"]["id"],
+                group_uid=self.cfg["auth"]["group_id"],
+            )
+        return events
+
+    def get_rules(self, events: Events) -> list[RuleBase]:
+        rules = []
+        for rule_name, rule_def in self.cfg["rules"].items():
+            rule = create_rule(rule_name, events, rule_def)
+            if not rule:
+                logging.error(f'Skipping unsupported rule class "{rule_def["rule"]}"')
+                continue
+            rules.append(rule)
+        return rules
+
+    def update_events_with_removal(
+        self, player_id: str, event_id: str, events: Events
+    ) -> Events:
+        updated_events = []
+        for event in events.upcoming:
+            if event["id"] == event_id:
+                # Remove player_id from whichever group they are in
+                for key in ("waitinglistIds", "acceptedIds"):
+                    if player_id in event["responses"][key]:
+                        event["responses"][key].remove(player_id)
+                        break  # Player can only be in one group, so stop after removal
+            updated_events.append(event)
+        events.upcoming = updated_events
+        return events
+
     async def run(self):
         upcoming_events = await self.get_next_practices()
+        previous_events = await self.get_previous_practices()
 
-        all_rules_end_times = []
-        for event in reversed(upcoming_events):
-            event_rules_end_times = await self.handle_event(event)
-            all_rules_end_times.extend(event_rules_end_times)
+        events = Events(previous=previous_events, ongoing=[], upcoming=upcoming_events)
 
-        seconds_to_sleep = self.get_sleep_time(all_rules_end_times)
+        all_removals = []
+        for rule in self.get_rules(events):
+            removals = rule.evaluate()
+            for removal in removals:
+                # Update events so that subsequent rules see the to-be-updated state
+                if removal.enforced:
+                    events = self.update_events_with_removal(
+                        removal.player_id, removal.event_id, events
+                    )
+            all_removals.extend(removals)
+
+        for removal in all_removals:
+            if removal.enforced:
+                await self.remove_player_from_event(
+                    player_id=removal.player_id,
+                    event_id=removal.event_id,
+                    message=removal.message,
+                    events=upcoming_events,
+                    enforced=removal.enforced,
+                )
+
+        seconds_to_sleep = self.get_sleep_time(
+            self.cfg["general"]["seconds_to_sleep"], events
+        )
 
         logging.debug(f"Sleeping for {seconds_to_sleep} seconds")
         await asyncio.sleep(seconds_to_sleep)

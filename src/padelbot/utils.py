@@ -1,7 +1,15 @@
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
 Event = dict[str, Any]
+
+
+@dataclass
+class Events:
+    previous: list[Event] = field(default_factory=list)
+    ongoing: list[Event] = field(default_factory=list)
+    upcoming: list[Event] = field(default_factory=list)
 
 
 def memberid_to_member(
@@ -13,12 +21,32 @@ def memberid_to_member(
     return None
 
 
-def get_last_practice_in_series(event: Event, events: list[Event]) -> Event | None:
-    start = datetime.fromisoformat(event["startTimestamp"])
-    for previous_event in events:
-        # Keep it simple: If startTimestamp was exactly 7 days before, +/- 5 minutes, it is in the same series.
-        # Times are timezoned, so no DST issues.
-        previous_start = datetime.fromisoformat(previous_event["startTimestamp"])
-        if abs((start - previous_start).total_seconds() - 7 * 24 * 60 * 60) <= 5 * 60:
-            return previous_event
+def eventid_to_event(event_id: str, events: list[Event]) -> Event | None:
+    for event in events:
+        if event["id"] == event_id:
+            return event
     return None
+
+
+def get_last_event_in_series(event: Event, events: list[Event]) -> Event | None:
+    result = None
+    for previous_event in events:
+        if previous_event["seriesId"] == event["seriesId"]:
+            if (result is None) or (
+                datetime.fromisoformat(previous_event["startTimestamp"])
+                > datetime.fromisoformat(result["startTimestamp"])
+            ):
+                result = previous_event
+    return result
+
+
+def get_registered_player_names(event: Event) -> list[str]:
+    player_ids: list[str] = (
+        event["responses"]["acceptedIds"] + event["responses"]["waitinglistIds"]
+    )
+    registered_names = [
+        f"{player['firstName']} {player['lastName']}"
+        for pid in player_ids
+        if (player := memberid_to_member(pid, event["recipients"]["group"]["members"]))
+    ]
+    return registered_names
