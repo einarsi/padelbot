@@ -2,7 +2,6 @@ import asyncio
 import logging
 from datetime import datetime, timedelta
 
-from async_lru import alru_cache
 from spond import spond
 
 from .rules.rulebase import RuleBase, create_rule
@@ -47,7 +46,6 @@ class PadelBot:
         logging.debug(f" -> Found {len(retval)} upcoming practices")
         return retval
 
-    @alru_cache(ttl=3600)
     async def get_previous_practices(self) -> list[Event]:
         logging.debug("Getting previous practices")
         timestamp_now = datetime.now().astimezone()

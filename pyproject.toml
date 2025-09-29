@@ -1,12 +1,11 @@
 [project]
 name = "padelbot"
-version = "1.0.1"
+version = "1.0.2"
 description = "An app to simplify the life of managing the Equinor BIL Trondheim padel group"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "aiofiles>=24.1.0",
-    "async-lru>=2.0.5",
     "configparser>=7.2.0",
     "python-dotenv>=1.1.1",
     "spond>=1.1.1",
