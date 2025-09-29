@@ -102,7 +102,7 @@ class PadelBot:
         events: list[Event],
         enforced: bool = False,
     ) -> list[Event]:
-        logging.info(f"Removing player ID {player_id} from event ID {event_id}")
+        logging.debug(f"Removing player ID {player_id} from event ID {event_id}")
         event = eventid_to_event(event_id, events)
         if not event:
             logging.error(f"Event ID {event_id} not found")
@@ -112,12 +112,9 @@ class PadelBot:
             player_id,
             event["recipients"]["group"]["members"],
         )
-        if not player:
-            logging.error(f"Player ID {player_id} not found in event ID {event_id}")
-            return events
 
         logging.info(
-            f'Removing player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}" ({event["starttime"]})'
+            f'Removing player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}" ({event["startTimestamp"]})'
         )
         if enforced:
             await self.spond.change_response(event_id, player_id, {"accepted": "false"})
