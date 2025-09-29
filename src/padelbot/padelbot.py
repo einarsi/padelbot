@@ -29,10 +29,7 @@ class PadelBot:
         )
         retval: list[Event] = []
         for event in events:
-            start_time = datetime.fromisoformat(event["startTimestamp"])
-            if start_time.weekday() in (0, 3) and (
-                "Mondays" in event["heading"] or "Thursdays" in event["heading"]
-            ):
+            if "practice" in event["heading"].lower():
                 retval.append(event)
         return retval
 
