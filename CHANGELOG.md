@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/einarsi/padelbot/compare/v1.0.4...v1.0.5) (2025-09-30)
+
+
+### 👷 CI/CD
+
+* only push to docker hub on tag push (test) ([58149c5](https://github.com/einarsi/padelbot/commit/58149c509e54129f34b74409840037bb033ed163))
+
 ## [1.0.4](https://github.com/einarsi/padelbot/compare/v1.0.3...v1.0.4) (2025-09-30)
 
 
