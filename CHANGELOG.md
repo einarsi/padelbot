@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.6](https://github.com/einarsi/padelbot/compare/v1.0.5...v1.0.6) (2025-09-30)
+
+
+### 👷 CI/CD
+
+* push to docker also on push main (revert test) ([dc63b8c](https://github.com/einarsi/padelbot/commit/dc63b8c0b675fdff2f0afc3ad98d04b0714be66e))
+* use PAT for release-please ([0e7f470](https://github.com/einarsi/padelbot/commit/0e7f470795073f971b059a839f51335a977ae3bf))
+
 ## [1.0.5](https://github.com/einarsi/padelbot/compare/v1.0.4...v1.0.5) (2025-09-30)
 
 
