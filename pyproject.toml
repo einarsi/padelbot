@@ -1,6 +1,6 @@
 [project]
 name = "padelbot"
-version = "1.0.6"
+version = "1.0.7"
 description = "An app to simplify the life of managing the Equinor BIL Trondheim padel group"
 readme = "README.md"
 requires-python = ">=3.13"
