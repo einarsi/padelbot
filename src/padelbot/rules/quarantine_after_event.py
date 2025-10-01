@@ -38,7 +38,10 @@ class RuleQuarantineAfterEvent(RuleBase):
     def expirationtimes(self) -> list[datetime]:
         result: list[datetime] = []
         for event in self.events.upcoming:
-            if self._isactive(event):
+            # Do not include quarantine expiration if there was no previous event in series.
+            if self._isactive(event) and get_last_event_in_series(
+                event, self.events.previous
+            ):
                 event_end = datetime.fromisoformat(event["endTimestamp"]).astimezone()
                 result.append(event_end + timedelta(days=self.quarantine_days - 7))
         return result
