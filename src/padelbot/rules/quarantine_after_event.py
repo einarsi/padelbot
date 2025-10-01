@@ -6,7 +6,6 @@ from padelbot.utils import (
     Events,
     get_last_event_in_series,
     get_registered_player_names,
-    memberid_to_member,
 )
 
 from .rulebase import RemovalInfo, RuleBase, register_rule

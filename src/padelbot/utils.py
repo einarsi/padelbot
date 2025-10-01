@@ -19,13 +19,15 @@ def memberid_to_member(member_id: str, members: list[dict[str, Any]]) -> dict[st
     raise ValueError(f"Member ID {member_id} not found in members list")
 
 
-def eventid_to_event(event_id: str, events: list[Event]) -> Event | None:
+def eventid_to_event(event_id: str, events: list[Event]) -> Event:
     for event in events:
         if event["id"] == event_id:
             return event
-    return None
+    raise ValueError(f"Event ID {event_id} not found in events list")
 
 
+# Return the event with the highest startTimestamp from the list `events` that is
+# also part of the same series of events as `event`. If no such event exists, return None.
 def get_last_event_in_series(event: Event, events: list[Event]) -> Event | None:
     result = None
     for previous_event in events:
