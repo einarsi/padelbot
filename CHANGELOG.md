@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0.7](https://github.com/einarsi/padelbot/compare/v1.0.6...v1.0.7) (2025-10-01)
+
+
+### 🐛 Bug Fixes
+
+* do not expire quarantine if no previous event ([78a05bf](https://github.com/einarsi/padelbot/commit/78a05bf62e181499d2c73a2411f23f318c0a0b67))
+
+
+### 👷 CI/CD
+
+* do not push attestations to docker hub ([dacaa62](https://github.com/einarsi/padelbot/commit/dacaa6214239c31e594746c391b17d7cfbaef0c2))
+
+
+### 🧪 Tests
+
+* add first set of tests ([c78e918](https://github.com/einarsi/padelbot/commit/c78e91837894ef496a5aa240bf90189b3594f4b1))
+
 ## [1.0.6](https://github.com/einarsi/padelbot/compare/v1.0.5...v1.0.6) (2025-09-30)
 
 
