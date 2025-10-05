@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/einarsi/padelbot/compare/v1.0.7...v1.1.0) (2025-10-05)
+
+
+### ✨ Features
+
+* do not remove players on first run ([9e90535](https://github.com/einarsi/padelbot/commit/9e90535077500515e005731404c0d57a94b2e0a5))
+* filter events on header for rule application ([6c2f93d](https://github.com/einarsi/padelbot/commit/6c2f93d06b98a89a7fa07e5fedc48bad89d19c15))
+
+
+### 🧹 Chores
+
+* **deps:** bump ruff from 0.13.0 to 0.13.2 ([#2](https://github.com/einarsi/padelbot/issues/2)) ([ac40735](https://github.com/einarsi/padelbot/commit/ac40735f85dabb96b3554ca69e836a0753f5afea))
+
 ## [1.0.7](https://github.com/einarsi/padelbot/compare/v1.0.6...v1.0.7) (2025-10-01)
 
 
