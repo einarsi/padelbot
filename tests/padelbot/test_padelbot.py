@@ -1,8 +1,94 @@
+from datetime import datetime, timedelta
+
 import pytest
 
 import src.padelbot.padelbot as padelbot_mod
 from src.padelbot.padelbot import PadelBot
+from src.padelbot.rules.rulebase import RuleBase
 from src.padelbot.utils import Events
+
+
+class TestGetSleepTime:
+    @pytest.fixture
+    def cfg(self):
+        return {
+            "auth": {"username": "u", "password": "p", "group_id": "g"},
+            "rules": {},
+            "general": {"seconds_to_sleep": 10},
+        }
+
+    @pytest.fixture
+    def events(self):
+        return Events()
+
+    def create_dummy_expirationtimes(self, dt: datetime) -> tuple[list[datetime], ...]:
+        now = datetime.now().astimezone()
+        return (
+            [now + timedelta(hours=2), dt, now + timedelta(hours=1)],
+            [now + timedelta(hours=1), now + timedelta(hours=3)],
+        )
+
+    def make_dummy_bot(self, cfg, expirationtimes_lists: tuple[list[datetime], ...]):
+        # Patch get_rules to return rules with specified expirationtimes
+        class DummyRule(RuleBase):
+            def __init__(self, expirationtimes_list):
+                self.expirationtimes_list = expirationtimes_list
+
+            def evaluate(self):
+                return []
+
+            def expirationtimes(self):
+                return self.expirationtimes_list
+
+        class DummyPadelBot(PadelBot):
+            def get_rules(self, events) -> list[RuleBase]:
+                return [
+                    DummyRule(expirationtimes_list)
+                    for expirationtimes_list in expirationtimes_lists
+                ]
+
+        return DummyPadelBot(cfg)
+
+    def test_no_rule_end_times(self, cfg, events):
+        bot = self.make_dummy_bot(cfg, ([],))
+        sleep = bot.get_sleep_time(600, events)
+        assert sleep == 600
+
+    @pytest.mark.parametrize(
+        "desc,delta,expected_offset",
+        [
+            (
+                "t > 600 seconds until next rule end time",
+                timedelta(minutes=15),
+                600,
+            ),
+            (
+                "60 < t < 600 seconds until next rule end time",
+                timedelta(seconds=258),
+                258 - 59,
+            ),
+            (
+                "10 < t < 60 seconds until next rule end time",
+                timedelta(seconds=37),
+                37 - 27,
+            ),
+            (
+                "t < 10 seconds until next rule end time",
+                timedelta(seconds=8),
+                8 - 1,
+            ),
+        ],
+    )
+    def test_next_rule_end_time_parametrized(
+        self, desc, delta, expected_offset, cfg, events
+    ):
+        """Test get_sleep_time for various next rule end time scenarios"""
+        now = datetime.now().astimezone()
+        bot = self.make_dummy_bot(cfg, self.create_dummy_expirationtimes(now + delta))
+        sleep = bot.get_sleep_time(600, events)
+        assert abs(sleep - expected_offset) < 1, (
+            f"{desc}: got {sleep}, expected {expected_offset}"
+        )
 
 
 class TestGetEvents:
@@ -16,30 +102,28 @@ class TestGetEvents:
 
     @pytest.mark.asyncio
     async def test_get_events_categorizes_events(self, monkeypatch, cfg):
-        from datetime import datetime, timedelta
-
-        dt_now = datetime.now().astimezone()
+        now = datetime.now().astimezone()
 
         events_data = [
             {  # Upcoming
                 "id": "upcoming1",
-                "startTimestamp": (dt_now + timedelta(days=1)).isoformat(),
-                "endTimestamp": (dt_now + timedelta(days=1, hours=2)).isoformat(),
+                "startTimestamp": (now + timedelta(days=1)).isoformat(),
+                "endTimestamp": (now + timedelta(days=1, hours=2)).isoformat(),
             },
             {  # Previous
                 "id": "previous1",
-                "startTimestamp": (dt_now - timedelta(days=2)).isoformat(),
-                "endTimestamp": (dt_now - timedelta(days=2, hours=-2)).isoformat(),
+                "startTimestamp": (now - timedelta(days=2)).isoformat(),
+                "endTimestamp": (now - timedelta(days=2, hours=-2)).isoformat(),
             },
             {  # Upcoming
                 "id": "upcoming2",
-                "startTimestamp": (dt_now + timedelta(days=2)).isoformat(),
-                "endTimestamp": (dt_now + timedelta(days=2, hours=4)).isoformat(),
+                "startTimestamp": (now + timedelta(days=2)).isoformat(),
+                "endTimestamp": (now + timedelta(days=2, hours=4)).isoformat(),
             },
             {  # Ongoing
                 "id": "ongoing1",
-                "startTimestamp": (dt_now - timedelta(hours=1)).isoformat(),
-                "endTimestamp": (dt_now + timedelta(hours=1)).isoformat(),
+                "startTimestamp": (now - timedelta(hours=1)).isoformat(),
+                "endTimestamp": (now + timedelta(hours=1)).isoformat(),
             },
         ]
 
