@@ -12,13 +12,15 @@ level = "DEBUG"
 [rules]
 [rules.quarantine_after_event]
 type = "QuarantineAfterEvent"
+header_regex = ".*practice.*"
 quarantine_days = 1
 message = "Hi {firstName},\nYou were removed from the event \"{heading}\" because you played last time.\nPlease wait for at least 24 hours after the event ended before signing up."
 enforced = false
 
 [rules.max_per_week]
 type = "MaxEventsPerWeek"
-max_events = 3
+header_regex = ".*practice.*"
+max_events = 2
 grace_hours = 24
-message = "Hi {firstName},\nYou were removed from the event \"{heading}\" because you are only allowed to have three active sign-ups.\nEvents that start within the next 24 hours are not counted towards the total."
+message = "Hi {firstName},\nYou were removed from the event \"{heading}\" because you are only allowed to have two active sign-ups.\nEvents that start within the next 24 hours are not counted towards the total."
 enforced = false

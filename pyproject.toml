@@ -15,7 +15,4 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
-    "pytest-asyncio>=1.2.0",
-    "ruff>=0.13.0",
-]
+dev = ["pytest-asyncio>=1.2.0", "ruff>=0.13.0"]

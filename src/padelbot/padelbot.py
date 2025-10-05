@@ -13,55 +13,32 @@ class PadelBot:
         self.cfg = cfg
         self.spond = spond.Spond(cfg["auth"]["username"], cfg["auth"]["password"])
 
-    async def _get_practices(
-        self,
-        min_start: datetime | None = None,
-        max_start: datetime | None = None,
-    ) -> list[Event]:
+    async def get_events(self) -> Events:
+        timestamp_now = datetime.now().astimezone()
+        min_start = timestamp_now - timedelta(days=7)
         events = (
             await self.spond.get_events(
                 group_id=self.cfg["auth"]["group_id"],
                 min_start=min_start,
-                max_start=max_start,
+                max_start=None,
             )
             or []
         )
-        retval: list[Event] = []
-        for event in events:
-            if "practice" in event["heading"].lower():
-                retval.append(event)
-        return retval
-
-    async def get_next_practices(self) -> list[Event]:
-        logging.debug("Getting next practices")
         timestamp_now = datetime.now().astimezone()
-        events = await self._get_practices(min_start=timestamp_now)
-        # Events that have already completed but are in the same calendar day are included
-        # Filter them out based on start time
-        retval = []
+        retval = Events()
         for event in events:
             startTimestamp = datetime.fromisoformat(event["startTimestamp"])
-            if startTimestamp > datetime.now().astimezone():
-                retval.append(event)
-        logging.debug(f" -> Found {len(retval)} upcoming practices")
-        return retval
-
-    async def get_previous_practices(self) -> list[Event]:
-        logging.debug("Getting previous practices")
-        timestamp_now = datetime.now().astimezone()
-        # Events that have already completed but are in the same calendar day are not included
-        # unless we include tomorrow in the search. Then filter out any future events based
-        # on end time.
-        events = await self._get_practices(
-            min_start=timestamp_now - timedelta(days=7),
-            max_start=timestamp_now + timedelta(days=1),
-        )
-        retval = []
-        for event in events:
             endTimestamp = datetime.fromisoformat(event["endTimestamp"])
-            if endTimestamp < datetime.now().astimezone():
-                retval.append(event)
-        logging.debug(f" -> Found {len(retval)} previous practices")
+            if startTimestamp > datetime.now().astimezone():
+                retval.upcoming.append(event)
+            elif endTimestamp < datetime.now().astimezone():
+                retval.previous.append(event)
+            else:
+                retval.ongoing.append(event)
+
+        logging.debug(
+            f"Found {len(retval.upcoming)} upcoming, {len(retval.previous)} previous and {len(retval.ongoing)} ongoing events"
+        )
         return retval
 
     def get_sleep_time(self, default_sleep_time: float, events: Events) -> float:
@@ -151,10 +128,7 @@ class PadelBot:
         return events
 
     async def run(self):
-        upcoming_events = await self.get_next_practices()
-        previous_events = await self.get_previous_practices()
-
-        events = Events(previous=previous_events, ongoing=[], upcoming=upcoming_events)
+        events = await self.get_events()
 
         all_removals = []
         for rule in self.get_rules(events):
@@ -173,7 +147,7 @@ class PadelBot:
                     player_id=removal.player_id,
                     event_id=removal.event_id,
                     message=removal.message,
-                    events=upcoming_events,
+                    events=events.upcoming,
                     enforced=removal.enforced,
                 )
 

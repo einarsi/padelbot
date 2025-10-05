@@ -1,4 +1,5 @@
 import logging
+import re
 from datetime import datetime, timedelta
 
 from padelbot.utils import (
@@ -16,15 +17,22 @@ class RuleQuarantineAfterEvent(RuleBase):
         self,
         rule_name: str,
         events: Events,
+        header_regex: str,
         message: str,
         enforced: bool = False,
         quarantine_days: int = 1,
     ) -> None:
         self.name = rule_name
         self.events = events
+        self.header_regex = header_regex
         self.message = message
         self.enforced = enforced
         self.quarantine_days = quarantine_days
+
+    def _include(self, event: Event) -> bool:
+        if not re.search(self.header_regex, event["heading"]):
+            return False
+        return True
 
     def _isactive(self, event: Event) -> bool:
         event_end = datetime.fromisoformat(event["endTimestamp"]).astimezone()
@@ -39,8 +47,10 @@ class RuleQuarantineAfterEvent(RuleBase):
         result: list[datetime] = []
         for event in self.events.upcoming:
             # Do not include quarantine expiration if there was no previous event in series.
-            if self._isactive(event) and get_last_event_in_series(
-                event, self.events.previous
+            if (
+                self._include(event)
+                and self._isactive(event)
+                and get_last_event_in_series(event, self.events.previous)
             ):
                 event_end = datetime.fromisoformat(event["endTimestamp"]).astimezone()
                 result.append(event_end + timedelta(days=self.quarantine_days - 7))
@@ -50,6 +60,9 @@ class RuleQuarantineAfterEvent(RuleBase):
         removals: list[RemovalInfo] = []
 
         for event in self.events.upcoming:
+            if not self._include(event):
+                continue
+
             logging.debug(f'[{self.name}]: Processing event "{event["heading"]}"')
 
             if not self._isactive(event):

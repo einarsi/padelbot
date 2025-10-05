@@ -1,4 +1,5 @@
 import logging
+import re
 from datetime import datetime, timedelta
 
 from padelbot.utils import (
@@ -16,6 +17,7 @@ class RuleMaxEventsPerWeek(RuleBase):
         self,
         rule_name: str,
         events: Events,
+        header_regex: str,
         message: str,
         enforced: bool = False,
         max_events: int = 1,
@@ -23,12 +25,16 @@ class RuleMaxEventsPerWeek(RuleBase):
     ) -> None:
         self.name = rule_name
         self.events = events
+        self.header_regex = header_regex
         self.message = message
         self.enforced = enforced
         self.max_events = max(0, max_events)
         self.grace_hours = grace_hours
 
     def _include(self, event: Event) -> bool:
+        if not re.search(self.header_regex, event["heading"]):
+            return False
+
         event_start = datetime.fromisoformat(event["startTimestamp"]).astimezone()
         now = datetime.now().astimezone()
 
@@ -40,8 +46,11 @@ class RuleMaxEventsPerWeek(RuleBase):
     def expirationtimes(self) -> list[datetime]:
         result: list[datetime] = []
         for event in self.events.upcoming:
-            event_start = datetime.fromisoformat(event["startTimestamp"]).astimezone()
-            result.append(event_start - timedelta(hours=self.grace_hours))
+            if self._include(event):
+                event_start = datetime.fromisoformat(
+                    event["startTimestamp"]
+                ).astimezone()
+                result.append(event_start - timedelta(hours=self.grace_hours))
         return result
 
     def evaluate(self) -> list[RemovalInfo]:
