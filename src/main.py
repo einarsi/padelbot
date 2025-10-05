@@ -2,8 +2,8 @@ import asyncio
 import logging
 import tomllib
 
-from padelbot.config import readconfig
-from padelbot.logger import start_logger
+from padelbot.core.config import readconfig
+from padelbot.core.logger import start_logger
 from padelbot.padelbot import PadelBot
 
 

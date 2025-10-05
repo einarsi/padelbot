@@ -2,13 +2,7 @@ import logging
 import re
 from datetime import datetime, timedelta
 
-from padelbot.utils import (
-    Event,
-    Events,
-    get_last_event_in_series,
-    get_registered_player_names,
-)
-
+from ..utils import Event, Events, get_last_event_in_series, get_registered_player_names
 from .rulebase import RemovalInfo, RuleBase, register_rule
 
 
