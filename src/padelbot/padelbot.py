@@ -12,6 +12,7 @@ class PadelBot:
     def __init__(self, cfg: dict):
         self.cfg = cfg
         self.spond = spond.Spond(cfg["auth"]["username"], cfg["auth"]["password"])
+        self.first_run = True
 
     async def get_events(self) -> Events:
         timestamp_now = datetime.now().astimezone()
@@ -77,13 +78,12 @@ class PadelBot:
         event_id: str,
         message: str,
         events: list[Event],
-        enforced: bool = False,
-    ) -> list[Event]:
-        logging.debug(f"Removing player ID {player_id} from event ID {event_id}")
+        enforce: bool = False,
+    ) -> bool:
         event = eventid_to_event(event_id, events)
         if not event:
             logging.error(f"Event ID {event_id} not found")
-            return events
+            return False
 
         player = memberid_to_member(
             player_id,
@@ -91,16 +91,16 @@ class PadelBot:
         )
 
         logging.info(
-            f'Removing player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}" ({event["startTimestamp"]})'
+            f'{"Removing" if enforce else "Not enforcing removal of"} player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}" ({event["startTimestamp"]})'
         )
-        if enforced:
+        if enforce:
             await self.spond.change_response(event_id, player_id, {"accepted": "false"})
             await self.spond.send_message(
                 text=message,
                 user=player["profile"]["id"],
                 group_uid=self.cfg["auth"]["group_id"],
             )
-        return events
+        return True
 
     def get_rules(self, events: Events) -> list[RuleBase]:
         rules = []
@@ -142,14 +142,15 @@ class PadelBot:
             all_removals.extend(removals)
 
         for removal in all_removals:
-            if removal.enforced:
-                await self.remove_player_from_event(
-                    player_id=removal.player_id,
-                    event_id=removal.event_id,
-                    message=removal.message,
-                    events=events.upcoming,
-                    enforced=removal.enforced,
-                )
+            await self.remove_player_from_event(
+                player_id=removal.player_id,
+                event_id=removal.event_id,
+                message=removal.message,
+                events=events.upcoming,
+                enforce=removal.enforced and not self.first_run,
+            )
+
+        self.first_run = False
 
         seconds_to_sleep = self.get_sleep_time(
             self.cfg["general"]["seconds_to_sleep"], events
