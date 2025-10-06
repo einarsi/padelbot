@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -42,39 +43,30 @@ def events():
     return events
 
 
-# Automatically patch spond.Spond for most tests in this file
-@pytest.fixture(autouse=True)
-def patch_spond(monkeypatch):
-    class DummySpond:
-        def __init__(self, *a, **kw):
-            pass
-
-        async def get_events(self, *a, **kw):
-            return []
-
-    monkeypatch.setattr(padelbot_mod.spond, "Spond", DummySpond)
-
-
 class TestUpdateEventsWithRemoval:
-    def test_removes_from_accepted(self, cfg, events):
+    @pytest.mark.asyncio
+    async def test_removes_from_accepted(self, cfg, events):
         bot = PadelBot(cfg)
         updated = bot.update_events_with_removal("p1", "e1", events)
         assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p2"]
         assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
 
-    def test_removes_from_waitinglist(self, cfg, events):
+    @pytest.mark.asyncio
+    async def test_removes_from_waitinglist(self, cfg, events):
         bot = PadelBot(cfg)
         updated = bot.update_events_with_removal("p3", "e1", events)
         assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
         assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p4"]
 
-    def test_no_removal_if_not_present(self, cfg, events):
+    @pytest.mark.asyncio
+    async def test_no_removal_if_not_present(self, cfg, events):
         bot = PadelBot(cfg)
         updated = bot.update_events_with_removal("pX", "e1", events)
         assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
         assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
 
-    def test_no_removal_if_event_id_not_found(self, cfg, events):
+    @pytest.mark.asyncio
+    async def test_no_removal_if_event_id_not_found(self, cfg, events):
         bot = PadelBot(cfg)
         updated = bot.update_events_with_removal("p1", "eX", events)
         assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
@@ -110,11 +102,13 @@ class TestGetSleepTime:
 
         return DummyPadelBot(cfg)
 
-    def test_no_rule_end_times(self, cfg, events):
+    @pytest.mark.asyncio
+    async def test_no_rule_end_times(self, cfg, events):
         bot = self.make_dummy_bot(cfg, ([],))
         sleep = bot.get_sleep_time(600, events)
         assert sleep == 600
 
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "desc,delta,expected_offset",
         [
@@ -140,7 +134,7 @@ class TestGetSleepTime:
             ),
         ],
     )
-    def test_next_rule_end_time_parametrized(
+    async def test_next_rule_end_time_parametrized(
         self, desc, delta, expected_offset, cfg, events
     ):
         """Test get_sleep_time for various next rule end time scenarios"""
@@ -154,9 +148,8 @@ class TestGetSleepTime:
 
 class TestGetEvents:
     @pytest.mark.asyncio
-    async def test_get_events_categorizes_events(self, monkeypatch, cfg):
+    async def test_get_events_categorizes_events(self, cfg):
         now = datetime.now().astimezone()
-
         events_data = [
             {  # Upcoming
                 "id": "upcoming1",
@@ -179,15 +172,12 @@ class TestGetEvents:
                 "endTimestamp": (now + timedelta(hours=1)).isoformat(),
             },
         ]
-
-        # Patch Spond.get_events to return a mix of previous, ongoing, and upcoming events
-        async def dummy_get_events(self, *a, **kw):
-            return events_data
-
-        monkeypatch.setattr(padelbot_mod.spond.Spond, "get_events", dummy_get_events)
-
-        bot = PadelBot(cfg)
-        events = await bot.get_events()
+        with patch.object(
+            padelbot_mod.spond.Spond, "get_events", new_callable=AsyncMock
+        ) as mock_get_events:
+            mock_get_events.return_value = events_data
+            bot = PadelBot(cfg)
+            events = await bot.get_events()
 
         def get_ids(events):
             return {e["id"] for e in events}
@@ -197,9 +187,13 @@ class TestGetEvents:
         assert get_ids(events.ongoing) == {"ongoing1"}
 
     @pytest.mark.asyncio
-    async def test_get_events_empty(self, monkeypatch, cfg):
-        bot = PadelBot(cfg)
-        events = await bot.get_events()
+    async def test_get_events_empty(self, cfg):
+        with patch.object(
+            padelbot_mod.spond.Spond, "get_events", new_callable=AsyncMock
+        ) as mock_get_events:
+            mock_get_events.return_value = []
+            bot = PadelBot(cfg)
+            events = await bot.get_events()
         assert events.upcoming == []
         assert events.previous == []
         assert events.ongoing == []
@@ -216,17 +210,19 @@ class TestGetRules:
 
         return DummyRule()
 
-    def test_get_rules(self, monkeypatch, cfg, events):
-        monkeypatch.setattr(padelbot_mod, "create_rule", self.dummy_create_rule)
-        bot = PadelBot(cfg)
-        rules = bot.get_rules(events)
+    @pytest.mark.asyncio
+    async def test_get_rules(self, cfg, events):
+        with patch("src.padelbot.padelbot.create_rule", new=self.dummy_create_rule):
+            bot = PadelBot(cfg)
+            rules = bot.get_rules(events)
         assert len(rules) == 2
         print(rules)
         assert all(
             hasattr(r, "expirationtimes") and hasattr(r, "evaluate") for r in rules
         )
 
-    def test_get_rules_empty(self, cfg, events):
+    @pytest.mark.asyncio
+    async def test_get_rules_empty(self, cfg, events):
         cfg_empty = dict(cfg)
         cfg_empty["rules"] = {}
         bot = PadelBot(cfg_empty)
