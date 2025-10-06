@@ -8,6 +8,61 @@ from src.padelbot.rules.rulebase import RuleBase
 from src.padelbot.utils import Events
 
 
+class TestUpdateEventsWithRemoval:
+    @pytest.fixture
+    def cfg(self):
+        return {
+            "auth": {"username": "u", "password": "p", "group_id": "g"},
+            "rules": {},
+            "general": {"seconds_to_sleep": 10},
+        }
+
+    @pytest.fixture
+    def events(self):
+        events = Events()
+        events.upcoming = [
+            {
+                "id": "e1",
+                "responses": {
+                    "acceptedIds": ["p1", "p2"],
+                    "waitinglistIds": ["p3", "p4"],
+                },
+            },
+            {
+                "id": "e2",
+                "responses": {
+                    "acceptedIds": ["p1", "p2"],
+                    "waitinglistIds": ["p3", "p4"],
+                },
+            },
+        ]
+        return events
+
+    def test_removes_from_accepted(self, cfg, events):
+        padelbot = PadelBot(cfg)
+        updated = padelbot.update_events_with_removal("p1", "e1", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p2"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
+
+    def test_removes_from_waitinglist(self, cfg, events):
+        padelbot = PadelBot(cfg)
+        updated = padelbot.update_events_with_removal("p3", "e1", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p4"]
+
+    def test_no_removal_if_not_present(self, cfg, events):
+        padelbot = PadelBot(cfg)
+        updated = padelbot.update_events_with_removal("pX", "e1", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
+
+    def test_no_removal_if_event_id_not_found(self, cfg, events):
+        padelbot = PadelBot(cfg)
+        updated = padelbot.update_events_with_removal("p1", "eX", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
+
+
 class TestGetSleepTime:
     @pytest.fixture
     def cfg(self):
