@@ -8,74 +8,80 @@ from src.padelbot.rules.rulebase import RuleBase
 from src.padelbot.utils import Events
 
 
+@pytest.fixture
+def cfg():
+    return {
+        "auth": {"username": "u", "password": "p", "group_id": "g"},
+        "rules": {
+            "rule1": {"rule": "DummyRule"},
+            "rule2": {"rule": "DummyRule"},
+        },
+        "general": {"seconds_to_sleep": 10},
+    }
+
+
+@pytest.fixture
+def events():
+    events = Events()
+    events.upcoming = [
+        {
+            "id": "e1",
+            "responses": {
+                "acceptedIds": ["p1", "p2"],
+                "waitinglistIds": ["p3", "p4"],
+            },
+        },
+        {
+            "id": "e2",
+            "responses": {
+                "acceptedIds": ["p1", "p2"],
+                "waitinglistIds": ["p3", "p4"],
+            },
+        },
+    ]
+    return events
+
+
+# Automatically patch spond.Spond for most tests in this file
+@pytest.fixture(autouse=True)
+def patch_spond(monkeypatch):
+    class DummySpond:
+        def __init__(self, *a, **kw):
+            pass
+
+        async def get_events(self, *a, **kw):
+            return []
+
+    monkeypatch.setattr(padelbot_mod.spond, "Spond", DummySpond)
+
+
 class TestUpdateEventsWithRemoval:
-    @pytest.fixture
-    def cfg(self):
-        return {
-            "auth": {"username": "u", "password": "p", "group_id": "g"},
-            "rules": {},
-            "general": {"seconds_to_sleep": 10},
-        }
-
-    @pytest.fixture
-    def events(self):
-        events = Events()
-        events.upcoming = [
-            {
-                "id": "e1",
-                "responses": {
-                    "acceptedIds": ["p1", "p2"],
-                    "waitinglistIds": ["p3", "p4"],
-                },
-            },
-            {
-                "id": "e2",
-                "responses": {
-                    "acceptedIds": ["p1", "p2"],
-                    "waitinglistIds": ["p3", "p4"],
-                },
-            },
-        ]
-        return events
-
     def test_removes_from_accepted(self, cfg, events):
-        padelbot = PadelBot(cfg)
-        updated = padelbot.update_events_with_removal("p1", "e1", events)
+        bot = PadelBot(cfg)
+        updated = bot.update_events_with_removal("p1", "e1", events)
         assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p2"]
         assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
 
     def test_removes_from_waitinglist(self, cfg, events):
-        padelbot = PadelBot(cfg)
-        updated = padelbot.update_events_with_removal("p3", "e1", events)
+        bot = PadelBot(cfg)
+        updated = bot.update_events_with_removal("p3", "e1", events)
         assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
         assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p4"]
 
     def test_no_removal_if_not_present(self, cfg, events):
-        padelbot = PadelBot(cfg)
-        updated = padelbot.update_events_with_removal("pX", "e1", events)
+        bot = PadelBot(cfg)
+        updated = bot.update_events_with_removal("pX", "e1", events)
         assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
         assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
 
     def test_no_removal_if_event_id_not_found(self, cfg, events):
-        padelbot = PadelBot(cfg)
-        updated = padelbot.update_events_with_removal("p1", "eX", events)
+        bot = PadelBot(cfg)
+        updated = bot.update_events_with_removal("p1", "eX", events)
         assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
         assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
 
 
 class TestGetSleepTime:
-    @pytest.fixture
-    def cfg(self):
-        return {
-            "auth": {"username": "u", "password": "p", "group_id": "g"},
-            "rules": {},
-            "general": {"seconds_to_sleep": 10},
-        }
-
-    @pytest.fixture
-    def events(self):
-        return Events()
-
     def create_dummy_expirationtimes(self, dt: datetime) -> tuple[list[datetime], ...]:
         now = datetime.now().astimezone()
         return (
@@ -147,14 +153,6 @@ class TestGetSleepTime:
 
 
 class TestGetEvents:
-    @pytest.fixture
-    def cfg(self):
-        return {
-            "auth": {"username": "u", "password": "p", "group_id": "g"},
-            "rules": {},
-            "general": {"seconds_to_sleep": 10},
-        }
-
     @pytest.mark.asyncio
     async def test_get_events_categorizes_events(self, monkeypatch, cfg):
         now = datetime.now().astimezone()
@@ -183,14 +181,11 @@ class TestGetEvents:
         ]
 
         # Patch Spond.get_events to return a mix of previous, ongoing, and upcoming events
-        class DummySpond:
-            def __init__(self, *a, **kw):
-                pass
+        async def dummy_get_events(self, *a, **kw):
+            return events_data
 
-            async def get_events(self, *a, **kw):
-                return events_data
+        monkeypatch.setattr(padelbot_mod.spond.Spond, "get_events", dummy_get_events)
 
-        monkeypatch.setattr(padelbot_mod.spond, "Spond", DummySpond)
         bot = PadelBot(cfg)
         events = await bot.get_events()
 
@@ -203,14 +198,6 @@ class TestGetEvents:
 
     @pytest.mark.asyncio
     async def test_get_events_empty(self, monkeypatch, cfg):
-        class DummySpond:
-            def __init__(self, *a, **kw):
-                pass
-
-            async def get_events(self, *a, **kw):
-                return []
-
-        monkeypatch.setattr(padelbot_mod.spond, "Spond", DummySpond)
         bot = PadelBot(cfg)
         events = await bot.get_events()
         assert events.upcoming == []
@@ -218,33 +205,7 @@ class TestGetEvents:
         assert events.ongoing == []
 
 
-# Automatically patch spond.Spond for all tests in this file
-@pytest.fixture(autouse=True)
-def patch_spond(monkeypatch):
-    class DummySpond:
-        def __init__(self, *a, **kw):
-            pass
-
-    monkeypatch.setattr(padelbot_mod.spond, "Spond", DummySpond)
-
-
-# Group PadelBot tests in a class
 class TestGetRules:
-    @pytest.fixture
-    def events(self):
-        return Events()
-
-    @pytest.fixture
-    def cfg(self):
-        return {
-            "auth": {"username": "u", "password": "p", "group_id": "g"},
-            "rules": {
-                "rule1": {"rule": "DummyRule"},
-                "rule2": {"rule": "DummyRule"},
-            },
-            "general": {"seconds_to_sleep": 10},
-        }
-
     def dummy_create_rule(self, name, events, rule_def):
         class DummyRule:
             def expirationtimes(self):
