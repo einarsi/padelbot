@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import pytest_asyncio
 
-import src.padelbot.padelbot as padelbot_mod
 from src.padelbot.padelbot import PadelBot
 from src.padelbot.rules.rulebase import RuleBase
 from src.padelbot.utils import Events
@@ -66,9 +66,20 @@ def events():
     return events
 
 
+@pytest_asyncio.fixture
+async def mockbot(cfg):
+    bot = PadelBot(cfg)
+    with (
+        patch.object(bot.spond, "change_response", new_callable=AsyncMock),
+        patch.object(bot.spond, "send_message", new_callable=AsyncMock),
+        patch.object(bot.spond, "get_events", new_callable=AsyncMock),
+    ):
+        yield bot
+
+
 class TestGetEvents:
     @pytest.mark.asyncio
-    async def test_get_events_categorizes_events(self, cfg):
+    async def test_get_events_categorizes_events(self, mockbot):
         now = datetime.now().astimezone()
         events_data = [
             {  # Upcoming
@@ -92,28 +103,17 @@ class TestGetEvents:
                 "endTimestamp": (now + timedelta(hours=1)).isoformat(),
             },
         ]
-        with patch.object(
-            padelbot_mod.spond.Spond, "get_events", new_callable=AsyncMock
-        ) as mock_get_events:
-            mock_get_events.return_value = events_data
-            bot = PadelBot(cfg)
-            events = await bot.get_events()
+        mockbot.spond.get_events.return_value = events_data
+        events = await mockbot.get_events()
 
-        def get_ids(events):
-            return {e["id"] for e in events}
-
-        assert get_ids(events.upcoming) == {"upcoming1", "upcoming2"}
-        assert get_ids(events.previous) == {"previous1"}
-        assert get_ids(events.ongoing) == {"ongoing1"}
+        assert {e["id"] for e in events.upcoming} == {"upcoming1", "upcoming2"}
+        assert {e["id"] for e in events.previous} == {"previous1"}
+        assert {e["id"] for e in events.ongoing} == {"ongoing1"}
 
     @pytest.mark.asyncio
-    async def test_get_events_empty(self, cfg):
-        with patch.object(
-            padelbot_mod.spond.Spond, "get_events", new_callable=AsyncMock
-        ) as mock_get_events:
-            mock_get_events.return_value = []
-            bot = PadelBot(cfg)
-            events = await bot.get_events()
+    async def test_get_events_empty(self, mockbot):
+        mockbot.spond.get_events.return_value = []
+        events = await mockbot.get_events()
         assert events.upcoming == []
         assert events.previous == []
         assert events.ongoing == []
@@ -158,7 +158,6 @@ class TestGetSleepTime:
         )
 
     def make_dummy_bot(self, cfg, expirationtimes_lists: tuple[list[datetime], ...]):
-        # Patch get_rules to return rules with specified expirationtimes
         class DummyRule(RuleBase):
             def __init__(self, expirationtimes_list):
                 self.expirationtimes_list = expirationtimes_list
@@ -263,73 +262,44 @@ class TestUpdateEventsWithRemoval:
 
 class TestRemovePlayerFromEvent:
     @pytest.mark.asyncio
-    async def test_enforce_true_calls_spond(self, cfg, events):
-        bot = PadelBot(cfg)
-        # Patch spond methods
-        with (
-            patch.object(
-                bot.spond, "change_response", new_callable=AsyncMock
-            ) as mock_change_response,
-            patch.object(
-                bot.spond, "send_message", new_callable=AsyncMock
-            ) as mock_send_message,
-        ):
-            result = await bot.remove_player_from_event(
-                player_id="alice-id",
-                event_id="event1-id",
-                message="bye",
-                events=events.upcoming,
-                enforce=True,
-            )
-            assert result is True
-            mock_change_response.assert_awaited_once_with(
-                "event1-id", "alice-id", {"accepted": "false"}
-            )
-            mock_send_message.assert_awaited_once_with(
-                text="bye", user="alice-profile-id", group_uid="group-id"
-            )
+    async def test_enforce_true_calls_spond(self, mockbot, events):
+        result = await mockbot.remove_player_from_event(
+            player_id="alice-id",
+            event_id="event1-id",
+            message="bye",
+            events=events.upcoming,
+            enforce=True,
+        )
+        assert result is True
+        mockbot.spond.change_response.assert_awaited_once_with(
+            "event1-id", "alice-id", {"accepted": "false"}
+        )
+        mockbot.spond.send_message.assert_awaited_once_with(
+            text="bye", user="alice-profile-id", group_uid="group-id"
+        )
 
     @pytest.mark.asyncio
-    async def test_enforce_false_does_not_call_spond(self, cfg, events):
-        bot = PadelBot(cfg)
-        with (
-            patch.object(
-                bot.spond, "change_response", new_callable=AsyncMock
-            ) as mock_change_response,
-            patch.object(
-                bot.spond, "send_message", new_callable=AsyncMock
-            ) as mock_send_message,
-        ):
-            result = await bot.remove_player_from_event(
-                player_id="alice-id",
-                event_id="event1-id",
-                message="bye",
-                events=events.upcoming,
-                enforce=False,
-            )
-            assert result is False
-            mock_change_response.assert_not_awaited()
-            mock_send_message.assert_not_awaited()
+    async def test_enforce_false_does_not_call_spond(self, mockbot, events):
+        result = await mockbot.remove_player_from_event(
+            player_id="alice-id",
+            event_id="event1-id",
+            message="bye",
+            events=events.upcoming,
+            enforce=False,
+        )
+        assert result is False
+        mockbot.spond.change_response.assert_not_awaited()
+        mockbot.spond.send_message.assert_not_awaited()
 
     @pytest.mark.asyncio
-    async def test_remove_player_from_event_event_id_not_found(self, cfg, events):
-        bot = PadelBot(cfg)
-        with (
-            patch.object(
-                bot.spond, "change_response", new_callable=AsyncMock
-            ) as mock_change_response,
-            patch.object(
-                bot.spond, "send_message", new_callable=AsyncMock
-            ) as mock_send_message,
-        ):
-            # Use a non-existent event_id
-            result = await bot.remove_player_from_event(
-                player_id="p1",
-                event_id="nonexistent",
-                message="bye",
-                events=events.upcoming,
-                enforce=True,
-            )
-            assert result is False
-            mock_change_response.assert_not_awaited()
-            mock_send_message.assert_not_awaited()
+    async def test_player_not_removed_if_event_id_not_found(self, mockbot, events):
+        result = await mockbot.remove_player_from_event(
+            player_id="alice-id",
+            event_id="eventX-id",
+            message="bye",
+            events=events.upcoming,
+            enforce=True,
+        )
+        assert result is False
+        mockbot.spond.change_response.assert_not_awaited()
+        mockbot.spond.send_message.assert_not_awaited()
