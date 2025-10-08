@@ -43,109 +43,6 @@ def events():
     return events
 
 
-class TestUpdateEventsWithRemoval:
-    @pytest.mark.asyncio
-    async def test_removes_from_accepted(self, cfg, events):
-        bot = PadelBot(cfg)
-        updated = bot.update_events_with_removal("p1", "e1", events)
-        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p2"]
-        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
-
-    @pytest.mark.asyncio
-    async def test_removes_from_waitinglist(self, cfg, events):
-        bot = PadelBot(cfg)
-        updated = bot.update_events_with_removal("p3", "e1", events)
-        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
-        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p4"]
-
-    @pytest.mark.asyncio
-    async def test_no_removal_if_not_present(self, cfg, events):
-        bot = PadelBot(cfg)
-        updated = bot.update_events_with_removal("pX", "e1", events)
-        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
-        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
-
-    @pytest.mark.asyncio
-    async def test_no_removal_if_event_id_not_found(self, cfg, events):
-        bot = PadelBot(cfg)
-        updated = bot.update_events_with_removal("p1", "eX", events)
-        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
-        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
-
-
-class TestGetSleepTime:
-    def create_dummy_expirationtimes(self, dt: datetime) -> tuple[list[datetime], ...]:
-        now = datetime.now().astimezone()
-        return (
-            [now + timedelta(hours=2), dt, now + timedelta(hours=1)],
-            [now + timedelta(hours=1), now + timedelta(hours=3)],
-        )
-
-    def make_dummy_bot(self, cfg, expirationtimes_lists: tuple[list[datetime], ...]):
-        # Patch get_rules to return rules with specified expirationtimes
-        class DummyRule(RuleBase):
-            def __init__(self, expirationtimes_list):
-                self.expirationtimes_list = expirationtimes_list
-
-            def evaluate(self):
-                return []
-
-            def expirationtimes(self):
-                return self.expirationtimes_list
-
-        class DummyPadelBot(PadelBot):
-            def get_rules(self, events) -> list[RuleBase]:
-                return [
-                    DummyRule(expirationtimes_list)
-                    for expirationtimes_list in expirationtimes_lists
-                ]
-
-        return DummyPadelBot(cfg)
-
-    @pytest.mark.asyncio
-    async def test_no_rule_end_times(self, cfg, events):
-        bot = self.make_dummy_bot(cfg, ([],))
-        sleep = bot.get_sleep_time(600, events)
-        assert sleep == 600
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize(
-        "desc,delta,expected_offset",
-        [
-            (
-                "t > 600 seconds until next rule end time",
-                timedelta(minutes=15),
-                600,
-            ),
-            (
-                "60 < t < 600 seconds until next rule end time",
-                timedelta(seconds=258),
-                258 - 59,
-            ),
-            (
-                "10 < t < 60 seconds until next rule end time",
-                timedelta(seconds=37),
-                37 - 27,
-            ),
-            (
-                "t < 10 seconds until next rule end time",
-                timedelta(seconds=8),
-                8 - 1,
-            ),
-        ],
-    )
-    async def test_next_rule_end_time_parametrized(
-        self, desc, delta, expected_offset, cfg, events
-    ):
-        """Test get_sleep_time for various next rule end time scenarios"""
-        now = datetime.now().astimezone()
-        bot = self.make_dummy_bot(cfg, self.create_dummy_expirationtimes(now + delta))
-        sleep = bot.get_sleep_time(600, events)
-        assert abs(sleep - expected_offset) < 1, (
-            f"{desc}: got {sleep}, expected {expected_offset}"
-        )
-
-
 class TestGetEvents:
     @pytest.mark.asyncio
     async def test_get_events_categorizes_events(self, cfg):
@@ -228,3 +125,106 @@ class TestGetRules:
         bot = PadelBot(cfg_empty)
         rules = bot.get_rules(events)
         assert rules == []
+
+
+class TestGetSleepTime:
+    def create_dummy_expirationtimes(self, dt: datetime) -> tuple[list[datetime], ...]:
+        now = datetime.now().astimezone()
+        return (
+            [now + timedelta(hours=2), dt, now + timedelta(hours=1)],
+            [now + timedelta(hours=1), now + timedelta(hours=3)],
+        )
+
+    def make_dummy_bot(self, cfg, expirationtimes_lists: tuple[list[datetime], ...]):
+        # Patch get_rules to return rules with specified expirationtimes
+        class DummyRule(RuleBase):
+            def __init__(self, expirationtimes_list):
+                self.expirationtimes_list = expirationtimes_list
+
+            def evaluate(self):
+                return []
+
+            def expirationtimes(self):
+                return self.expirationtimes_list
+
+        class DummyPadelBot(PadelBot):
+            def get_rules(self, events) -> list[RuleBase]:
+                return [
+                    DummyRule(expirationtimes_list)
+                    for expirationtimes_list in expirationtimes_lists
+                ]
+
+        return DummyPadelBot(cfg)
+
+    @pytest.mark.asyncio
+    async def test_no_rule_end_times(self, cfg, events):
+        bot = self.make_dummy_bot(cfg, ([],))
+        sleep = bot.get_sleep_time(600, events)
+        assert sleep == 600
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "desc,delta,expected_offset",
+        [
+            (
+                "t > 600 seconds until next rule end time",
+                timedelta(minutes=15),
+                600,
+            ),
+            (
+                "60 < t < 600 seconds until next rule end time",
+                timedelta(seconds=258),
+                258 - 59,
+            ),
+            (
+                "10 < t < 60 seconds until next rule end time",
+                timedelta(seconds=37),
+                37 - 27,
+            ),
+            (
+                "t < 10 seconds until next rule end time",
+                timedelta(seconds=8),
+                8 - 1,
+            ),
+        ],
+    )
+    async def test_next_rule_end_time_parametrized(
+        self, desc, delta, expected_offset, cfg, events
+    ):
+        """Test get_sleep_time for various next rule end time scenarios"""
+        now = datetime.now().astimezone()
+        bot = self.make_dummy_bot(cfg, self.create_dummy_expirationtimes(now + delta))
+        sleep = bot.get_sleep_time(600, events)
+        assert abs(sleep - expected_offset) < 1, (
+            f"{desc}: got {sleep}, expected {expected_offset}"
+        )
+
+
+class TestUpdateEventsWithRemoval:
+    @pytest.mark.asyncio
+    async def test_removes_from_accepted(self, cfg, events):
+        bot = PadelBot(cfg)
+        updated = bot.update_events_with_removal("p1", "e1", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p2"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
+
+    @pytest.mark.asyncio
+    async def test_removes_from_waitinglist(self, cfg, events):
+        bot = PadelBot(cfg)
+        updated = bot.update_events_with_removal("p3", "e1", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p4"]
+
+    @pytest.mark.asyncio
+    async def test_no_removal_if_not_present(self, cfg, events):
+        bot = PadelBot(cfg)
+        updated = bot.update_events_with_removal("pX", "e1", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
+
+    @pytest.mark.asyncio
+    async def test_no_removal_if_event_id_not_found(self, cfg, events):
+        bot = PadelBot(cfg)
+        updated = bot.update_events_with_removal("p1", "eX", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
