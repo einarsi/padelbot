@@ -105,8 +105,9 @@ class PadelBot:
         events: list[Event],
         enforce: bool = False,
     ) -> bool:
-        event = eventid_to_event(event_id, events)
-        if not event:
+        try:
+            event = eventid_to_event(event_id, events)
+        except ValueError:
             logging.error(f"Event ID {event_id} not found")
             return False
 
@@ -125,7 +126,8 @@ class PadelBot:
                 user=player["profile"]["id"],
                 group_uid=self.cfg["auth"]["group_id"],
             )
-        return True
+            return True
+        return False
 
     async def run(self):
         events = await self.get_events()

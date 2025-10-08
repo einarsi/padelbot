@@ -12,10 +12,10 @@ from src.padelbot.utils import Events
 @pytest.fixture
 def cfg():
     return {
-        "auth": {"username": "u", "password": "p", "group_id": "g"},
+        "auth": {"username": "user", "password": "pass", "group_id": "group-id"},
         "rules": {
-            "rule1": {"rule": "DummyRule"},
-            "rule2": {"rule": "DummyRule"},
+            "rule1": {"rule": "DummyRule1"},
+            "rule2": {"rule": "DummyRule2"},
         },
         "general": {"seconds_to_sleep": 10},
     }
@@ -26,20 +26,43 @@ def events():
     events = Events()
     events.upcoming = [
         {
-            "id": "e1",
+            "id": "event1-id",
             "responses": {
-                "acceptedIds": ["p1", "p2"],
-                "waitinglistIds": ["p3", "p4"],
+                "acceptedIds": ["alice-id", "bob-id"],
+                "waitinglistIds": ["carol-id", "david-id"],
             },
         },
         {
-            "id": "e2",
+            "id": "event2-id",
             "responses": {
-                "acceptedIds": ["p1", "p2"],
-                "waitinglistIds": ["p3", "p4"],
+                "acceptedIds": ["alice-id", "bob-id"],
+                "waitinglistIds": ["carol-id", "david-id"],
             },
         },
     ]
+
+    for event in events.upcoming:
+        event["recipients"] = {
+            "group": {
+                "members": [
+                    {
+                        "profile": {"id": "alice-profile-id"},
+                        "id": "alice-id",
+                        "firstName": "Alice",
+                        "lastName": "Alison",
+                    },
+                    {
+                        "profile": {"id": "bob-profile-id"},
+                        "id": "bob-id",
+                        "firstName": "Bob",
+                        "lastName": "Bobson",
+                    },
+                ]
+            }
+        }
+        event["heading"] = f"Padel {event['id']}!"
+        event["startTimestamp"] = "2025-10-08T10:00:00+00:00"
+
     return events
 
 
@@ -113,7 +136,6 @@ class TestGetRules:
             bot = PadelBot(cfg)
             rules = bot.get_rules(events)
         assert len(rules) == 2
-        print(rules)
         assert all(
             hasattr(r, "expirationtimes") and hasattr(r, "evaluate") for r in rules
         )
@@ -204,27 +226,110 @@ class TestUpdateEventsWithRemoval:
     @pytest.mark.asyncio
     async def test_removes_from_accepted(self, cfg, events):
         bot = PadelBot(cfg)
-        updated = bot.update_events_with_removal("p1", "e1", events)
-        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p2"]
-        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
+        updated = bot.update_events_with_removal("alice-id", "event1-id", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["bob-id"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == [
+            "carol-id",
+            "david-id",
+        ]
 
     @pytest.mark.asyncio
     async def test_removes_from_waitinglist(self, cfg, events):
         bot = PadelBot(cfg)
-        updated = bot.update_events_with_removal("p3", "e1", events)
-        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
-        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p4"]
+        updated = bot.update_events_with_removal("carol-id", "event1-id", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["alice-id", "bob-id"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["david-id"]
 
     @pytest.mark.asyncio
     async def test_no_removal_if_not_present(self, cfg, events):
         bot = PadelBot(cfg)
-        updated = bot.update_events_with_removal("pX", "e1", events)
-        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
-        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
+        updated = bot.update_events_with_removal("playerX-id", "event1-id", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["alice-id", "bob-id"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == [
+            "carol-id",
+            "david-id",
+        ]
 
     @pytest.mark.asyncio
     async def test_no_removal_if_event_id_not_found(self, cfg, events):
         bot = PadelBot(cfg)
-        updated = bot.update_events_with_removal("p1", "eX", events)
-        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["p1", "p2"]
-        assert updated.upcoming[0]["responses"]["waitinglistIds"] == ["p3", "p4"]
+        updated = bot.update_events_with_removal("alice-id", "eventX-id", events)
+        assert updated.upcoming[0]["responses"]["acceptedIds"] == ["alice-id", "bob-id"]
+        assert updated.upcoming[0]["responses"]["waitinglistIds"] == [
+            "carol-id",
+            "david-id",
+        ]
+
+
+class TestRemovePlayerFromEvent:
+    @pytest.mark.asyncio
+    async def test_enforce_true_calls_spond(self, cfg, events):
+        bot = PadelBot(cfg)
+        # Patch spond methods
+        with (
+            patch.object(
+                bot.spond, "change_response", new_callable=AsyncMock
+            ) as mock_change_response,
+            patch.object(
+                bot.spond, "send_message", new_callable=AsyncMock
+            ) as mock_send_message,
+        ):
+            result = await bot.remove_player_from_event(
+                player_id="alice-id",
+                event_id="event1-id",
+                message="bye",
+                events=events.upcoming,
+                enforce=True,
+            )
+            assert result is True
+            mock_change_response.assert_awaited_once_with(
+                "event1-id", "alice-id", {"accepted": "false"}
+            )
+            mock_send_message.assert_awaited_once_with(
+                text="bye", user="alice-profile-id", group_uid="group-id"
+            )
+
+    @pytest.mark.asyncio
+    async def test_enforce_false_does_not_call_spond(self, cfg, events):
+        bot = PadelBot(cfg)
+        with (
+            patch.object(
+                bot.spond, "change_response", new_callable=AsyncMock
+            ) as mock_change_response,
+            patch.object(
+                bot.spond, "send_message", new_callable=AsyncMock
+            ) as mock_send_message,
+        ):
+            result = await bot.remove_player_from_event(
+                player_id="alice-id",
+                event_id="event1-id",
+                message="bye",
+                events=events.upcoming,
+                enforce=False,
+            )
+            assert result is False
+            mock_change_response.assert_not_awaited()
+            mock_send_message.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_remove_player_from_event_event_id_not_found(self, cfg, events):
+        bot = PadelBot(cfg)
+        with (
+            patch.object(
+                bot.spond, "change_response", new_callable=AsyncMock
+            ) as mock_change_response,
+            patch.object(
+                bot.spond, "send_message", new_callable=AsyncMock
+            ) as mock_send_message,
+        ):
+            # Use a non-existent event_id
+            result = await bot.remove_player_from_event(
+                player_id="p1",
+                event_id="nonexistent",
+                message="bye",
+                events=events.upcoming,
+                enforce=True,
+            )
+            assert result is False
+            mock_change_response.assert_not_awaited()
+            mock_send_message.assert_not_awaited()
