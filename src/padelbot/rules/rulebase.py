@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 
-from padelbot.utils import Events, memberid_to_member
+from ..utils import Events, memberid_to_member
 
 
 @dataclass

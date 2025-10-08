@@ -7,8 +7,8 @@ from starlette.applications import Starlette
 from starlette.responses import HTMLResponse, PlainTextResponse
 from starlette.routing import Route
 
-from padelbot.config import readconfig
-from padelbot.logger import start_logger
+from padelbot.core.config import readconfig
+from padelbot.core.logger import start_logger
 
 LOG_FILE = os.path.join(os.path.dirname(__file__), "../logs/spondbot.log")
 
