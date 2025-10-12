@@ -42,6 +42,16 @@ class PadelBot:
         )
         return retval
 
+    def get_rules(self, events: Events) -> list[RuleBase]:
+        rules = []
+        for rule_name, rule_def in self.cfg["rules"].items():
+            rule = create_rule(rule_name, events, rule_def)
+            if not rule:
+                logging.error(f'Skipping unsupported rule class "{rule_def["rule"]}"')
+                continue
+            rules.append(rule)
+        return rules
+
     def get_sleep_time(self, default_sleep_time: float, events: Events) -> float:
         # Identify next rule/quarantine end time. Must be in the future.
         all_rule_end_times = [
@@ -72,6 +82,21 @@ class PadelBot:
                 )
         return seconds_to_sleep
 
+    def update_events_with_removal(
+        self, player_id: str, event_id: str, events: Events
+    ) -> Events:
+        updated_events = []
+        for event in events.upcoming:
+            if event["id"] == event_id:
+                # Remove player_id from whichever group they are in
+                for key in ("waitinglistIds", "acceptedIds"):
+                    if player_id in event["responses"][key]:
+                        event["responses"][key].remove(player_id)
+                        break  # Player can only be in one group, so stop after removal
+            updated_events.append(event)
+        events.upcoming = updated_events
+        return events
+
     async def remove_player_from_event(
         self,
         player_id: str,
@@ -80,8 +105,9 @@ class PadelBot:
         events: list[Event],
         enforce: bool = False,
     ) -> bool:
-        event = eventid_to_event(event_id, events)
-        if not event:
+        try:
+            event = eventid_to_event(event_id, events)
+        except ValueError:
             logging.error(f"Event ID {event_id} not found")
             return False
 
@@ -100,32 +126,8 @@ class PadelBot:
                 user=player["profile"]["id"],
                 group_uid=self.cfg["auth"]["group_id"],
             )
-        return True
-
-    def get_rules(self, events: Events) -> list[RuleBase]:
-        rules = []
-        for rule_name, rule_def in self.cfg["rules"].items():
-            rule = create_rule(rule_name, events, rule_def)
-            if not rule:
-                logging.error(f'Skipping unsupported rule class "{rule_def["rule"]}"')
-                continue
-            rules.append(rule)
-        return rules
-
-    def update_events_with_removal(
-        self, player_id: str, event_id: str, events: Events
-    ) -> Events:
-        updated_events = []
-        for event in events.upcoming:
-            if event["id"] == event_id:
-                # Remove player_id from whichever group they are in
-                for key in ("waitinglistIds", "acceptedIds"):
-                    if player_id in event["responses"][key]:
-                        event["responses"][key].remove(player_id)
-                        break  # Player can only be in one group, so stop after removal
-            updated_events.append(event)
-        events.upcoming = updated_events
-        return events
+            return True
+        return False
 
     async def run(self):
         events = await self.get_events()
