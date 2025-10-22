@@ -33,7 +33,7 @@ class RuleQuarantineAfterEvent(RuleBase):
         now = datetime.now().astimezone()
 
         # Event is not in quarantine
-        if now > event_end + timedelta(hours=self.quarantine_hours - 24):
+        if now > event_end - timedelta(days=7) + timedelta(hours=self.quarantine_hours):
             return False
         return True
 
@@ -47,9 +47,15 @@ class RuleQuarantineAfterEvent(RuleBase):
                 and get_last_event_in_series(event, self.events.previous)
             ):
                 event_end = datetime.fromisoformat(event["endTimestamp"]).astimezone()
-                logging.debug(f"[{self.name}]: {event_end=}")
-                result.append(event_end + timedelta(hours=self.quarantine_hours - 24))
-                logging.debug(f"[{self.name}]: {result[-1]=}")
+                logging.debug(f"[{self.name}]: This event ends at {event_end}")
+                result.append(
+                    event_end
+                    - timedelta(days=7)
+                    + timedelta(hours=self.quarantine_hours)
+                )
+                logging.debug(
+                    f"[{self.name}]: Adding quarantine expiration time {result[-1]}"
+                )
         return result
 
     def evaluate(self) -> list[RemovalInfo]:
