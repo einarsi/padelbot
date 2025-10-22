@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.1.1](https://github.com/einarsi/padelbot/compare/v1.1.0...v1.1.1) (2025-10-22)
+
+
+### 🐛 Bug Fixes
+
+* one day quarantine lasts for 25 hours ([#19](https://github.com/einarsi/padelbot/issues/19)) ([18a19af](https://github.com/einarsi/padelbot/commit/18a19af24159ea1595f57bd0961f80882bc78b4c))
+
+
+### 🧹 Chores
+
+* **deps:** bump aiofiles from 24.1.0 to 25.1.0 ([#12](https://github.com/einarsi/padelbot/issues/12)) ([fdb1a03](https://github.com/einarsi/padelbot/commit/fdb1a03d5be994316f5ab88cf558a6872d83a786))
+* **deps:** bump ruff from 0.13.3 to 0.14.1 ([#16](https://github.com/einarsi/padelbot/issues/16)) ([ec9c57a](https://github.com/einarsi/padelbot/commit/ec9c57a509a1b7de04d6e005784cdbd84bb8dd30))
+* **deps:** bump uvicorn from 0.37.0 to 0.38.0 ([#17](https://github.com/einarsi/padelbot/issues/17)) ([61c8b23](https://github.com/einarsi/padelbot/commit/61c8b2372e7e155a394cc97c9727b6f9ed3ff8b1))
+
+
+### 👷 CI/CD
+
+* add PR name validator ([5f82b99](https://github.com/einarsi/padelbot/commit/5f82b99e623a97cb8c07e94adaf3db9170ebb94f))
+
+
+### 🧪 Tests
+
+* add tests for padelbot.py and utils.py ([#8](https://github.com/einarsi/padelbot/issues/8)) ([9c4e924](https://github.com/einarsi/padelbot/commit/9c4e9240464b4c5a792567a0f0289e1770645f51))
+
 ## [1.1.0](https://github.com/einarsi/padelbot/compare/v1.0.7...v1.1.0) (2025-10-05)
 
 
