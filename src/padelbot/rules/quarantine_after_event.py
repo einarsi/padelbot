@@ -14,14 +14,14 @@ class RuleQuarantineAfterEvent(RuleBase):
         header_regex: str,
         message: str,
         enforced: bool = False,
-        quarantine_days: int = 1,
+        quarantine_hours: int = 24,
     ) -> None:
         self.name = rule_name
         self.events = events
         self.header_regex = header_regex
         self.message = message
         self.enforced = enforced
-        self.quarantine_days = quarantine_days
+        self.quarantine_hours = quarantine_hours
 
     def _include(self, event: Event) -> bool:
         if not re.search(self.header_regex, event["heading"]):
@@ -33,7 +33,7 @@ class RuleQuarantineAfterEvent(RuleBase):
         now = datetime.now().astimezone()
 
         # Event is not in quarantine
-        if now > event_end + timedelta(days=self.quarantine_days - 7):
+        if now > event_end + timedelta(hours=self.quarantine_hours - 24):
             return False
         return True
 
@@ -47,7 +47,9 @@ class RuleQuarantineAfterEvent(RuleBase):
                 and get_last_event_in_series(event, self.events.previous)
             ):
                 event_end = datetime.fromisoformat(event["endTimestamp"]).astimezone()
-                result.append(event_end + timedelta(days=self.quarantine_days - 7))
+                logging.debug(f"[{self.name}]: {event_end=}")
+                result.append(event_end + timedelta(hours=self.quarantine_hours - 24))
+                logging.debug(f"[{self.name}]: {result[-1]=}")
         return result
 
     def evaluate(self) -> list[RemovalInfo]:
