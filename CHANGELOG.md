@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/einarsi/padelbot/compare/v1.1.1...v1.1.2) (2025-10-22)
+
+
+### 🐛 Bug Fixes
+
+* time offset error in previous quarantine fix ([#20](https://github.com/einarsi/padelbot/issues/20)) ([4a5e581](https://github.com/einarsi/padelbot/commit/4a5e581cf56c753403fba8f9302f053304b881cf))
+
 ## [1.1.1](https://github.com/einarsi/padelbot/compare/v1.1.0...v1.1.1) (2025-10-22)
 
 
