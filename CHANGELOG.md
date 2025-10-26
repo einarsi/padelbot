@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/einarsi/padelbot/compare/v1.1.3...v1.1.4) (2025-10-26)
+
+
+### 🔨 Refactor
+
+* rename log file, make it smaller ([#24](https://github.com/einarsi/padelbot/issues/24)) ([1e0eae1](https://github.com/einarsi/padelbot/commit/1e0eae1859a2d439bad82338b9316d92889dd0df))
+
 ## [1.1.3](https://github.com/einarsi/padelbot/compare/v1.1.2...v1.1.3) (2025-10-26)
 
 
