@@ -5,18 +5,16 @@ from logging import StreamHandler
 from logging.handlers import QueueHandler, QueueListener, RotatingFileHandler
 from queue import Queue
 
+LOG_FILE = os.path.join("logs", "padelbot.log")
+
 
 async def init_logger():
     log = logging.getLogger()
     que = Queue()
     log.addHandler(QueueHandler(que))
     log.setLevel(logging.DEBUG)
-    log_dir = "logs"
-    os.makedirs(log_dir, exist_ok=True)
-    log_filename = "spondbot.log"
-    file_handler = RotatingFileHandler(
-        os.path.join(log_dir, log_filename), maxBytes=5 * 1024 * 1024, backupCount=5
-    )
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=5)
     stream_handler = StreamHandler()
     formatter = logging.Formatter(
         "%(asctime)s %(levelname)-7s %(message)s", datefmt="%Y-%m-%d %H:%M:%S%z"
