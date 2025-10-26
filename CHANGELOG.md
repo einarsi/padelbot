@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.3](https://github.com/einarsi/padelbot/compare/v1.1.2...v1.1.3) (2025-10-26)
+
+
+### 🐛 Bug Fixes
+
+* daylight savings offset for quarantine rule ([#22](https://github.com/einarsi/padelbot/issues/22)) ([f1bde27](https://github.com/einarsi/padelbot/commit/f1bde27cb1434585b5b5d450613d85ee7cfe43f8))
+
+
+### 🧪 Tests
+
+* add tests for rules ([#15](https://github.com/einarsi/padelbot/issues/15)) ([e31939b](https://github.com/einarsi/padelbot/commit/e31939b005c780ce5c046736c0b43fa0c852fe1c))
+
 ## [1.1.2](https://github.com/einarsi/padelbot/compare/v1.1.1...v1.1.2) (2025-10-22)
 
 
