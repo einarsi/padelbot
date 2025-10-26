@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import os
 import tomllib
 
 from starlette.applications import Starlette
@@ -8,9 +7,7 @@ from starlette.responses import HTMLResponse, PlainTextResponse
 from starlette.routing import Route
 
 from padelbot.core.config import readconfig
-from padelbot.core.logger import start_logger
-
-LOG_FILE = os.path.join(os.path.dirname(__file__), "../logs/spondbot.log")
+from padelbot.core.logger import LOG_FILE, start_logger
 
 
 async def get_logs(request):
