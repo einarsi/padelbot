@@ -29,6 +29,8 @@ class RuleQuarantineAfterEvent(RuleBase):
         return True
 
     def _isactive(self, event: Event) -> bool:
+        if not self._include(event):
+            return False
         event_end = datetime.fromisoformat(event["endTimestamp"]).astimezone()
         now = datetime.now().astimezone()
 
