@@ -28,36 +28,34 @@ class RuleQuarantineAfterEvent(RuleBase):
             return False
         return True
 
+    def _get_last_event_endtime(self, event: Event) -> datetime | None:
+        last_event = get_last_event_in_series(event, self.events.previous)
+        if not last_event:
+            return None
+        return datetime.fromisoformat(last_event["endTimestamp"]).astimezone()
+
     def _isactive(self, event: Event) -> bool:
         if not self._include(event):
             return False
-        event_end = datetime.fromisoformat(event["endTimestamp"]).astimezone()
-        now = datetime.now().astimezone()
+        last_event_end = self._get_last_event_endtime(event)
+        if not last_event_end:
+            return False
 
-        # Event is not in quarantine
-        if now > event_end - timedelta(days=7) + timedelta(hours=self.quarantine_hours):
+        if datetime.now().astimezone() > last_event_end + timedelta(
+            hours=self.quarantine_hours
+        ):
             return False
         return True
 
     def expirationtimes(self) -> list[datetime]:
         result: list[datetime] = []
         for event in self.events.upcoming:
-            # Do not include quarantine expiration if there was no previous event in series.
             if (
                 self._include(event)
                 and self._isactive(event)
-                and get_last_event_in_series(event, self.events.previous)
+                and (last_event_end := self._get_last_event_endtime(event))
             ):
-                event_end = datetime.fromisoformat(event["endTimestamp"]).astimezone()
-                logging.debug(f"[{self.name}]: This event ends at {event_end}")
-                result.append(
-                    event_end
-                    - timedelta(days=7)
-                    + timedelta(hours=self.quarantine_hours)
-                )
-                logging.debug(
-                    f"[{self.name}]: Adding quarantine expiration time {result[-1]}"
-                )
+                result.append(last_event_end + timedelta(hours=self.quarantine_hours))
         return result
 
     def evaluate(self) -> list[RemovalInfo]:
