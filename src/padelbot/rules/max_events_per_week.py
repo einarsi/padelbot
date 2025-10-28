@@ -35,6 +35,9 @@ class RuleMaxEventsPerWeek(RuleBase):
         # Event is not in grace period
         if now > event_start - timedelta(hours=self.grace_hours):
             return False
+        # Event is not within the next week
+        if event_start > now + timedelta(days=7):
+            return False
         return True
 
     def expirationtimes(self) -> list[datetime]:
