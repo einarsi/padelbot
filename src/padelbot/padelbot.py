@@ -11,20 +11,29 @@ from .utils import Event, Events, eventid_to_event, memberid_to_member
 class PadelBot:
     def __init__(self, cfg: dict):
         self.cfg = cfg
-        self.spond = spond.Spond(cfg["auth"]["username"], cfg["auth"]["password"])
+        try:
+            self.spond = spond.Spond(cfg["auth"]["username"], cfg["auth"]["password"])
+        except Exception as e:
+            logging.error(f"Failed to initialize Spond client: {e}")
+            raise
         self.first_run = True
 
     async def get_events(self) -> Events:
         timestamp_now = datetime.now().astimezone()
         min_start = timestamp_now - timedelta(days=7)
-        events = (
-            await self.spond.get_events(
-                group_id=self.cfg["auth"]["group_id"],
-                min_start=min_start,
-                max_start=None,
+        try:
+            events = (
+                await self.spond.get_events(
+                    group_id=self.cfg["auth"]["group_id"],
+                    min_start=min_start,
+                    max_start=None,
+                )
+                or []
             )
-            or []
-        )
+        except Exception as e:
+            logging.error(f"Failed to fetch events from Spond: {e}")
+            return Events()
+
         timestamp_now = datetime.now().astimezone()
         retval = Events()
         for event in events:
@@ -120,13 +129,21 @@ class PadelBot:
             f'{"Removing" if enforce else "Not enforcing removal of"} player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}" ({event["startTimestamp"]})'
         )
         if enforce:
-            await self.spond.change_response(event_id, player_id, {"accepted": "false"})
-            await self.spond.send_message(
-                text=message,
-                user=player["profile"]["id"],
-                group_uid=self.cfg["auth"]["group_id"],
-            )
-            return True
+            try:
+                await self.spond.change_response(
+                    event_id, player_id, {"accepted": "false"}
+                )
+                await self.spond.send_message(
+                    text=message,
+                    user=player["profile"]["id"],
+                    group_uid=self.cfg["auth"]["group_id"],
+                )
+                return True
+            except Exception as e:
+                logging.error(
+                    f'Failed to remove player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}": {e}'
+                )
+                return False
         return False
 
     async def run(self):
