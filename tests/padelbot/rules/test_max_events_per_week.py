@@ -20,7 +20,7 @@ def sample_events():
         {
             "id": "e2",
             "heading": "Padel Match 2",
-            "startTimestamp": (now + timedelta(hours=24 + 13)).isoformat(),
+            "startTimestamp": (now + timedelta(days=1, hours=13)).isoformat(),
             "responses": {
                 "acceptedIds": ["alice-id", "bob-id"],
                 "waitinglistIds": ["carol-id"],
@@ -29,7 +29,7 @@ def sample_events():
         {
             "id": "e3",
             "heading": "Padel Match 3",
-            "startTimestamp": (now + timedelta(hours=48 + 14)).isoformat(),
+            "startTimestamp": (now + timedelta(days=2, hours=14)).isoformat(),
             "responses": {"acceptedIds": ["alice-id"], "waitinglistIds": ["carol-id"]},
         },
     ]
@@ -137,11 +137,16 @@ def test_include(sample_events):
         max_events=1,
         grace_hours=24,
     )
+    # Add an event outside the one-week window
+    sample_events.upcoming.append(sample_events.upcoming[2].copy())
+    sample_events.upcoming[-1]["startTimestamp"] = (
+        datetime.now().astimezone() + timedelta(days=7, minutes=1)
+    ).isoformat()
+
     assert rule._include(sample_events.upcoming[0]) is False
     assert rule._include(sample_events.upcoming[1]) is True
     assert rule._include(sample_events.upcoming[2]) is True
+    assert rule._include(sample_events.upcoming[3]) is False
 
     sample_events.upcoming[1]["heading"] = "Tennis"
-    assert rule._include(sample_events.upcoming[0]) is False
     assert rule._include(sample_events.upcoming[1]) is False
-    assert rule._include(sample_events.upcoming[2]) is True
