@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.5](https://github.com/einarsi/padelbot/compare/v1.1.4...v1.1.5) (2025-10-28)
+
+
+### 🐛 Bug Fixes
+
+* handle exceptions from spond client ([#29](https://github.com/einarsi/padelbot/issues/29)) ([c7d31b7](https://github.com/einarsi/padelbot/commit/c7d31b7434cedfb1e2dd3fffe76edf3ee7c5fcd7))
+* ignore events more than 1 week away ([#31](https://github.com/einarsi/padelbot/issues/31)) ([d67c93a](https://github.com/einarsi/padelbot/commit/d67c93a9d562c7d89641a0cbfac68ecc55820648))
+
+
+### 🧹 Chores
+
+* **deps:** bump aiofiles from 24.1.0 to 25.1.0 ([#26](https://github.com/einarsi/padelbot/issues/26)) ([319f9ce](https://github.com/einarsi/padelbot/commit/319f9ce4f5b5e9cc5af73dc741d72402e6769c42))
+* **deps:** bump python-dotenv from 1.1.1 to 1.2.1 ([#27](https://github.com/einarsi/padelbot/issues/27)) ([f29df3f](https://github.com/einarsi/padelbot/commit/f29df3f6db93a49d237c7d4299429a49c273e7a1))
+* **deps:** bump ruff from 0.14.1 to 0.14.2 ([#28](https://github.com/einarsi/padelbot/issues/28)) ([6c36ffa](https://github.com/einarsi/padelbot/commit/6c36ffadd6581d87da082ec92f130cdb281c616c))
+
 ## [1.1.4](https://github.com/einarsi/padelbot/compare/v1.1.3...v1.1.4) (2025-10-26)
 
 
