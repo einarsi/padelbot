@@ -46,13 +46,11 @@ def events():
             "group": {
                 "members": [
                     {
-                        "profile": {"id": "alice-profile-id"},
                         "id": "alice-id",
                         "firstName": "Alice",
                         "lastName": "Alison",
                     },
                     {
-                        "profile": {"id": "bob-profile-id"},
                         "id": "bob-id",
                         "firstName": "Bob",
                         "lastName": "Bobson",
@@ -275,7 +273,7 @@ class TestRemovePlayerFromEvent:
             "event1-id", "alice-id", {"accepted": "false"}
         )
         mockbot.spond.send_message.assert_awaited_once_with(
-            text="bye", user="alice-profile-id", group_uid="group-id"
+            text="bye", user="alice-id", group_uid="group-id"
         )
 
     @pytest.mark.asyncio

@@ -39,19 +39,16 @@ def sample_events():
                 "members": [
                     {
                         "id": "alice-id",
-                        "profile": {"id": "alice-profile-id"},
                         "firstName": "Alice",
                         "lastName": "Alison",
                     },
                     {
                         "id": "bob-id",
-                        "profile": {"id": "bob-profile-id"},
                         "firstName": "Bob",
                         "lastName": "Bobson",
                     },
                     {
                         "id": "carol-id",
-                        "profile": {"id": "carol-profile-id"},
                         "firstName": "Carol",
                         "lastName": "Carolson",
                     },
