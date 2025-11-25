@@ -135,7 +135,7 @@ class PadelBot:
                 )
                 await self.spond.send_message(
                     text=message,
-                    user=player["profile"]["id"],
+                    user=player["id"],
                     group_uid=self.cfg["auth"]["group_id"],
                 )
                 return True
