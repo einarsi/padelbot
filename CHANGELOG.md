@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.2.0](https://github.com/einarsi/padelbot/compare/v1.1.5...v1.2.0) (2025-11-25)
+
+
+### ✨ Features
+
+* add event list to webview ([#41](https://github.com/einarsi/padelbot/issues/41)) ([5c9398f](https://github.com/einarsi/padelbot/commit/5c9398fb138b6796d09a25681b2b657ce5559375))
+
+
+### 🧹 Chores
+
+* **deps:** bump actions/checkout from 5 to 6 ([#38](https://github.com/einarsi/padelbot/issues/38)) ([e1d9e0f](https://github.com/einarsi/padelbot/commit/e1d9e0fb544e0d283f3b3b6cc95c2ed03790148a))
+* **deps:** bump pytest-asyncio from 1.2.0 to 1.3.0 ([#37](https://github.com/einarsi/padelbot/issues/37)) ([bff69ca](https://github.com/einarsi/padelbot/commit/bff69cab4d17b3db8985041b1579dd9a297b0ee3))
+* **deps:** bump ruff from 0.14.2 to 0.14.6 ([#36](https://github.com/einarsi/padelbot/issues/36)) ([3bef394](https://github.com/einarsi/padelbot/commit/3bef394f8132a446ed678f42f76122dc98162406))
+* **deps:** bump starlette from 0.48.0 to 0.50.0 ([#33](https://github.com/einarsi/padelbot/issues/33)) ([b32263b](https://github.com/einarsi/padelbot/commit/b32263b44f8682a1cb811ee91c9cd21b7ec79339))
+
+
+### 🏎️ Performance
+
+* call send_message() with id, not profile id ([#40](https://github.com/einarsi/padelbot/issues/40)) ([b9d6391](https://github.com/einarsi/padelbot/commit/b9d6391de80ee94871b75318e5bd9618a0b65124))
+
 ## [1.1.5](https://github.com/einarsi/padelbot/compare/v1.1.4...v1.1.5) (2025-10-28)
 
 
