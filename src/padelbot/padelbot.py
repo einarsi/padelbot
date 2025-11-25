@@ -17,6 +17,7 @@ class PadelBot:
             logging.error(f"Failed to initialize Spond client: {e}")
             raise
         self.first_run = True
+        self.events = Events()  # Cache events for webapp access
 
     async def get_events(self) -> Events:
         timestamp_now = datetime.now().astimezone()
@@ -148,6 +149,7 @@ class PadelBot:
 
     async def run(self):
         events = await self.get_events()
+        self.events = events  # Cache events for webapp access
 
         all_removals = []
         for rule in self.get_rules(events):
