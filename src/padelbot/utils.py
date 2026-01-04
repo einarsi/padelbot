@@ -29,9 +29,13 @@ def eventid_to_event(event_id: str, events: list[Event]) -> Event:
 # Return the event with the highest startTimestamp from the list `events` that is
 # also part of the same series of events as `event`. If no such event exists, return None.
 def get_last_event_in_series(event: Event, events: list[Event]) -> Event | None:
+    event_series_id = event.get("seriesId")
+    if event_series_id is None:
+        return None
+
     result = None
     for previous_event in events:
-        if previous_event["seriesId"] == event["seriesId"]:
+        if previous_event.get("seriesId") == event_series_id:
             if (result is None) or (
                 datetime.fromisoformat(previous_event["startTimestamp"])
                 > datetime.fromisoformat(result["startTimestamp"])
