@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.3](https://github.com/einarsi/padelbot/compare/v1.2.2...v1.2.3) (2026-01-04)
+
+
+### 🧹 Chores
+
+* **deps:** revert python from 3.14 to 3.13 ([25b2a39](https://github.com/einarsi/padelbot/commit/25b2a395d08c75804e01bdf2262b4d0c0b286d9e))
+
+
+### 📦 Build system
+
+* revert python from 3.14 to 3.13 ([#55](https://github.com/einarsi/padelbot/issues/55)) ([25b2a39](https://github.com/einarsi/padelbot/commit/25b2a395d08c75804e01bdf2262b4d0c0b286d9e))
+
 ## [1.2.2](https://github.com/einarsi/padelbot/compare/v1.2.1...v1.2.2) (2026-01-04)
 
 
