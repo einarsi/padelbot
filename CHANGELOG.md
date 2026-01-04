@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.1](https://github.com/einarsi/padelbot/compare/v1.2.0...v1.2.1) (2026-01-04)
+
+
+### 🐛 Bug Fixes
+
+* crash on missing seriesId ([#49](https://github.com/einarsi/padelbot/issues/49)) ([eae587b](https://github.com/einarsi/padelbot/commit/eae587bb5e9815a05d6c4c7776e652431d859129))
+
+
+### 🧹 Chores
+
+* **deps:** bump python from 3.13 to 3.14 ([#51](https://github.com/einarsi/padelbot/issues/51)) ([7c7fcdb](https://github.com/einarsi/padelbot/commit/7c7fcdb6bee505d9b710bcb1d9ca76c2a69588ca))
+* **deps:** bump ruff from 0.14.6 to 0.14.10 ([#46](https://github.com/einarsi/padelbot/issues/46)) ([7a301a5](https://github.com/einarsi/padelbot/commit/7a301a55d1d6323930cf6a9214669ba407429b18))
+* **deps:** bump uvicorn from 0.38.0 to 0.40.0 ([#47](https://github.com/einarsi/padelbot/issues/47)) ([018aff1](https://github.com/einarsi/padelbot/commit/018aff1a1b3003fe153ba2c6569ddd4411b535c1))
+
+
+### 🔨 Refactor
+
+* split html into separate file ([#50](https://github.com/einarsi/padelbot/issues/50)) ([679b139](https://github.com/einarsi/padelbot/commit/679b139277373da8338e40d69fcc27c686a7dff4))
+
 ## [1.2.0](https://github.com/einarsi/padelbot/compare/v1.1.5...v1.2.0) (2025-11-25)
 
 
