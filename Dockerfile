@@ -1,4 +1,4 @@
-FROM python:3.13-alpine3.22 AS builder
+FROM python:3.14-alpine3.23 AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --locked --no-install-project --no-dev
 
-FROM python:3.13-alpine3.22
+FROM python:3.14-alpine3.23
 
 WORKDIR /app
 
