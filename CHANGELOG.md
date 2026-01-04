@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/einarsi/padelbot/compare/v1.2.1...v1.2.2) (2026-01-04)
+
+
+### 📦 Build system
+
+* update dockerfile to python 3.14 ([#53](https://github.com/einarsi/padelbot/issues/53)) ([c762983](https://github.com/einarsi/padelbot/commit/c762983b300085db605450fa16e0ce5df7893ebd))
+
 ## [1.2.1](https://github.com/einarsi/padelbot/compare/v1.2.0...v1.2.1) (2026-01-04)
 
 
