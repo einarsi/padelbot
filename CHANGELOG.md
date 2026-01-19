@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://github.com/einarsi/padelbot/compare/v1.2.3...v1.3.0) (2026-01-19)
+
+
+### ✨ Features
+
+* better display on mobile phone ([#61](https://github.com/einarsi/padelbot/issues/61)) ([22fbcca](https://github.com/einarsi/padelbot/commit/22fbcca149694f691a02a707ce878cbcf4446e86))
+
+
+### 🧹 Chores
+
+* **deps:** bump ruff from 0.14.10 to 0.14.13 ([#59](https://github.com/einarsi/padelbot/issues/59)) ([cccda72](https://github.com/einarsi/padelbot/commit/cccda7272a6eddd77091e23cbd4bbb47a86e63e5))
+* **deps:** bump starlette from 0.50.0 to 0.52.1 ([#60](https://github.com/einarsi/padelbot/issues/60)) ([f8a6a90](https://github.com/einarsi/padelbot/commit/f8a6a90b5d75aee976e5acf8dddd4ba8396613e0))
+
 ## [1.2.3](https://github.com/einarsi/padelbot/compare/v1.2.2...v1.2.3) (2026-01-04)
 
 
