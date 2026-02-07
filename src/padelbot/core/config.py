@@ -1,8 +1,9 @@
 import logging
+import os
 import tomllib
 from typing import Any
 
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 
 defaults: dict[str, Any] = {
     "auth": {
@@ -24,8 +25,12 @@ def readconfig() -> dict[str, Any] | None:
     with open("config.toml", "rb") as f:
         config = tomllib.load(f)
 
-    env = dotenv_values(".env")
-    config["auth"].update({k.lower(): v for k, v in env.items() if v is not None})
+    # Load .env file into os.environ (won't override existing env vars)
+    load_dotenv()
+
+    for key in ("USERNAME", "PASSWORD", "GROUP_ID"):
+        if value := os.environ.get(key):
+            config["auth"][key.lower()] = value
 
     config = {**defaults, **config}
 
