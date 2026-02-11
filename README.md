@@ -8,20 +8,20 @@ The bot requires Spond credentials for a user that does not have 2FA enabled.
 
 ### Environment variables
 
-| Variable   | Description    | Required |
-| ---------- | -------------- | -------- |
-| `USERNAME` | Spond username | Yes      |
-| `PASSWORD` | Spond password | Yes      |
-| `GROUP_ID` | Spond group ID | Yes      |
+| Variable         | Description    | Required |
+| ---------------- | -------------- | -------- |
+| `SPOND_USERNAME` | Spond username | Yes      |
+| `SPOND_PASSWORD` | Spond password | Yes      |
+| `SPOND_GROUP_ID` | Spond group ID | Yes      |
 
 ### Local development
 
 Create a `.env` file in the project root:
 
 ```
-USERNAME=your_username
-PASSWORD=your_password
-GROUP_ID=your_group_id
+SPOND_USERNAME=your_username
+SPOND_PASSWORD=your_password
+SPOND_GROUP_ID=your_group_id
 ```
 
 ## Docker
@@ -36,9 +36,9 @@ docker build -t padelbot .
 
 ```sh
 docker run -d \
-  -e USERNAME=your_username \
-  -e PASSWORD=your_password \
-  -e GROUP_ID=your_group_id \
+  -e SPOND_USERNAME=your_username \
+  -e SPOND_PASSWORD=your_password \
+  -e SPOND_GROUP_ID=your_group_id \
   -p 8000:8000 \
   padelbot
 ```

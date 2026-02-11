@@ -29,7 +29,7 @@ def readconfig() -> dict[str, Any] | None:
     load_dotenv()
 
     for key in ("USERNAME", "PASSWORD", "GROUP_ID"):
-        if value := os.environ.get(key):
+        if value := os.environ.get(f"SPOND_{key}"):
             config["auth"][key.lower()] = value
 
     config = {**defaults, **config}
