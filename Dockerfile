@@ -5,20 +5,15 @@ WORKDIR /app
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
 
-# Copy from the cache instead of linking since it's a mounted volume
+# Copy instead of linking since the .venv is copied across stages
 ENV UV_LINK_MODE=copy
 
-# Ensure installed tools can be executed out of the box
-ENV UV_TOOL_BIN_DIR=/usr/local/bin
+# Install uv from official image
+COPY --from=ghcr.io/astral-sh/uv:0.6 /uv /usr/local/bin/uv
 
-# Install uv
-RUN apk add uv
+COPY uv.lock pyproject.toml ./
 
-# Install the project's dependencies using the lockfile and settings
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --locked --no-install-project --no-dev
+RUN uv sync --locked --no-install-project --no-dev
 
 FROM python:3.13-alpine3.23
 
@@ -36,6 +31,15 @@ ENV TZ=Europe/Oslo
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
-ENTRYPOINT []
+# Create logs directory and non-root user
+RUN mkdir -p /app/logs && \
+    addgroup -S appgroup && \
+    adduser -S appuser -G appgroup && \
+    chown -R appuser:appgroup /app/logs
+
+USER appuser
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost:8000/ || exit 1
 
 CMD ["python3", "src/webapp.py"]
