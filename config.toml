@@ -15,12 +15,12 @@ type = "QuarantineAfterEvent"
 header_regex = ".*Americano.*"
 quarantine_hours = 24
 message = "Hi {firstName},\nYou were removed from the event \"{heading}\" because you played last time.\nPlease wait for at least 24 hours after the event ended before signing up."
-enforced = false
+enforced = true
 
 [rules.max_per_week]
 type = "MaxEventsPerWeek"
-header_regex = ".*Americanos.*"
+header_regex = ".*Americano.*"
 max_events = 2
 grace_hours = 24
 message = "Hi {firstName},\nYou were removed from the event \"{heading}\" because you are only allowed to have two active sign-ups.\nEvents that start within the next 24 hours are not counted towards the total."
-enforced = false
+enforced = true
