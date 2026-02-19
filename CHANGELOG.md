@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.4.0](https://github.com/einarsi/padelbot/compare/v1.3.0...v1.4.0) (2026-02-19)
+
+
+### ✨ Features
+
+* improve Dockerfile for deployment ([#67](https://github.com/einarsi/padelbot/issues/67)) ([90f1668](https://github.com/einarsi/padelbot/commit/90f166874036c1248ae0ad9b1033fd1376bc2834))
+
+
+### 🐛 Bug Fixes
+
+* avoid reserved USERNAME env variable ([#68](https://github.com/einarsi/padelbot/issues/68)) ([f3f7835](https://github.com/einarsi/padelbot/commit/f3f783540ca5f322716de2f83fa74199fb48366b))
+* read env variables from environment ([#64](https://github.com/einarsi/padelbot/issues/64)) ([0e4b199](https://github.com/einarsi/padelbot/commit/0e4b199083896fdde4796ab9d23bb108d421a29a))
+
+
+### 🏎️ Performance
+
+* fix typo, enforce rules by default ([#70](https://github.com/einarsi/padelbot/issues/70)) ([60f2d41](https://github.com/einarsi/padelbot/commit/60f2d411a137f0817b90ff67af056b401513d665))
+
 ## [1.3.0](https://github.com/einarsi/padelbot/compare/v1.2.3...v1.3.0) (2026-01-19)
 
 
