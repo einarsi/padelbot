@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.1](https://github.com/einarsi/padelbot/compare/v1.4.0...v1.4.1) (2026-02-22)
+
+
+### 🐛 Bug Fixes
+
+* container health check ([#71](https://github.com/einarsi/padelbot/issues/71)) ([134bb3c](https://github.com/einarsi/padelbot/commit/134bb3c26ed0dc0b68472b00383063526e934f89))
+* pythonpath for Dockerfile ([#73](https://github.com/einarsi/padelbot/issues/73)) ([2cb3984](https://github.com/einarsi/padelbot/commit/2cb3984b9efc3f93f97c968081bf56b09df5d109))
+
+
+### 🧹 Chores
+
+* **deps:** bump ruff from 0.14.13 to 0.15.1 ([#69](https://github.com/einarsi/padelbot/issues/69)) ([f6fd441](https://github.com/einarsi/padelbot/commit/f6fd4419f2147c22809b30a84cf3780a0abb8832))
+
 ## [1.4.0](https://github.com/einarsi/padelbot/compare/v1.3.0...v1.4.0) (2026-02-19)
 
 
