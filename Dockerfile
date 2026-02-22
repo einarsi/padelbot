@@ -31,6 +31,9 @@ ENV TZ=Europe/Oslo
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
+# Add src to Python path so padelbot package is importable
+ENV PYTHONPATH="/app/src"
+
 # Create logs directory and non-root user
 RUN mkdir -p /app/logs && \
     addgroup -S appgroup && \
@@ -42,4 +45,4 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://127.0.0.1:8000/ || exit 1
 
-CMD ["uvicorn", "src.webapp:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "webapp:app", "--host", "0.0.0.0", "--port", "8000"]
