@@ -40,6 +40,6 @@ RUN mkdir -p /app/logs && \
 USER appuser
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:8000/ || exit 1
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1:8000/ || exit 1
 
-CMD ["python3", "src/webapp.py"]
+CMD ["uvicorn", "src.webapp:app", "--host", "0.0.0.0", "--port", "8000"]
