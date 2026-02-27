@@ -38,7 +38,7 @@ async def get_events(request):
             events.upcoming, key=lambda e: e.get("startTimestamp", "")
         )
 
-        for event in sorted_events[:5]:  # Show only next 5 upcoming events
+        for event in sorted_events:
             members = event.get("recipients", {}).get("group", {}).get("members", [])
             member_map = {m["id"]: f"{m['firstName']} {m['lastName']}" for m in members}
 
