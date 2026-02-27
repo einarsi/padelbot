@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.2](https://github.com/einarsi/padelbot/compare/v1.4.1...v1.4.2) (2026-02-27)
+
+
+### 🐛 Bug Fixes
+
+* add fallback method to find previous event ([#78](https://github.com/einarsi/padelbot/issues/78)) ([bc3731a](https://github.com/einarsi/padelbot/commit/bc3731a6e2f38c3941dcb778f0b7548572689229))
+* show all upcoming events in web app ([#76](https://github.com/einarsi/padelbot/issues/76)) ([56f826f](https://github.com/einarsi/padelbot/commit/56f826f48d672ea6ad0db97e32fc4e027dd691bf))
+
 ## [1.4.1](https://github.com/einarsi/padelbot/compare/v1.4.0...v1.4.1) (2026-02-22)
 
 
