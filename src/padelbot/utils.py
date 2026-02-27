@@ -44,6 +44,24 @@ def get_last_event_in_series(event: Event, events: list[Event]) -> Event | None:
     return result
 
 
+# Return the event from the list `events` that has a startTimestamp last week close
+# to the reference event and the same title. If no such event exists, return None.
+def get_last_event_from_timestamp_and_title(
+    event: Event, events: list[Event]
+) -> Event | None:
+    event_start = datetime.fromisoformat(event["startTimestamp"])
+    event_title = event.get("heading", "")
+
+    for previous_event in events:
+        previous_event_start = datetime.fromisoformat(previous_event["startTimestamp"])
+        if (
+            abs((event_start - previous_event_start).total_seconds() - 7 * 24 * 60 * 60)
+            <= 90 * 60
+        ) and (previous_event.get("heading", "") == event_title):
+            return previous_event
+    return None
+
+
 def get_registered_player_names(event: Event) -> list[str]:
     player_ids: list[str] = (
         event["responses"]["acceptedIds"] + event["responses"]["waitinglistIds"]

@@ -2,7 +2,13 @@ import logging
 import re
 from datetime import datetime, timedelta
 
-from ..utils import Event, Events, get_last_event_in_series, get_registered_player_names
+from ..utils import (
+    Event,
+    Events,
+    get_last_event_from_timestamp_and_title,
+    get_last_event_in_series,
+    get_registered_player_names,
+)
 from .rulebase import RemovalInfo, RuleBase, register_rule
 
 
@@ -28,8 +34,16 @@ class RuleQuarantineAfterEvent(RuleBase):
             return False
         return True
 
-    def _get_last_event_endtime(self, event: Event) -> datetime | None:
+    def _get_last_similar_event(self, event: Event) -> Event | None:
         last_event = get_last_event_in_series(event, self.events.previous)
+        if not last_event:
+            last_event = get_last_event_from_timestamp_and_title(
+                event, self.events.previous
+            )
+        return last_event
+
+    def _get_last_event_endtime(self, event: Event) -> datetime | None:
+        last_event = self._get_last_similar_event(event)
         if not last_event:
             return None
         return datetime.fromisoformat(last_event["endTimestamp"]).astimezone()
@@ -85,6 +99,14 @@ class RuleQuarantineAfterEvent(RuleBase):
                 )
 
             last_event = get_last_event_in_series(event, self.events.previous)
+            if not last_event:
+                last_event = get_last_event_from_timestamp_and_title(
+                    event, self.events.previous
+                )
+                if last_event:
+                    logging.warning(
+                        f"[{self.name}]: Found last similar event by timestamp and title: {last_event['heading']} at {last_event['startTimestamp']}"
+                    )
             if not last_event:
                 logging.warning(
                     f'[{self.name}]: No last event found for "{event["heading"]}". Skipping further processing.'
