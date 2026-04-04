@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.4.2](https://github.com/einarsi/padelbot/compare/v1.4.1...v1.4.2) (2026-04-04)
+
+
+### 🐛 Bug Fixes
+
+* add fallback method to find previous event ([#78](https://github.com/einarsi/padelbot/issues/78)) ([bc3731a](https://github.com/einarsi/padelbot/commit/bc3731a6e2f38c3941dcb778f0b7548572689229))
+* show all upcoming events in web app ([#76](https://github.com/einarsi/padelbot/issues/76)) ([56f826f](https://github.com/einarsi/padelbot/commit/56f826f48d672ea6ad0db97e32fc4e027dd691bf))
+
+
+### 🧹 Chores
+
+* **deps:** bump actions/attest-build-provenance from 3 to 4 ([#79](https://github.com/einarsi/padelbot/issues/79)) ([0c1c6e2](https://github.com/einarsi/padelbot/commit/0c1c6e24ecab133c2c3a835ce84418315c3f72e9))
+* **deps:** bump docker/build-push-action from 6 to 7 ([#84](https://github.com/einarsi/padelbot/issues/84)) ([97ba234](https://github.com/einarsi/padelbot/commit/97ba234f57949892c747e4440ba920e051c49275))
+* **deps:** bump docker/login-action from 3 to 4 ([#82](https://github.com/einarsi/padelbot/issues/82)) ([519d47c](https://github.com/einarsi/padelbot/commit/519d47c9b97d6526fdfb3de0abd06a7fe1d7a04c))
+* **deps:** bump docker/metadata-action from 5 to 6 ([#85](https://github.com/einarsi/padelbot/issues/85)) ([a795f2a](https://github.com/einarsi/padelbot/commit/a795f2a2cc925f055b055fb95ecfe0e3e24511a0))
+* **deps:** bump python-dotenv from 1.2.1 to 1.2.2 ([#80](https://github.com/einarsi/padelbot/issues/80)) ([c2d0ffc](https://github.com/einarsi/padelbot/commit/c2d0ffc1f9357c7c03fbf1acf6538e4b6efa8af9))
+* **deps:** bump ruff from 0.15.1 to 0.15.9 ([#91](https://github.com/einarsi/padelbot/issues/91)) ([f331a21](https://github.com/einarsi/padelbot/commit/f331a219fd34fec101b9954948def09e164cfc8f))
+* **deps:** bump starlette from 0.52.1 to 1.0.0 ([#89](https://github.com/einarsi/padelbot/issues/89)) ([d8be34f](https://github.com/einarsi/padelbot/commit/d8be34f7c8d01f74ca5d5c191d2d38eb3da3d3f4))
+* **deps:** bump uvicorn from 0.40.0 to 0.43.0 ([#92](https://github.com/einarsi/padelbot/issues/92)) ([d410d2f](https://github.com/einarsi/padelbot/commit/d410d2f24709d7ff811c8ed00d45e674bad477ef))
+
 ## [1.4.1](https://github.com/einarsi/padelbot/compare/v1.4.0...v1.4.1) (2026-02-22)
 
 
