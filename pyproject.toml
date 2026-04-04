@@ -15,7 +15,11 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest-asyncio>=1.2.0", "ruff>=0.13.0"]
+dev = [
+    "openapi-python-client>=0.28.3",
+    "pytest-asyncio>=1.2.0",
+    "ruff>=0.13.0",
+]
 
 [tool.pytest.ini_options]
 pythonpath = "."

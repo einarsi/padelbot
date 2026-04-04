@@ -24,6 +24,8 @@ SPOND_PASSWORD=your_password
 SPOND_GROUP_ID=your_group_id
 ```
 
+From the top directory, execute `python src/webapp.py".
+
 ## Docker
 
 ### Build
@@ -44,3 +46,8 @@ docker run -d \
 ```
 
 The web interface is available at `http://localhost:8000`.
+
+## Naco integration
+
+This client can use the Naco API. To generate client based on Naco's openapi spec, make sure `openapi.json` is available
+at `../naco/openapi.json` and run `python tools/generate_client.py` to replace all files in `naco-backend-client`.
