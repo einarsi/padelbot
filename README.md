@@ -18,13 +18,13 @@ The bot requires Spond credentials for a user that does not have 2FA enabled.
 
 Create a `.env` file in the project root:
 
-```
+```dotenv
 SPOND_USERNAME=your_username
 SPOND_PASSWORD=your_password
 SPOND_GROUP_ID=your_group_id
 ```
 
-From the top directory, execute `python src/webapp.py".
+From the top directory, execute `python src/webapp.py`.
 
 ## Docker
 
