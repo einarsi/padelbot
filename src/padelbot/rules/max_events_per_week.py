@@ -56,9 +56,8 @@ class RuleMaxEventsPerWeek(RuleBase):
         for event in self.events.upcoming:
             if not self._include(event):
                 continue
-
+            logging.info(f'[{self.name}]: Processing "{event["heading"]}"')
             if logging.getLogger().isEnabledFor(logging.DEBUG):
-                logging.debug(f'[{self.name}]: Processing "{event["heading"]}"')
                 participating_names = get_participating_player_names(event)
                 logging.debug(
                     f"[{self.name}]: -> Participating players: {', '.join(participating_names)}"
@@ -77,7 +76,7 @@ class RuleMaxEventsPerWeek(RuleBase):
                     player_id, events[0]["recipients"]["group"]["members"]
                 )
                 if player:
-                    logging.debug(
+                    logging.info(
                         f"[{self.name}]: {player['firstName']} {player['lastName']} is signed up for {len(events)} > {self.max_events} events."
                     )
 

@@ -79,7 +79,7 @@ class RuleQuarantineAfterEvent(RuleBase):
             if not self._include(event):
                 continue
 
-            logging.debug(f'[{self.name}]: Processing event "{event["heading"]}"')
+            logging.info(f'[{self.name}]: Processing event "{event["heading"]}"')
 
             if not self._isactive(event):
                 continue

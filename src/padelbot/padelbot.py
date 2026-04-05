@@ -189,5 +189,5 @@ class PadelBot:
             self.cfg["general"]["seconds_to_sleep"], events
         )
 
-        logging.debug(f"Sleeping for {seconds_to_sleep} seconds")
+        logging.info(f"Sleeping for {seconds_to_sleep} seconds")
         await asyncio.sleep(seconds_to_sleep)
