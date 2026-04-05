@@ -2,7 +2,7 @@ import logging
 import re
 from datetime import datetime, timedelta
 
-from ..utils import Event, Events, get_registered_player_names, memberid_to_member
+from ..utils import Event, Events, get_participating_player_names, memberid_to_member
 from .rulebase import RemovalInfo, RuleBase, register_rule
 
 
@@ -56,12 +56,11 @@ class RuleMaxEventsPerWeek(RuleBase):
         for event in self.events.upcoming:
             if not self._include(event):
                 continue
-
+            logging.info(f'[{self.name}]: Processing "{event["heading"]}"')
             if logging.getLogger().isEnabledFor(logging.DEBUG):
-                logging.debug(f'[{self.name}]: Processing "{event["heading"]}"')
-                registered_names = get_registered_player_names(event)
+                participating_names = get_participating_player_names(event)
                 logging.debug(
-                    f"[{self.name}]: -> Registered players: {', '.join(registered_names)}"
+                    f"[{self.name}]: -> Participating players: {', '.join(participating_names)}"
                 )
 
             for player_id in (
@@ -77,7 +76,7 @@ class RuleMaxEventsPerWeek(RuleBase):
                     player_id, events[0]["recipients"]["group"]["members"]
                 )
                 if player:
-                    logging.debug(
+                    logging.info(
                         f"[{self.name}]: {player['firstName']} {player['lastName']} is signed up for {len(events)} > {self.max_events} events."
                     )
 

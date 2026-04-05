@@ -3,13 +3,13 @@ import pytest
 from src.padelbot.utils import (
     eventid_to_event,
     get_last_event_in_series,
-    get_registered_player_names,
+    get_participating_player_names,
     memberid_to_member,
 )
 
 
-# Group get_registered_player_names tests in a class
-class TestGetRegisteredPlayerNames:
+# Group get_participating_player_names tests in a class
+class TestGetParticipatingPlayerNames:
     @pytest.fixture
     def event(self):
         return {
@@ -26,14 +26,14 @@ class TestGetRegisteredPlayerNames:
             },
         }
 
-    def test_registered_names(self, event):
-        names = get_registered_player_names(event)
+    def test_participating_names(self, event):
+        names = get_participating_player_names(event)
         assert len(names) == 3
         assert set(names) == {"Alice Smith", "Bob Jones", "Charlie Brown"}
 
     def test_empty_waiting_list(self, event):
         event["responses"]["waitinglistIds"] = []
-        names = get_registered_player_names(event)
+        names = get_participating_player_names(event)
         assert names == ["Alice Smith", "Bob Jones"]
 
     def test_missing_member(self, event):
@@ -41,7 +41,7 @@ class TestGetRegisteredPlayerNames:
         # But just in case something goes wrong we at least shouldn't get invalid data.
         event["responses"]["acceptedIds"].append("999")
         with pytest.raises(ValueError):
-            get_registered_player_names(event)
+            get_participating_player_names(event)
 
 
 class TestGetLastEventInSeries:

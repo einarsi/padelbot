@@ -7,7 +7,7 @@ from ..utils import (
     Events,
     get_last_event_from_timestamp_and_title,
     get_last_event_in_series,
-    get_registered_player_names,
+    get_participating_player_names,
 )
 from .rulebase import RemovalInfo, RuleBase, register_rule
 
@@ -79,7 +79,7 @@ class RuleQuarantineAfterEvent(RuleBase):
             if not self._include(event):
                 continue
 
-            logging.debug(f'[{self.name}]: Processing event "{event["heading"]}"')
+            logging.info(f'[{self.name}]: Processing event "{event["heading"]}"')
 
             if not self._isactive(event):
                 continue
@@ -93,9 +93,9 @@ class RuleQuarantineAfterEvent(RuleBase):
             )
 
             if logging.getLogger().isEnabledFor(logging.DEBUG):
-                registered_names = get_registered_player_names(event)
+                participating_names = get_participating_player_names(event)
                 logging.debug(
-                    f"[{self.name}]: Registered players: {', '.join(registered_names)}"
+                    f"[{self.name}]: Participating players: {', '.join(participating_names)}"
                 )
 
             last_event = get_last_event_in_series(event, self.events.previous)

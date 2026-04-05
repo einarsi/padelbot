@@ -6,6 +6,11 @@ group_id = "your_group_id"
 [general]
 seconds_to_sleep = 600
 
+[naco]
+enabled = false
+base_url = "http://localhost:8000"
+api_key = "your_api_key"
+
 [logging]
 level = "DEBUG"
 
@@ -15,7 +20,7 @@ type = "QuarantineAfterEvent"
 header_regex = ".*Americano.*"
 quarantine_hours = 24
 message = "Hi {firstName},\nYou were removed from the event \"{heading}\" because you played last time.\nPlease wait for at least 24 hours after the event ended before signing up."
-enforced = true
+enforced = false
 
 [rules.max_per_week]
 type = "MaxEventsPerWeek"
@@ -23,4 +28,4 @@ header_regex = ".*Americano.*"
 max_events = 2
 grace_hours = 24
 message = "Hi {firstName},\nYou were removed from the event \"{heading}\" because you are only allowed to have two active sign-ups.\nEvents that start within the next 24 hours are not counted towards the total."
-enforced = true
+enforced = false

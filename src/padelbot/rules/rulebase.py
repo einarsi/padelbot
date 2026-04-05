@@ -34,7 +34,7 @@ class RuleBase(ABC):
     def schedule_removal(self, id, event) -> RemovalInfo:
         player = memberid_to_member(id, event["recipients"]["group"]["members"])
 
-        logging.debug(
+        logging.info(
             f'[{self.name}]: Scheduling {player["firstName"]} {player["lastName"]} for removal from "{event["heading"]}"'
         )
         # Merge self.event and player, ignoring duplicate keys (player takes precedence)

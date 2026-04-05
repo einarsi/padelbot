@@ -62,13 +62,13 @@ def get_last_event_from_timestamp_and_title(
     return None
 
 
-def get_registered_player_names(event: Event) -> list[str]:
+def get_participating_player_names(event: Event) -> list[str]:
     player_ids: list[str] = (
         event["responses"]["acceptedIds"] + event["responses"]["waitinglistIds"]
     )
-    registered_names = [
+    participating_names = [
         f"{player['firstName']} {player['lastName']}"
         for pid in player_ids
         if (player := memberid_to_member(pid, event["recipients"]["group"]["members"]))
     ]
-    return registered_names
+    return participating_names

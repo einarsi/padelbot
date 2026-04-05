@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from spond import spond
 
+from .naco.registrar import NacoRegistrar
 from .rules.rulebase import RuleBase, create_rule
 from .utils import Event, Events, eventid_to_event, memberid_to_member
 
@@ -16,6 +17,12 @@ class PadelBot:
         except Exception as e:
             logging.error(f"Failed to initialize Spond client: {e}")
             raise
+        self.naco_enabled = cfg["naco"].get("enabled", False)
+        if self.naco_enabled:
+            self.naco_registrar = NacoRegistrar(
+                base_url=cfg["naco"]["base_url"],
+                api_key=cfg["naco"].get("api_key", ""),
+            )
         self.first_run = True
         self.events = Events()  # Cache events for webapp access
 
@@ -64,6 +71,8 @@ class PadelBot:
 
     def get_sleep_time(self, default_sleep_time: float, events: Events) -> float:
         # Identify next rule/quarantine end time. Must be in the future.
+        seconds_to_sleep = default_sleep_time
+
         all_rule_end_times = [
             dt for rule in self.get_rules(events) for dt in rule.expirationtimes()
         ]
@@ -71,17 +80,16 @@ class PadelBot:
         next_rule_end_time = min(
             (dt for dt in all_rule_end_times if dt > now), default=None
         )
-        seconds_to_sleep = default_sleep_time
         if next_rule_end_time:
             secs_to_quarantine_end = (next_rule_end_time - now).total_seconds()
-            logging.debug(
-                f"Next quarantine ends in {secs_to_quarantine_end} seconds (at {next_rule_end_time.astimezone().replace(tzinfo=None)})"
+            logging.info(
+                f"Next quarantine ends at {next_rule_end_time.astimezone().replace(tzinfo=None)} (in {secs_to_quarantine_end:.2f} seconds)"
             )
 
             if (
                 1 < secs_to_quarantine_end <= 60
-            ):  # Aim for 1 second before, every 10 secs until then
-                seconds_to_sleep = max(1, min(10, secs_to_quarantine_end - 1))
+            ):  # Aim for 1 second before, every 20 secs until then
+                seconds_to_sleep = max(1, min(20, secs_to_quarantine_end - 1))
             else:  # Aim for 59 seconds before to enter interval above
                 seconds_to_sleep = max(
                     1,
@@ -151,6 +159,11 @@ class PadelBot:
         events = await self.get_events()
         self.events = events  # Cache events for webapp access
 
+        if self.naco_enabled:
+            await self.naco_registrar.register_event_users(
+                events.upcoming, self.spond.get_person
+            )
+
         all_removals = []
         for rule in self.get_rules(events):
             removals = rule.evaluate()
@@ -177,5 +190,5 @@ class PadelBot:
             self.cfg["general"]["seconds_to_sleep"], events
         )
 
-        logging.debug(f"Sleeping for {seconds_to_sleep} seconds")
+        logging.info(f"Sleeping for {seconds_to_sleep} seconds")
         await asyncio.sleep(seconds_to_sleep)
