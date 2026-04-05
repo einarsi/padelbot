@@ -5,21 +5,21 @@ description = "An app to simplify the life of managing the Equinor BIL Trondheim
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "aiofiles>=24.1.0",
+    "aiofiles>=25.1.0",
     "configparser>=7.2.0",
     "naco-backend-client",
-    "python-dotenv>=1.1.1",
+    "python-dotenv>=1.2.2",
     "spond>=1.1.1",
-    "starlette>=0.48.0",
-    "types-aiofiles>=24.1.0.20250822",
-    "uvicorn>=0.37.0",
+    "starlette>=1.0.0",
+    "types-aiofiles>=25.1.0.20251011",
+    "uvicorn>=0.43.0",
 ]
 
 [tool.uv.sources]
 naco-backend-client = { path = "naco-backend-client" }
 
 [dependency-groups]
-dev = ["openapi-python-client>=0.28.3", "pytest-asyncio>=1.2.0", "ruff>=0.13.0"]
+dev = ["openapi-python-client>=0.28.3", "pytest-asyncio>=1.3.0", "ruff>=0.15.9"]
 
 [tool.pytest.ini_options]
 pythonpath = "."
