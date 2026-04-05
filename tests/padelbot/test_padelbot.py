@@ -209,7 +209,7 @@ class TestGetSleepTime:
             (
                 "10 < t < 60 seconds until next rule end time",
                 timedelta(seconds=37),
-                37 - 27,
+                37 - 17,
             ),
             (
                 "t < 10 seconds until next rule end time",
