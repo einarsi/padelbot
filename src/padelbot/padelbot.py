@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from spond import spond
 
+from .naco.registrar import NacoRegistrar
 from .rules.rulebase import RuleBase, create_rule
 from .utils import Event, Events, eventid_to_event, memberid_to_member
 
@@ -16,6 +17,12 @@ class PadelBot:
         except Exception as e:
             logging.error(f"Failed to initialize Spond client: {e}")
             raise
+        self.naco_enabled = cfg["naco"].get("enabled", False)
+        if self.naco_enabled:
+            self.naco_registrar = NacoRegistrar(
+                base_url=cfg["naco"]["base_url"],
+                api_key=cfg["naco"].get("api_key", ""),
+            )
         self.first_run = True
         self.events = Events()  # Cache events for webapp access
 
@@ -150,6 +157,11 @@ class PadelBot:
     async def run(self):
         events = await self.get_events()
         self.events = events  # Cache events for webapp access
+
+        if self.naco_enabled:
+            await self.naco_registrar.register_event_users(
+                events.upcoming, self.spond.get_person
+            )
 
         all_removals = []
         for rule in self.get_rules(events):

@@ -1,9 +1,14 @@
 from datetime import datetime, timedelta
+from http import HTTPStatus
 from unittest.mock import AsyncMock, patch
+from uuid import UUID
 
 import pytest
 import pytest_asyncio
+from naco_backend_client.models.user import User
+from naco_backend_client.types import Response
 
+from src.padelbot.naco.registrar import NacoRegistrar
 from src.padelbot.padelbot import PadelBot
 from src.padelbot.rules.rulebase import RuleBase
 from src.padelbot.utils import Events
@@ -18,6 +23,11 @@ def cfg():
             "rule2": {"rule": "DummyRule2"},
         },
         "general": {"seconds_to_sleep": 10},
+        "naco": {
+            "enabled": True,
+            "base_url": "http://localhost:8000",
+            "api_key": "test-key",
+        },
     }
 
 
@@ -71,6 +81,7 @@ async def mockbot(cfg):
         patch.object(bot.spond, "change_response", new_callable=AsyncMock),
         patch.object(bot.spond, "send_message", new_callable=AsyncMock),
         patch.object(bot.spond, "get_events", new_callable=AsyncMock),
+        patch.object(bot.spond, "get_person", new_callable=AsyncMock),
     ):
         yield bot
 
@@ -301,3 +312,185 @@ class TestRemovePlayerFromEvent:
         assert result is False
         mockbot.spond.change_response.assert_not_awaited()
         mockbot.spond.send_message.assert_not_awaited()
+
+
+class TestRegisterEventUsers:
+    @pytest.fixture
+    def registrar(self):
+        return NacoRegistrar(base_url="http://localhost:8000", api_key="test-key")
+
+    @pytest.fixture
+    def registration_events(self):
+        return [
+            {
+                "id": "event1-id",
+                "responses": {
+                    "acceptedIds": ["AAAAAAAABBBBCCCCDDDDEEEEEEEEEEEE"],
+                    "waitinglistIds": ["11111111222233334444555566667777"],
+                    "declinedIds": [],
+                },
+                "recipients": {
+                    "group": {
+                        "members": [
+                            {
+                                "id": "AAAAAAAABBBBCCCCDDDDEEEEEEEEEEEE",
+                                "firstName": "Alice",
+                                "lastName": "Alison",
+                                "profile": {"id": "AAAA0000BBBB1111CCCC2222DDDD3333"},
+                            },
+                            {
+                                "id": "11111111222233334444555566667777",
+                                "firstName": "Bob",
+                                "lastName": "Bobson",
+                                "profile": {"id": "11110000222211113333444455556666"},
+                            },
+                        ]
+                    }
+                },
+            },
+        ]
+
+    def _person_side_effect(self, player_id):
+        people = {
+            "AAAAAAAABBBBCCCCDDDDEEEEEEEEEEEE": {
+                "profile": {"email": "alice@example.com"},
+            },
+            "11111111222233334444555566667777": {
+                "profile": {"email": "bob@example.com"},
+            },
+        }
+        return people.get(player_id, {})
+
+    def _make_response(self, status_code, parsed=None):
+        return Response(
+            status_code=status_code,
+            content=b"",
+            headers={},
+            parsed=parsed,
+        )
+
+    @pytest.mark.asyncio
+    async def test_registers_new_users(self, registrar, registration_events):
+        get_person = AsyncMock(side_effect=self._person_side_effect)
+        created_user = User(
+            id=UUID("00000000-0000-0000-0000-000000000001"),
+            username="alice.alison",
+            first_name="Alice",
+            last_name="Alison",
+            email="alice@example.com",
+            ranking=0.0,
+            name="Alice Alison",
+        )
+        response = self._make_response(HTTPStatus.CREATED, created_user)
+        with patch(
+            "src.padelbot.naco.registrar.create_user.asyncio_detailed",
+            new_callable=AsyncMock,
+            return_value=response,
+        ) as mock_create:
+            await registrar.register_event_users(registration_events, get_person)
+
+        assert mock_create.await_count == 2
+
+    @pytest.mark.asyncio
+    async def test_skips_already_registered_users(self, registrar, registration_events):
+        get_person = AsyncMock(side_effect=self._person_side_effect)
+        registrar.cache_registered_spond_member_ids = {
+            "aaaaaaaabbbbccccddddeeeeeeeeeeee"
+        }
+        created_user = User(
+            id=UUID("00000000-0000-0000-0000-000000000001"),
+            username="bob.bobson",
+            first_name="Bob",
+            last_name="Bobson",
+            email="bob@example.com",
+            ranking=0.0,
+            name="Bob Bobson",
+        )
+        response = self._make_response(HTTPStatus.CREATED, created_user)
+        with patch(
+            "src.padelbot.naco.registrar.create_user.asyncio_detailed",
+            new_callable=AsyncMock,
+            return_value=response,
+        ) as mock_create:
+            await registrar.register_event_users(registration_events, get_person)
+
+        assert mock_create.await_count == 1
+
+    @pytest.mark.asyncio
+    async def test_skips_already_registered_on_second_call(
+        self, registrar, registration_events
+    ):
+        get_person = AsyncMock(side_effect=self._person_side_effect)
+        created_user = User(
+            id=UUID("00000000-0000-0000-0000-000000000001"),
+            username="alice.alison",
+            first_name="Alice",
+            last_name="Alison",
+            email="alice@example.com",
+            ranking=0.0,
+            name="Alice Alison",
+        )
+        response = self._make_response(HTTPStatus.CREATED, created_user)
+        with patch(
+            "src.padelbot.naco.registrar.create_user.asyncio_detailed",
+            new_callable=AsyncMock,
+            return_value=response,
+        ) as mock_create:
+            await registrar.register_event_users(registration_events, get_person)
+            assert mock_create.await_count == 2
+
+            mock_create.reset_mock()
+            await registrar.register_event_users(registration_events, get_person)
+            mock_create.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_caches_duplicate_user(self, registrar, registration_events):
+        get_person = AsyncMock(side_effect=self._person_side_effect)
+        response = self._make_response(HTTPStatus.CONFLICT, None)
+        with patch(
+            "src.padelbot.naco.registrar.create_user.asyncio_detailed",
+            new_callable=AsyncMock,
+            return_value=response,
+        ) as mock_create:
+            await registrar.register_event_users(registration_events, get_person)
+            assert mock_create.await_count == 2
+
+            mock_create.reset_mock()
+            await registrar.register_event_users(registration_events, get_person)
+            mock_create.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_skips_user_without_email(self, registrar, registration_events):
+        get_person = AsyncMock(return_value={"profile": {}})
+        with patch(
+            "src.padelbot.naco.registrar.create_user.asyncio_detailed",
+            new_callable=AsyncMock,
+        ) as mock_create:
+            await registrar.register_event_users(registration_events, get_person)
+
+        mock_create.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_does_not_cache_on_auth_error(self, registrar, registration_events):
+        get_person = AsyncMock(side_effect=self._person_side_effect)
+        response = self._make_response(HTTPStatus.UNAUTHORIZED, None)
+        with patch(
+            "src.padelbot.naco.registrar.create_user.asyncio_detailed",
+            new_callable=AsyncMock,
+            return_value=response,
+        ) as mock_create:
+            await registrar.register_event_users(registration_events, get_person)
+            assert mock_create.await_count == 2
+            assert len(registrar.cache_registered_spond_member_ids) == 0
+
+    @pytest.mark.asyncio
+    async def test_handles_create_error_gracefully(
+        self, registrar, registration_events
+    ):
+        get_person = AsyncMock(side_effect=self._person_side_effect)
+        with patch(
+            "src.padelbot.naco.registrar.create_user.asyncio_detailed",
+            new_callable=AsyncMock,
+            side_effect=Exception("api error"),
+        ):
+            await registrar.register_event_users(registration_events, get_person)
