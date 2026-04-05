@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import tomllib
+from contextlib import asynccontextmanager
 
 from starlette.applications import Starlette
 from starlette.responses import HTMLResponse, PlainTextResponse
@@ -101,18 +102,8 @@ async def show_logs(request):
         return PlainTextResponse(info)
 
 
-app = Starlette(
-    debug=True,
-    routes=[
-        Route("/", log_viewer),
-        Route("/logs", get_logs),
-        Route("/events", get_events),
-    ],
-)
-
-
-@app.on_event("startup")
-async def startup():
+@asynccontextmanager
+async def lifespan(app):
     await start_logger()
     with open("pyproject.toml", "rb") as f:
         data = tomllib.load(f)
@@ -121,13 +112,25 @@ async def startup():
     cfg = readconfig()
     if cfg is None:
         logging.error("Missing configuration")
-        return
-    logging.getLogger().setLevel(cfg["logging"]["level"])
-    from padelbot.padelbot import PadelBot
+    else:
+        logging.getLogger().setLevel(cfg["logging"]["level"])
+        from padelbot.padelbot import PadelBot
 
-    app.state.padelbot = PadelBot(cfg)
-    # Run padelbot.run() in the background
-    asyncio.create_task(run_padelbot(app))
+        app.state.padelbot = PadelBot(cfg)
+        # Run padelbot.run() in the background
+        asyncio.create_task(run_padelbot(app))
+    yield
+
+
+app = Starlette(
+    debug=True,
+    routes=[
+        Route("/", log_viewer),
+        Route("/logs", get_logs),
+        Route("/events", get_events),
+    ],
+    lifespan=lifespan,
+)
 
 
 async def run_padelbot(app):

@@ -1,4 +1,4 @@
-FROM python:3.13-alpine3.23 AS builder
+FROM python:3.14-alpine3.23 AS builder
 
 WORKDIR /app
 
@@ -9,14 +9,14 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 # Install uv from official image
-COPY --from=ghcr.io/astral-sh/uv:0.6 /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.11.3 /uv /usr/local/bin/uv
 
 COPY uv.lock pyproject.toml ./
 COPY naco-backend-client/ naco-backend-client/
 
 RUN uv sync --locked --no-install-project --no-dev
 
-FROM python:3.13-alpine3.23
+FROM python:3.14-alpine3.23
 
 WORKDIR /app
 
