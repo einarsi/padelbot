@@ -71,6 +71,8 @@ class PadelBot:
 
     def get_sleep_time(self, default_sleep_time: float, events: Events) -> float:
         # Identify next rule/quarantine end time. Must be in the future.
+        seconds_to_sleep = default_sleep_time
+
         all_rule_end_times = [
             dt for rule in self.get_rules(events) for dt in rule.expirationtimes()
         ]
@@ -78,17 +80,16 @@ class PadelBot:
         next_rule_end_time = min(
             (dt for dt in all_rule_end_times if dt > now), default=None
         )
-        seconds_to_sleep = default_sleep_time
         if next_rule_end_time:
             secs_to_quarantine_end = (next_rule_end_time - now).total_seconds()
-            logging.debug(
-                f"Next quarantine ends in {secs_to_quarantine_end} seconds (at {next_rule_end_time.astimezone().replace(tzinfo=None)})"
+            logging.info(
+                f"Next quarantine ends at {next_rule_end_time.astimezone().replace(tzinfo=None)} (in {secs_to_quarantine_end:.2f} seconds)"
             )
 
             if (
                 1 < secs_to_quarantine_end <= 60
-            ):  # Aim for 1 second before, every 10 secs until then
-                seconds_to_sleep = max(1, min(10, secs_to_quarantine_end - 1))
+            ):  # Aim for 1 second before, every 20 secs until then
+                seconds_to_sleep = max(1, min(20, secs_to_quarantine_end - 1))
             else:  # Aim for 59 seconds before to enter interval above
                 seconds_to_sleep = max(
                     1,
