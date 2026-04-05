@@ -15,6 +15,9 @@ dependencies = [
     "uvicorn>=0.37.0",
 ]
 
+[tool.uv.sources]
+naco-backend-client = { path = "naco-backend-client" }
+
 [dependency-groups]
 dev = ["openapi-python-client>=0.28.3", "pytest-asyncio>=1.2.0", "ruff>=0.13.0"]
 
