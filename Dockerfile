@@ -12,6 +12,7 @@ ENV UV_LINK_MODE=copy
 COPY --from=ghcr.io/astral-sh/uv:0.6 /uv /usr/local/bin/uv
 
 COPY uv.lock pyproject.toml ./
+COPY naco-backend-client/ naco-backend-client/
 
 RUN uv sync --locked --no-install-project --no-dev
 
