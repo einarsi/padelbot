@@ -460,15 +460,28 @@ class TestRegisterEventUsers:
             mock_create.assert_not_awaited()
 
     @pytest.mark.asyncio
-    async def test_skips_user_without_email(self, registrar, registration_events):
+    async def test_registers_user_without_email(self, registrar, registration_events):
         get_person = AsyncMock(return_value={"profile": {}})
+        created_user = User(
+            id=UUID("00000000-0000-0000-0000-000000000001"),
+            username="alice.alison",
+            first_name="Alice",
+            last_name="Alison",
+            ranking=0.0,
+            name="Alice Alison",
+        )
+        response = self._make_response(HTTPStatus.CREATED, created_user)
         with patch(
             "src.padelbot.naco.registrar.create_user.asyncio_detailed",
             new_callable=AsyncMock,
+            return_value=response,
         ) as mock_create:
             await registrar.register_event_users(registration_events, get_person)
 
-        mock_create.assert_not_awaited()
+        assert mock_create.await_count == 2
+        # Verify email is None in the UserCreate call
+        call_args = mock_create.call_args_list[0]
+        assert call_args.kwargs["body"].email is None
 
     @pytest.mark.asyncio
     async def test_does_not_cache_on_auth_error(self, registrar, registration_events):

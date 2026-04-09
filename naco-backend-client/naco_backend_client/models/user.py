@@ -20,9 +20,9 @@ class User:
         username (str):
         first_name (str):
         last_name (str):
-        email (str):
         ranking (float):
         name (str):
+        email (None | str | Unset):
         spond_profile_id (None | Unset | UUID):
     """
 
@@ -30,9 +30,9 @@ class User:
     username: str
     first_name: str
     last_name: str
-    email: str
     ranking: float
     name: str
+    email: None | str | Unset = UNSET
     spond_profile_id: None | Unset | UUID = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -45,11 +45,15 @@ class User:
 
         last_name = self.last_name
 
-        email = self.email
-
         ranking = self.ranking
 
         name = self.name
+
+        email: None | str | Unset
+        if isinstance(self.email, Unset):
+            email = UNSET
+        else:
+            email = self.email
 
         spond_profile_id: None | str | Unset
         if isinstance(self.spond_profile_id, Unset):
@@ -67,11 +71,12 @@ class User:
                 "username": username,
                 "first_name": first_name,
                 "last_name": last_name,
-                "email": email,
                 "ranking": ranking,
                 "name": name,
             }
         )
+        if email is not UNSET:
+            field_dict["email"] = email
         if spond_profile_id is not UNSET:
             field_dict["spond_profile_id"] = spond_profile_id
 
@@ -88,11 +93,18 @@ class User:
 
         last_name = d.pop("last_name")
 
-        email = d.pop("email")
-
         ranking = d.pop("ranking")
 
         name = d.pop("name")
+
+        def _parse_email(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        email = _parse_email(d.pop("email", UNSET))
 
         def _parse_spond_profile_id(data: object) -> None | Unset | UUID:
             if data is None:
@@ -116,9 +128,9 @@ class User:
             username=username,
             first_name=first_name,
             last_name=last_name,
-            email=email,
             ranking=ranking,
             name=name,
+            email=email,
             spond_profile_id=spond_profile_id,
         )
 
