@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.5.0](https://github.com/einarsi/padelbot/compare/v1.4.2...v1.5.0) (2026-04-09)
+
+
+### ✨ Features
+
+* create Naco users from Spond members ([#93](https://github.com/einarsi/padelbot/issues/93)) ([c328b2b](https://github.com/einarsi/padelbot/commit/c328b2bf5571a444080d555f4514232222019666))
+
+
+### 🐛 Bug Fixes
+
+* broken docker build ([#95](https://github.com/einarsi/padelbot/issues/95)) ([d93a6b3](https://github.com/einarsi/padelbot/commit/d93a6b3368cbf596b3907b57146d4aa728913b3e))
+* make email optional for Naco registration ([#98](https://github.com/einarsi/padelbot/issues/98)) ([1cf0953](https://github.com/einarsi/padelbot/commit/1cf0953402e7ff4a2f2e8c695b3f4788b60c363a))
+
+
+### 🧹 Chores
+
+* **deps:** bump uvicorn from 0.43.0 to 0.44.0 ([#97](https://github.com/einarsi/padelbot/issues/97)) ([8e937bb](https://github.com/einarsi/padelbot/commit/8e937bb2b60415ecf0498dfe01f454a29172b566))
+
+
+### 📦 Build system
+
+* bump python to 3.14, bump uv + most packages ([#96](https://github.com/einarsi/padelbot/issues/96)) ([d0be497](https://github.com/einarsi/padelbot/commit/d0be4975bb8ae7e9dc2b11b98dc8cfdb3c5222aa))
+* fix uv upper version constraint ([#99](https://github.com/einarsi/padelbot/issues/99)) ([7f75725](https://github.com/einarsi/padelbot/commit/7f757254d0b5a326ff2c25a7ee871043949edf62))
+
 ## [1.4.2](https://github.com/einarsi/padelbot/compare/v1.4.1...v1.4.2) (2026-04-04)
 
 
