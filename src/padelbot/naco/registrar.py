@@ -63,12 +63,7 @@ class NacoRegistrar:
                 )
                 continue
 
-            email = person.get("profile", {}).get("email", "")
-            if not email:
-                logging.warning(
-                    f"No email found for {first_name} {last_name}, skipping registration"
-                )
-                continue
+            email = person.get("profile", {}).get("email") or None
 
             user_create = UserCreate(
                 username=f"{first_name}.{last_name}".lower(),
