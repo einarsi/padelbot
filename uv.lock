@@ -547,7 +547,7 @@ requires-dist = [
     { name = "configparser", specifier = ">=7.2.0" },
     { name = "naco-backend-client", directory = "naco-backend-client" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "spond", specifier = ">=1.1.1" },
+    { name = "spond", specifier = ">=1.2.0" },
     { name = "starlette", specifier = ">=1.0.0" },
     { name = "types-aiofiles", specifier = ">=25.1.0.20251011" },
     { name = "uvicorn", specifier = ">=0.43.0" },
@@ -831,14 +831,14 @@ wheels = [
 
 [[package]]
 name = "spond"
-version = "1.1.1"
+version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/98/69/274aa0e5dca692a0ed34b1cfb0a0df2b0a7232b579476c957556cfe2b545/spond-1.1.1.tar.gz", hash = "sha256:a0c729b328f1586027da760466d60561953ffddabf1d34162d55c1c1c7d0a057", size = 18957, upload-time = "2025-02-23T09:47:53.941Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5c/6a/954dc83453b87d42a5c93a08dc218be64ceaa0381dea0232361749dcf198/spond-1.2.0.tar.gz", hash = "sha256:14df72f1896ca81147c1f379012532a72c735a52523aaf25fc0703bfcea6c8a6", size = 20408, upload-time = "2026-04-11T12:57:30.233Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/88/af4fb4584d15764e60d6078bdc04e94a81c494c9c39bd77b91c4b3151fa1/spond-1.1.1-py3-none-any.whl", hash = "sha256:9848f4af16249a8cfa9ad2ef1e5e4460f5b9b8f1a4c9d4c1e86387b824b81c70", size = 20902, upload-time = "2025-02-23T09:47:52.006Z" },
+    { url = "https://files.pythonhosted.org/packages/ed/c5/6f8ce8f909ae5705467a49f0d1ac9c7b7186f861da465df6793d0f9c70f1/spond-1.2.0-py3-none-any.whl", hash = "sha256:e14705aa37d25cbef6890ecbd5d4ef6d4a843faa5ba47e4012c6cdd3e1ccefd0", size = 21221, upload-time = "2026-04-11T12:57:28.736Z" },
 ]
 
 [[package]]
