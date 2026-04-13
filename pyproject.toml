@@ -9,7 +9,7 @@ dependencies = [
     "configparser>=7.2.0",
     "naco-backend-client",
     "python-dotenv>=1.2.2",
-    "spond>=1.1.1",
+    "spond>=1.2.0",
     "starlette>=1.0.0",
     "types-aiofiles>=25.1.0.20251011",
     "uvicorn>=0.43.0",
