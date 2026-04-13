@@ -11,7 +11,7 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "spond>=1.1.1",
     "starlette>=1.0.0",
-    "types-aiofiles>=25.1.0.20251011",
+    "types-aiofiles>=25.1.0.20260409",
     "uvicorn>=0.43.0",
 ]
 
