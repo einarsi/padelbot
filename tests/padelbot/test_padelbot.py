@@ -22,6 +22,7 @@ def cfg():
             "rule1": {"rule": "DummyRule1"},
             "rule2": {"rule": "DummyRule2"},
         },
+        "actions": {},
         "general": {"seconds_to_sleep": 10},
         "naco": {
             "enabled": True,

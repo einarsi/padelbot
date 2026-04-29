@@ -4,7 +4,10 @@ from datetime import datetime, timedelta
 
 from spond import spond
 
+from .actions.actionbase import ActionBase, ActionIntent, create_action
+from .actions.create_tournament import CreateTournamentIntent
 from .naco.registrar import NacoRegistrar
+from .naco.tournament import NacoTournamentCreator
 from .rules.rulebase import RuleBase, create_rule
 from .utils import Event, Events, eventid_to_event, memberid_to_member
 
@@ -20,6 +23,10 @@ class PadelBot:
         self.naco_enabled = cfg["naco"].get("enabled", False)
         if self.naco_enabled:
             self.naco_registrar = NacoRegistrar(
+                base_url=cfg["naco"]["base_url"],
+                api_key=cfg["naco"].get("api_key", ""),
+            )
+            self.naco_tournament_creator = NacoTournamentCreator(
                 base_url=cfg["naco"]["base_url"],
                 api_key=cfg["naco"].get("api_key", ""),
             )
@@ -69,12 +76,45 @@ class PadelBot:
             rules.append(rule)
         return rules
 
+    def get_actions(self, events: Events) -> list[ActionBase]:
+        actions = []
+        for action_name, action_def in self.cfg["actions"].items():
+            action = create_action(action_name, events, action_def)
+            if not action:
+                logging.error(
+                    f'Skipping unsupported action type "{action_def["type"]}"'
+                )
+                continue
+            actions.append(action)
+        return actions
+
+    async def execute_action(self, intent: ActionIntent) -> bool:
+        if isinstance(intent, CreateTournamentIntent):
+            if not self.naco_enabled:
+                logging.warning(
+                    f'Cannot create tournament for "{intent.event_heading}": Naco is disabled'
+                )
+                return False
+            return await self.naco_tournament_creator.create_tournament(
+                event_id=intent.event_id,
+                event_heading=intent.event_heading,
+                tournament_type=intent.tournament_type,
+                created_by_spond_id=intent.created_by_spond_id,
+                player_spond_ids=intent.player_spond_ids,
+                start_time=intent.start_time,
+                points_to_win=intent.points_to_win,
+            )
+        logging.error(f"Unknown action intent type: {type(intent).__name__}")
+        return False
+
     def get_sleep_time(self, default_sleep_time: float, events: Events) -> float:
         # Identify next rule/quarantine end time. Must be in the future.
         seconds_to_sleep = default_sleep_time
 
         all_rule_end_times = [
             dt for rule in self.get_rules(events) for dt in rule.expirationtimes()
+        ] + [
+            dt for action in self.get_actions(events) for dt in action.expirationtimes()
         ]
         now = datetime.now().astimezone()
         next_rule_end_time = min(
@@ -183,6 +223,17 @@ class PadelBot:
                 events=events.upcoming,
                 enforce=removal.enforced and not self.first_run,
             )
+
+        # Evaluate and execute actions
+        if not self.first_run:
+            all_intents = []
+            for action in self.get_actions(events):
+                intents = action.evaluate()
+                all_intents.extend(intents)
+
+            for intent in all_intents:
+                if intent.enforced:
+                    await self.execute_action(intent)
 
         self.first_run = False
 
