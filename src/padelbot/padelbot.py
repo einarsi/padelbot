@@ -69,9 +69,10 @@ class PadelBot:
     def get_rules(self, events: Events) -> list[RuleBase]:
         rules = []
         for rule_name, rule_def in self.cfg["rules"].items():
-            rule = create_rule(rule_name, events, rule_def)
-            if not rule:
-                logging.error(f'Skipping unsupported rule class "{rule_def["rule"]}"')
+            try:
+                rule = create_rule(rule_name, events, rule_def)
+            except ValueError as e:
+                logging.error(f"Skipping rule {rule_name}: {e}")
                 continue
             rules.append(rule)
         return rules
@@ -79,11 +80,10 @@ class PadelBot:
     def get_actions(self, events: Events) -> list[ActionBase]:
         actions = []
         for action_name, action_def in self.cfg["actions"].items():
-            action = create_action(action_name, events, action_def)
-            if not action:
-                logging.error(
-                    f'Skipping unsupported action type "{action_def["type"]}"'
-                )
+            try:
+                action = create_action(action_name, events, action_def)
+            except ValueError as e:
+                logging.error(f"Skipping action {action_name}: {e}")
                 continue
             actions.append(action)
         return actions
