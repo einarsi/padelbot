@@ -18,6 +18,7 @@ OUTPUT_DIR = REPO_ROOT / "naco-backend-client"
 
 ALLOWED_PATHS = [
     "/api/v1/users",  # POST: create user
+    "/api/v1/tournaments/from-spond",  # POST: create tournament from Spond event
 ]
 
 
