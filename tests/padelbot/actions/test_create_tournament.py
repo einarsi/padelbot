@@ -184,3 +184,17 @@ def test_evaluate_not_enforced(sample_events):
     intents = action.evaluate()
     assert len(intents) == 1
     assert intents[0].enforced is False
+
+
+def test_evaluate_skips_event_with_invalid_uuid_id(sample_events):
+    """Events with non-UUID IDs should be skipped with a warning."""
+    sample_events.upcoming[0]["id"] = "not-a-valid-uuid"
+    action = ActionCreateTournament(
+        action_name="create_tournament",
+        events=sample_events,
+        header_regex=".*Americano.*",
+        enforced=True,
+        minutes_before_start=5,
+    )
+    intents = action.evaluate()
+    assert all(i.event_id != "not-a-valid-uuid" for i in intents)

@@ -65,6 +65,15 @@ class ActionCreateTournament(ActionBase):
             if not self._is_within_window(event):
                 continue
 
+            try:
+                UUID(event["id"])
+            except ValueError:
+                logging.warning(
+                    f'[{self.name}]: Skipping event "{event["heading"]}" — '
+                    f'invalid event ID "{event["id"]}" (not a valid UUID)'
+                )
+                continue
+
             # Resolve Spond profile IDs from accepted players
             members = event["recipients"]["group"]["members"]
             player_spond_ids: list[UUID] = []
