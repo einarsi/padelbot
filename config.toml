@@ -37,4 +37,5 @@ header_regex = ".*Americano.*"
 tournament_type = "americano"
 created_by_spond_id = "00000000-0000-0000-0000-000000000000"
 minutes_before_start = 5
+# points_to_win = 21
 enforced = true
