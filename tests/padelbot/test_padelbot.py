@@ -8,6 +8,8 @@ import pytest_asyncio
 from naco_backend_client.models.user import User
 from naco_backend_client.types import Response
 
+from src.padelbot.actions.actionbase import ActionIntent
+from src.padelbot.actions.create_tournament import CreateTournamentIntent
 from src.padelbot.naco.registrar import NacoRegistrar
 from src.padelbot.padelbot import PadelBot
 from src.padelbot.rules.rulebase import RuleBase
@@ -41,6 +43,7 @@ def events():
             "responses": {
                 "acceptedIds": ["alice-id", "bob-id"],
                 "waitinglistIds": ["carol-id", "david-id"],
+                "declinedIds": [],
             },
         },
         {
@@ -48,6 +51,7 @@ def events():
             "responses": {
                 "acceptedIds": ["alice-id", "bob-id"],
                 "waitinglistIds": ["carol-id", "david-id"],
+                "declinedIds": [],
             },
         },
     ]
@@ -508,3 +512,167 @@ class TestRegisterEventUsers:
             side_effect=Exception("api error"),
         ):
             await registrar.register_event_users(registration_events, get_person)
+
+
+class TestExecuteAction:
+    @pytest.mark.asyncio
+    async def test_execute_create_tournament_intent(self, mockbot):
+        intent = CreateTournamentIntent(
+            event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            enforced=True,
+            event_heading="Tuesday Americano",
+            start_time=datetime(
+                2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
+            ),
+            tournament_type="americano",
+            created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
+            player_spond_ids=[UUID("22222222-2222-2222-2222-222222222222")],
+        )
+        with patch.object(
+            mockbot.naco_tournament_creator,
+            "create_tournament",
+            new_callable=AsyncMock,
+            return_value=True,
+        ) as mock_create:
+            result = await mockbot.execute_action(intent)
+        assert result is True
+        mock_create.assert_awaited_once_with(
+            event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            event_heading="Tuesday Americano",
+            tournament_type="americano",
+            created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
+            player_spond_ids=[UUID("22222222-2222-2222-2222-222222222222")],
+            start_time=intent.start_time,
+            points_to_win=None,
+        )
+
+    @pytest.mark.asyncio
+    async def test_execute_create_tournament_naco_disabled(self, cfg):
+        cfg["naco"]["enabled"] = False
+        bot = PadelBot(cfg)
+        intent = CreateTournamentIntent(
+            event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            enforced=True,
+            event_heading="Tuesday Americano",
+            start_time=datetime(
+                2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
+            ),
+        )
+        result = await bot.execute_action(intent)
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_execute_unknown_intent_returns_false(self, mockbot):
+        intent = ActionIntent(event_id="some-id", enforced=True)
+        result = await mockbot.execute_action(intent)
+        assert result is False
+
+
+class TestRunActions:
+    @pytest.mark.asyncio
+    async def test_actions_not_executed_on_first_run(self, mockbot, events):
+        mockbot.first_run = True
+        intent = CreateTournamentIntent(
+            event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            enforced=True,
+            event_heading="Tuesday Americano",
+            start_time=datetime(
+                2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
+            ),
+        )
+        dummy_action = type(
+            "DummyAction",
+            (),
+            {
+                "evaluate": lambda self: [intent],
+                "expirationtimes": lambda self: [],
+            },
+        )()
+        with (
+            patch.object(
+                mockbot, "get_events", new_callable=AsyncMock, return_value=events
+            ),
+            patch.object(
+                mockbot.naco_registrar, "register_event_users", new_callable=AsyncMock
+            ),
+            patch.object(mockbot, "get_rules", return_value=[]),
+            patch.object(mockbot, "get_actions", return_value=[dummy_action]),
+            patch.object(
+                mockbot, "execute_action", new_callable=AsyncMock
+            ) as mock_exec,
+            patch("asyncio.sleep", new_callable=AsyncMock),
+        ):
+            await mockbot.run()
+        mock_exec.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_enforced_actions_executed_on_second_run(self, mockbot, events):
+        mockbot.first_run = False
+        intent = CreateTournamentIntent(
+            event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            enforced=True,
+            event_heading="Tuesday Americano",
+            start_time=datetime(
+                2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
+            ),
+        )
+        dummy_action = type(
+            "DummyAction",
+            (),
+            {
+                "evaluate": lambda self: [intent],
+                "expirationtimes": lambda self: [],
+            },
+        )()
+        with (
+            patch.object(
+                mockbot, "get_events", new_callable=AsyncMock, return_value=events
+            ),
+            patch.object(
+                mockbot.naco_registrar, "register_event_users", new_callable=AsyncMock
+            ),
+            patch.object(mockbot, "get_rules", return_value=[]),
+            patch.object(mockbot, "get_actions", return_value=[dummy_action]),
+            patch.object(
+                mockbot, "execute_action", new_callable=AsyncMock
+            ) as mock_exec,
+            patch("asyncio.sleep", new_callable=AsyncMock),
+        ):
+            await mockbot.run()
+        mock_exec.assert_awaited_once_with(intent)
+
+    @pytest.mark.asyncio
+    async def test_non_enforced_actions_not_executed(self, mockbot, events):
+        mockbot.first_run = False
+        intent = CreateTournamentIntent(
+            event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            enforced=False,
+            event_heading="Tuesday Americano",
+            start_time=datetime(
+                2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
+            ),
+        )
+        dummy_action = type(
+            "DummyAction",
+            (),
+            {
+                "evaluate": lambda self: [intent],
+                "expirationtimes": lambda self: [],
+            },
+        )()
+        with (
+            patch.object(
+                mockbot, "get_events", new_callable=AsyncMock, return_value=events
+            ),
+            patch.object(
+                mockbot.naco_registrar, "register_event_users", new_callable=AsyncMock
+            ),
+            patch.object(mockbot, "get_rules", return_value=[]),
+            patch.object(mockbot, "get_actions", return_value=[dummy_action]),
+            patch.object(
+                mockbot, "execute_action", new_callable=AsyncMock
+            ) as mock_exec,
+            patch("asyncio.sleep", new_callable=AsyncMock),
+        ):
+            await mockbot.run()
+        mock_exec.assert_not_awaited()
