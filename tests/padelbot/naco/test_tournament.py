@@ -168,18 +168,6 @@ class TestCreateTournament:
         assert EVENT_ID not in creator.cache_created_event_ids
 
     @pytest.mark.asyncio
-    async def test_missing_created_by_spond_id_returns_false(self, creator):
-        result = await creator.create_tournament(
-            event_id=EVENT_ID,
-            event_heading="Tuesday Americano",
-            tournament_type="americano",
-            created_by_spond_id=None,
-            player_spond_ids=PLAYER_IDS,
-            start_time=START_TIME,
-        )
-        assert result is False
-
-    @pytest.mark.asyncio
     async def test_cache_skips_second_call(self, creator):
         parsed = SpondTournamentCreateResponse(skipped_spond_ids=UNSET)
         response = _make_response(HTTPStatus.CREATED, parsed)

@@ -93,7 +93,7 @@ def test_evaluate_returns_intent_for_matching_event_within_window(sample_events)
         events=sample_events,
         header_regex=".*Americano.*",
         tournament_type="americano",
-        created_by_spond_id=CREATOR_SPOND_ID,
+        spond_profile_id=CREATOR_SPOND_ID,
         enforced=True,
         minutes_before_start=5,
     )
@@ -114,6 +114,7 @@ def test_evaluate_returns_empty_for_non_matching_header(sample_events):
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Mexicano.*",
+        spond_profile_id=CREATOR_SPOND_ID,
         enforced=True,
         minutes_before_start=5,
     )
@@ -126,6 +127,7 @@ def test_evaluate_returns_empty_for_event_too_far_in_future(sample_events):
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
+        spond_profile_id=CREATOR_SPOND_ID,
         enforced=True,
         minutes_before_start=1,  # Only 1 minute window, e1 is 3 min away
     )
@@ -139,6 +141,7 @@ def test_evaluate_does_not_include_non_matching_event_in_window(sample_events):
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
+        spond_profile_id=CREATOR_SPOND_ID,
         enforced=True,
         minutes_before_start=5,
     )
@@ -152,6 +155,7 @@ def test_expirationtimes_returns_trigger_times(sample_events):
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
+        spond_profile_id=CREATOR_SPOND_ID,
         enforced=True,
         minutes_before_start=5,
     )
@@ -170,6 +174,7 @@ def test_expirationtimes_excludes_non_matching(sample_events):
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Social.*",
+        spond_profile_id=CREATOR_SPOND_ID,
         enforced=True,
         minutes_before_start=5,
     )
@@ -182,6 +187,7 @@ def test_evaluate_not_enforced(sample_events):
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
+        spond_profile_id=CREATOR_SPOND_ID,
         enforced=False,
         minutes_before_start=5,
     )
@@ -197,6 +203,7 @@ def test_evaluate_skips_event_with_invalid_uuid_id(sample_events):
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
+        spond_profile_id=CREATOR_SPOND_ID,
         enforced=True,
         minutes_before_start=5,
     )

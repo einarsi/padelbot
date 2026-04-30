@@ -31,7 +31,28 @@ class PadelBot:
                 api_key=cfg["naco"].get("api_key", ""),
             )
         self.first_run = True
+        self.spond_profile_id: str | None = None
         self.events = Events()  # Cache events for webapp access
+
+    async def resolve_spond_profile_id(self) -> None:
+        """Fetch the connected user's Spond profile ID on first run."""
+        if self.spond_profile_id:
+            return
+        try:
+            profile = await self.spond.get_profile()
+            self.spond_profile_id = profile.get("id")
+            if self.spond_profile_id:
+                logging.info(f"Resolved Spond profile ID: {self.spond_profile_id}")
+            else:
+                logging.error(
+                    "Spond profile response did not contain an 'id' field. "
+                    "Tournament creation will be disabled."
+                )
+        except Exception as e:
+            logging.error(
+                f"Failed to fetch Spond profile: {e}. "
+                f"Tournament creation will be disabled until resolved."
+            )
 
     async def get_events(self) -> Events:
         timestamp_now = datetime.now().astimezone()
@@ -78,8 +99,16 @@ class PadelBot:
         return rules
 
     def get_actions(self, events: Events) -> list[ActionBase]:
-        actions = []
+        actions: list[ActionBase] = []
+        if not self.spond_profile_id:
+            if self.cfg["actions"]:
+                logging.error(
+                    "Cannot create actions: Spond profile ID not resolved. "
+                    "Check connectivity to Spond."
+                )
+            return actions
         for action_name, action_def in self.cfg["actions"].items():
+            action_def = {**action_def, "spond_profile_id": self.spond_profile_id}
             try:
                 action = create_action(action_name, events, action_def)
             except ValueError as e:
@@ -196,6 +225,7 @@ class PadelBot:
         return False
 
     async def run(self):
+        await self.resolve_spond_profile_id()
         events = await self.get_events()
         self.events = events  # Cache events for webapp access
 

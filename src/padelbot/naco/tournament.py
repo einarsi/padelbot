@@ -23,7 +23,7 @@ class NacoTournamentCreator:
         event_id: str,
         event_heading: str,
         tournament_type: str,
-        created_by_spond_id: UUID | None,
+        created_by_spond_id: UUID,
         player_spond_ids: list[UUID],
         start_time: datetime,
         points_to_win: int | None = None,
@@ -40,13 +40,6 @@ class NacoTournamentCreator:
             f'Creating tournament in Naco for "{event_heading}" '
             f"with {len(player_spond_ids)} players, starting at {start_time.replace(tzinfo=None)}"
         )
-
-        if not created_by_spond_id:
-            logging.error(
-                f'Cannot create tournament for "{event_heading}": '
-                f"created_by_spond_id is not configured"
-            )
-            return False
 
         body = SpondTournamentCreate(
             name=event_heading,

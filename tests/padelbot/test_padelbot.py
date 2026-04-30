@@ -554,6 +554,7 @@ class TestExecuteAction:
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             enforced=True,
             event_heading="Tuesday Americano",
+            created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
             start_time=datetime(
                 2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
             ),
@@ -576,6 +577,7 @@ class TestRunActions:
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             enforced=True,
             event_heading="Tuesday Americano",
+            created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
             start_time=datetime(
                 2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
             ),
@@ -612,6 +614,7 @@ class TestRunActions:
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             enforced=True,
             event_heading="Tuesday Americano",
+            created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
             start_time=datetime(
                 2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
             ),
@@ -648,6 +651,7 @@ class TestRunActions:
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             enforced=False,
             event_heading="Tuesday Americano",
+            created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
             start_time=datetime(
                 2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
             ),

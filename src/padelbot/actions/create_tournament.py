@@ -14,9 +14,9 @@ class CreateTournamentIntent(ActionIntent):
 
     event_heading: str
     start_time: datetime
+    created_by_spond_id: UUID
     tournament_type: str = "americano"
     points_to_win: int | None = None
-    created_by_spond_id: UUID | None = None
     player_spond_ids: list[UUID] = field(default_factory=list)
 
 
@@ -26,8 +26,8 @@ class ActionCreateTournament(ActionBase):
         action_name: str,
         events: Events,
         header_regex: str,
+        spond_profile_id: str,
         tournament_type: str = "americano",
-        created_by_spond_id: str = "",
         enforced: bool = False,
         minutes_before_start: int = 5,
         points_to_win: int | None = None,
@@ -36,12 +36,10 @@ class ActionCreateTournament(ActionBase):
         self.events = events
         self.header_regex = header_regex
         self.tournament_type = tournament_type
-        self.created_by_spond_id = (
-            UUID(created_by_spond_id) if created_by_spond_id else None
-        )
         self.enforced = enforced
         self.minutes_before_start = minutes_before_start
         self.points_to_win = points_to_win
+        self.spond_profile_id = UUID(spond_profile_id)
 
     def _include(self, event: Event) -> bool:
         return bool(re.search(self.header_regex, event["heading"]))
@@ -102,7 +100,7 @@ class ActionCreateTournament(ActionBase):
                     event_heading=event["heading"],
                     tournament_type=self.tournament_type,
                     points_to_win=self.points_to_win,
-                    created_by_spond_id=self.created_by_spond_id,
+                    created_by_spond_id=self.spond_profile_id,
                     player_spond_ids=player_spond_ids,
                     start_time=start_time,
                 )
