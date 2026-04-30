@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from http import HTTPStatus
 from uuid import UUID
 
 from naco_backend_client import Client
@@ -77,19 +78,18 @@ class NacoTournamentCreator:
                 logging.info(f'Tournament created for "{event_heading}"')
             self.cache_created_event_ids.add(event_id)
             return True
-        elif response.status_code.value == 409:
+        elif response.status_code == HTTPStatus.CONFLICT:
             logging.debug(f'Tournament for "{event_heading}" already exists')
             self.cache_created_event_ids.add(event_id)
             return True
         else:
-            status = response.status_code.value
-            if status in (401, 403):
+            if response.status_code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
                 logging.error(
-                    f"Naco API authentication failed (HTTP {status}). "
+                    f"Naco API authentication failed (HTTP {response.status_code.value}). "
                     f"Check your api_key in [naco] config."
                 )
             else:
                 logging.error(
-                    f'Failed to create tournament for "{event_heading}": HTTP {status}'
+                    f'Failed to create tournament for "{event_heading}": HTTP {response.status_code.value}'
                 )
             return False
