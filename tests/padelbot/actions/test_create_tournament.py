@@ -15,6 +15,10 @@ CAROL_PROFILE_ID = "cccccccc-cccc-cccc-cccc-cccccccccccc"
 DAVE_PROFILE_ID = "dddddddd-dddd-dddd-dddd-dddddddddddd"
 CREATOR_SPOND_ID = "11111111-1111-1111-1111-111111111111"
 
+EVENT_ID_1 = "00000000-0000-0000-0000-000000000001"
+EVENT_ID_2 = "00000000-0000-0000-0000-000000000002"
+EVENT_ID_3 = "00000000-0000-0000-0000-000000000003"
+
 MEMBERS = [
     {
         "id": "alice-id",
@@ -50,7 +54,7 @@ def sample_events():
     events = Events()
     events.upcoming = [
         {
-            "id": "e1",
+            "id": EVENT_ID_1,
             "heading": "Tuesday Americano",
             "startTimestamp": (now + timedelta(minutes=3)).isoformat(),
             "responses": {
@@ -60,7 +64,7 @@ def sample_events():
             "recipients": {"group": {"members": MEMBERS}},
         },
         {
-            "id": "e2",
+            "id": EVENT_ID_2,
             "heading": "Thursday Americano",
             "startTimestamp": (now + timedelta(hours=2)).isoformat(),
             "responses": {
@@ -70,7 +74,7 @@ def sample_events():
             "recipients": {"group": {"members": MEMBERS}},
         },
         {
-            "id": "e3",
+            "id": EVENT_ID_3,
             "heading": "Friday Social",
             "startTimestamp": (now + timedelta(minutes=4)).isoformat(),
             "responses": {
@@ -97,7 +101,7 @@ def test_evaluate_returns_intent_for_matching_event_within_window(sample_events)
     assert len(intents) == 1
     intent = intents[0]
     assert isinstance(intent, CreateTournamentIntent)
-    assert intent.event_id == "e1"
+    assert intent.event_id == EVENT_ID_1
     assert intent.event_heading == "Tuesday Americano"
     assert intent.tournament_type == "americano"
     assert intent.created_by_spond_id == UUID(CREATOR_SPOND_ID)
@@ -140,7 +144,7 @@ def test_evaluate_does_not_include_non_matching_event_in_window(sample_events):
     )
     intents = action.evaluate()
     event_ids = [i.event_id for i in intents]
-    assert "e3" not in event_ids
+    assert EVENT_ID_3 not in event_ids
 
 
 def test_expirationtimes_returns_trigger_times(sample_events):

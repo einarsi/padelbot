@@ -5,7 +5,7 @@ from datetime import datetime
 from ..utils import Events
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ActionIntent:
     """Base class for action intents returned by actions."""
 

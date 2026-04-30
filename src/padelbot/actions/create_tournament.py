@@ -8,16 +8,16 @@ from ..utils import Event, Events, memberid_to_member
 from .actionbase import ActionBase, ActionIntent, register_action
 
 
-@dataclass
+@dataclass(kw_only=True)
 class CreateTournamentIntent(ActionIntent):
     """Intent to create a tournament in Naco for a matching event."""
 
-    event_heading: str = ""
+    event_heading: str
+    start_time: datetime
     tournament_type: str = "americano"
     points_to_win: int | None = None
     created_by_spond_id: UUID | None = None
     player_spond_ids: list[UUID] = field(default_factory=list)
-    start_time: datetime = field(default_factory=lambda: datetime.now().astimezone())
 
 
 class ActionCreateTournament(ActionBase):
