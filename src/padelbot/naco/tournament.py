@@ -15,6 +15,7 @@ class NacoTournamentCreator:
     def __init__(self, base_url: str, api_key: str):
         self.client = Client(base_url=base_url)
         self.api_key = api_key
+        self.cache_created_event_ids: set[str] = set()
 
     async def create_tournament(
         self,
@@ -31,6 +32,9 @@ class NacoTournamentCreator:
         Returns True if the tournament was created or already exists (409).
         Returns False on failure.
         """
+        if event_id in self.cache_created_event_ids:
+            return True
+
         logging.info(
             f'Creating tournament in Naco for "{event_heading}" '
             f"with {len(player_spond_ids)} players, starting at {start_time.replace(tzinfo=None)}"
@@ -71,9 +75,11 @@ class NacoTournamentCreator:
                 )
             else:
                 logging.info(f'Tournament created for "{event_heading}"')
+            self.cache_created_event_ids.add(event_id)
             return True
         elif response.status_code.value == 409:
             logging.debug(f'Tournament for "{event_heading}" already exists')
+            self.cache_created_event_ids.add(event_id)
             return True
         else:
             status = response.status_code.value
