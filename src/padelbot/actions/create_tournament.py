@@ -13,6 +13,7 @@ class CreateTournamentIntent(ActionIntent):
     """Intent to create a tournament in Naco for a matching event."""
 
     event_heading: str
+    tournament_name: str
     start_time: datetime
     created_by_spond_id: UUID
     tournament_type: str = "americano"
@@ -101,7 +102,21 @@ class ActionCreateTournament(ActionBase):
                         f"[{self.name}]: Could not resolve profile ID for player {player_id}"
                     )
 
-            start_time = datetime.fromisoformat(event["startTimestamp"])
+            start_timestamp = event.get("startTimestamp")
+            if start_timestamp:
+                start_time = datetime.fromisoformat(start_timestamp)
+                end_timestamp = event.get("endTimestamp")
+                if end_timestamp:
+                    end_time = datetime.fromisoformat(end_timestamp)
+                    tournament_name = (
+                        f"{start_time.strftime('%A %Y-%m-%d %H:%M')}"
+                        f"-{end_time.strftime('%H:%M')}"
+                    )
+                else:
+                    tournament_name = start_time.strftime("%A %Y-%m-%d %H:%M")
+            else:
+                start_time = datetime.now().astimezone()
+                tournament_name = start_time.strftime("%A %Y-%m-%d")
 
             logging.info(
                 f'[{self.name}]: Scheduling tournament creation for "{event["heading"]}" '
@@ -115,6 +130,7 @@ class ActionCreateTournament(ActionBase):
                     event_id=event["id"],
                     enforced=self.enforced,
                     event_heading=event["heading"],
+                    tournament_name=tournament_name,
                     tournament_type=self.tournament_type,
                     points_to_win=self.points_to_win,
                     created_by_spond_id=self.spond_profile_id,

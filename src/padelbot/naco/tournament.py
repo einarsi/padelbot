@@ -22,6 +22,7 @@ class NacoTournamentCreator:
         self,
         event_id: str,
         event_heading: str,
+        tournament_name: str,
         tournament_type: str,
         created_by_spond_id: UUID,
         player_spond_ids: list[UUID],
@@ -43,7 +44,7 @@ class NacoTournamentCreator:
         )
 
         body = SpondTournamentCreate(
-            name=event_heading,
+            name=tournament_name,
             type_=tournament_type,
             external_id=UUID(event_id),
             created_by_spond_id=created_by_spond_id,

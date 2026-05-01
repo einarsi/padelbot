@@ -42,7 +42,7 @@ class PadelBot:
             profile = await self.spond.get_profile()
             self.spond_profile_id = profile.get("id")
             if self.spond_profile_id:
-                logging.info(f"Resolved Spond profile ID: {self.spond_profile_id}")
+                logging.info(f"Resolved my Spond profile ID: {self.spond_profile_id}")
             else:
                 logging.error(
                     "Spond profile response did not contain an 'id' field. "
@@ -127,6 +127,7 @@ class PadelBot:
             return await self.naco_tournament_creator.create_tournament(
                 event_id=intent.event_id,
                 event_heading=intent.event_heading,
+                tournament_name=intent.tournament_name,
                 tournament_type=intent.tournament_type,
                 created_by_spond_id=intent.created_by_spond_id,
                 player_spond_ids=intent.player_spond_ids,
@@ -272,5 +273,5 @@ class PadelBot:
             self.cfg["general"]["seconds_to_sleep"], events
         )
 
-        logging.info(f"Sleeping for {seconds_to_sleep} seconds")
+        logging.info(f"Sleeping for {seconds_to_sleep:.1f} seconds")
         await asyncio.sleep(seconds_to_sleep)
