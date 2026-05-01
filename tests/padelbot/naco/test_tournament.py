@@ -53,13 +53,41 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
                 start_time=START_TIME,
             )
         assert result is True
+
+    @pytest.mark.asyncio
+    async def test_success_with_end_time(self, creator):
+        parsed = SpondTournamentCreateResponse(
+            tournament_id=TOURNAMENT_ID,
+            view_url="https://naco.example.com/view/ABCD1234",
+            edit_url="https://naco.example.com/edit/EFGH5678",
+            skipped_spond_ids=UNSET,
+        )
+        response = _make_response(HTTPStatus.CREATED, parsed)
+        end_time = datetime(2026, 5, 1, 19, 30, tzinfo=START_TIME.tzinfo)
+        with patch(
+            "src.padelbot.naco.tournament.create_tournament_from_spond.asyncio_detailed",
+            new_callable=AsyncMock,
+            return_value=response,
+        ) as mock_api:
+            result = await creator.create_tournament(
+                event_id=EVENT_ID,
+                event_heading="Tuesday Americano",
+                tournament_type="americano",
+                created_by_spond_id=CREATOR_ID,
+                player_spond_ids=PLAYER_IDS,
+                start_time=START_TIME,
+                end_time=end_time,
+            )
+        assert result is True
+        body = mock_api.call_args.kwargs["body"]
+        assert body.scheduled_start == START_TIME
+        assert body.scheduled_end == end_time
 
     @pytest.mark.asyncio
     async def test_success_with_skipped_players(self, creator):
@@ -79,7 +107,6 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -99,7 +126,6 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -119,7 +145,6 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -139,7 +164,6 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -158,7 +182,6 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -176,7 +199,6 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -202,7 +224,6 @@ class TestCreateTournament:
             await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -213,7 +234,6 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -233,7 +253,6 @@ class TestCreateTournament:
             await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -244,7 +263,6 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
-                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,

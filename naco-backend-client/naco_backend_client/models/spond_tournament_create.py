@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+from dateutil.parser import isoparse
 
 from ..types import UNSET, Unset
 
@@ -23,6 +25,8 @@ class SpondTournamentCreate:
         points_to_win (int | None | Unset):
         player_spond_ids (list[UUID] | Unset):
         court_names (list[str] | Unset):
+        scheduled_start (datetime.datetime | None | Unset):
+        scheduled_end (datetime.datetime | None | Unset):
     """
 
     name: str
@@ -32,6 +36,8 @@ class SpondTournamentCreate:
     points_to_win: int | None | Unset = UNSET
     player_spond_ids: list[UUID] | Unset = UNSET
     court_names: list[str] | Unset = UNSET
+    scheduled_start: datetime.datetime | None | Unset = UNSET
+    scheduled_end: datetime.datetime | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,6 +66,22 @@ class SpondTournamentCreate:
         if not isinstance(self.court_names, Unset):
             court_names = self.court_names
 
+        scheduled_start: None | str | Unset
+        if isinstance(self.scheduled_start, Unset):
+            scheduled_start = UNSET
+        elif isinstance(self.scheduled_start, datetime.datetime):
+            scheduled_start = self.scheduled_start.isoformat()
+        else:
+            scheduled_start = self.scheduled_start
+
+        scheduled_end: None | str | Unset
+        if isinstance(self.scheduled_end, Unset):
+            scheduled_end = UNSET
+        elif isinstance(self.scheduled_end, datetime.datetime):
+            scheduled_end = self.scheduled_end.isoformat()
+        else:
+            scheduled_end = self.scheduled_end
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -76,6 +98,10 @@ class SpondTournamentCreate:
             field_dict["player_spond_ids"] = player_spond_ids
         if court_names is not UNSET:
             field_dict["court_names"] = court_names
+        if scheduled_start is not UNSET:
+            field_dict["scheduled_start"] = scheduled_start
+        if scheduled_end is not UNSET:
+            field_dict["scheduled_end"] = scheduled_end
 
         return field_dict
 
@@ -110,6 +136,40 @@ class SpondTournamentCreate:
 
         court_names = cast(list[str], d.pop("court_names", UNSET))
 
+        def _parse_scheduled_start(data: object) -> datetime.datetime | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                scheduled_start_type_0 = isoparse(data)
+
+                return scheduled_start_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(datetime.datetime | None | Unset, data)
+
+        scheduled_start = _parse_scheduled_start(d.pop("scheduled_start", UNSET))
+
+        def _parse_scheduled_end(data: object) -> datetime.datetime | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                scheduled_end_type_0 = isoparse(data)
+
+                return scheduled_end_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(datetime.datetime | None | Unset, data)
+
+        scheduled_end = _parse_scheduled_end(d.pop("scheduled_end", UNSET))
+
         spond_tournament_create = cls(
             name=name,
             type_=type_,
@@ -118,6 +178,8 @@ class SpondTournamentCreate:
             points_to_win=points_to_win,
             player_spond_ids=player_spond_ids,
             court_names=court_names,
+            scheduled_start=scheduled_start,
+            scheduled_end=scheduled_end,
         )
 
         spond_tournament_create.additional_properties = d

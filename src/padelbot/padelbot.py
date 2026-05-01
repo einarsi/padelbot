@@ -136,11 +136,11 @@ class PadelBot:
             return await self.naco_tournament_creator.create_tournament(
                 event_id=intent.event_id,
                 event_heading=intent.event_heading,
-                tournament_name=intent.tournament_name,
                 tournament_type=intent.tournament_type,
                 created_by_spond_id=intent.created_by_spond_id,
                 player_spond_ids=intent.player_spond_ids,
                 start_time=intent.start_time,
+                end_time=intent.end_time,
                 points_to_win=intent.points_to_win,
                 court_names=intent.court_names,
             )

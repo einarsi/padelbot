@@ -13,8 +13,8 @@ class CreateTournamentIntent(ActionIntent):
     """Intent to create a tournament in Naco for a matching event."""
 
     event_heading: str
-    tournament_name: str
     start_time: datetime
+    end_time: datetime | None = None
     created_by_spond_id: UUID
     tournament_type: str = "americano"
     points_to_win: int | None = None
@@ -104,14 +104,7 @@ class ActionNacoCreateTournament(ActionBase):
 
             start_time = datetime.fromisoformat(event["startTimestamp"])
             end_timestamp = event.get("endTimestamp")
-            if end_timestamp:
-                end_time = datetime.fromisoformat(end_timestamp)
-                tournament_name = (
-                    f"{start_time.strftime('%A %Y-%m-%d %H:%M')}"
-                    f"-{end_time.strftime('%H:%M')}"
-                )
-            else:
-                tournament_name = start_time.strftime("%A %Y-%m-%d %H:%M")
+            end_time = datetime.fromisoformat(end_timestamp) if end_timestamp else None
 
             logging.info(
                 f'[{self.name}]: Scheduling tournament creation for "{event["heading"]}" '
@@ -125,12 +118,12 @@ class ActionNacoCreateTournament(ActionBase):
                     event_id=event["id"],
                     enforced=self.enforced,
                     event_heading=event["heading"],
-                    tournament_name=tournament_name,
+                    start_time=start_time,
+                    end_time=end_time,
                     tournament_type=self.tournament_type,
                     points_to_win=self.points_to_win,
                     created_by_spond_id=self.spond_profile_id,
                     player_spond_ids=player_spond_ids,
-                    start_time=start_time,
                     court_names=court_names,
                 )
             )

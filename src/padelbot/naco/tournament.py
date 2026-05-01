@@ -22,11 +22,11 @@ class NacoTournamentCreator:
         self,
         event_id: str,
         event_heading: str,
-        tournament_name: str,
         tournament_type: str,
         created_by_spond_id: UUID,
         player_spond_ids: list[UUID],
         start_time: datetime,
+        end_time: datetime | None = None,
         points_to_win: int | None = None,
         court_names: list[str] | None = None,
     ) -> bool:
@@ -44,13 +44,15 @@ class NacoTournamentCreator:
         )
 
         body = SpondTournamentCreate(
-            name=tournament_name,
+            name=event_heading,
             type_=tournament_type,
             external_id=event_id,
             created_by_spond_id=created_by_spond_id,
             player_spond_ids=player_spond_ids if player_spond_ids else [],
             points_to_win=points_to_win,
             court_names=court_names if court_names else [],
+            scheduled_start=start_time,
+            scheduled_end=end_time,
         )
 
         try:
