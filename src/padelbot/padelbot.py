@@ -108,6 +108,15 @@ class PadelBot:
                 )
             return actions
         for action_name, action_def in self.cfg["actions"].items():
+            if (
+                not self.naco_enabled
+                and action_def.get("type") == "NacoCreateTournament"
+            ):
+                logging.warning(
+                    f"Skipping action {action_name}: Naco is disabled. "
+                    "Enable Naco in config to use this action."
+                )
+                continue
             action_def = {**action_def, "spond_profile_id": self.spond_profile_id}
             try:
                 action = create_action(action_name, events, action_def)
