@@ -132,6 +132,7 @@ class PadelBot:
                 player_spond_ids=intent.player_spond_ids,
                 start_time=intent.start_time,
                 points_to_win=intent.points_to_win,
+                court_names=intent.court_names,
             )
         logging.error(f"Unknown action intent type: {type(intent).__name__}")
         return False

@@ -13,6 +13,7 @@ from src.padelbot.naco.tournament import NacoTournamentCreator
 
 EVENT_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 CREATOR_ID = UUID("11111111-1111-1111-1111-111111111111")
+TOURNAMENT_ID = UUID("99999999-9999-9999-9999-999999999999")
 PLAYER_IDS = [
     UUID("22222222-2222-2222-2222-222222222222"),
     UUID("33333333-3333-3333-3333-333333333333"),
@@ -37,7 +38,12 @@ def _make_response(status_code, parsed=None):
 class TestCreateTournament:
     @pytest.mark.asyncio
     async def test_success(self, creator):
-        parsed = SpondTournamentCreateResponse(skipped_spond_ids=UNSET)
+        parsed = SpondTournamentCreateResponse(
+            tournament_id=TOURNAMENT_ID,
+            view_code="ABCD1234",
+            write_code="EFGH5678",
+            skipped_spond_ids=UNSET,
+        )
         response = _make_response(HTTPStatus.CREATED, parsed)
         with patch(
             "src.padelbot.naco.tournament.create_tournament_from_spond.asyncio_detailed",
@@ -57,7 +63,12 @@ class TestCreateTournament:
     @pytest.mark.asyncio
     async def test_success_with_skipped_players(self, creator):
         skipped = [UUID("44444444-4444-4444-4444-444444444444")]
-        parsed = SpondTournamentCreateResponse(skipped_spond_ids=skipped)
+        parsed = SpondTournamentCreateResponse(
+            tournament_id=TOURNAMENT_ID,
+            view_code="ABCD1234",
+            write_code="EFGH5678",
+            skipped_spond_ids=skipped,
+        )
         response = _make_response(HTTPStatus.CREATED, parsed)
         with patch(
             "src.padelbot.naco.tournament.create_tournament_from_spond.asyncio_detailed",
@@ -169,7 +180,12 @@ class TestCreateTournament:
 
     @pytest.mark.asyncio
     async def test_cache_skips_second_call(self, creator):
-        parsed = SpondTournamentCreateResponse(skipped_spond_ids=UNSET)
+        parsed = SpondTournamentCreateResponse(
+            tournament_id=TOURNAMENT_ID,
+            view_code="ABCD1234",
+            write_code="EFGH5678",
+            skipped_spond_ids=UNSET,
+        )
         response = _make_response(HTTPStatus.CREATED, parsed)
         with patch(
             "src.padelbot.naco.tournament.create_tournament_from_spond.asyncio_detailed",

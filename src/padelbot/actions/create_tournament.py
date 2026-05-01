@@ -18,6 +18,10 @@ class CreateTournamentIntent(ActionIntent):
     tournament_type: str = "americano"
     points_to_win: int | None = None
     player_spond_ids: list[UUID] = field(default_factory=list)
+    court_names: list[str] = field(default_factory=list)
+
+
+MAX_COURT_NAME_LENGTH = 30
 
 
 class ActionCreateTournament(ActionBase):
@@ -54,6 +58,17 @@ class ActionCreateTournament(ActionBase):
             < time_until_start
             <= timedelta(minutes=self.minutes_before_start)
         )
+
+    def _extract_court_names(self, event: Event) -> list[str]:
+        """Extract court names from event description lines matching 'Court: <name>'."""
+        description = event.get("description", "") or ""
+        match = re.search(r"(?i)^Court:\s*(.+)$", description, re.MULTILINE)
+        if not match:
+            return []
+        name = match.group(1).strip()
+        if re.fullmatch(r"#?\d+", name):
+            name = f"Court {name}"
+        return [name[:MAX_COURT_NAME_LENGTH]]
 
     def evaluate(self) -> list[ActionIntent]:
         intents: list[ActionIntent] = []
@@ -93,6 +108,8 @@ class ActionCreateTournament(ActionBase):
                 f"starting at {start_time.replace(tzinfo=None)}"
             )
 
+            court_names = self._extract_court_names(event)
+
             intents.append(
                 CreateTournamentIntent(
                     event_id=event["id"],
@@ -103,6 +120,7 @@ class ActionCreateTournament(ActionBase):
                     created_by_spond_id=self.spond_profile_id,
                     player_spond_ids=player_spond_ids,
                     start_time=start_time,
+                    court_names=court_names,
                 )
             )
         return intents

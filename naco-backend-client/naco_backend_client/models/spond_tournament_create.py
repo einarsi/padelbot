@@ -22,6 +22,7 @@ class SpondTournamentCreate:
         created_by_spond_id (UUID):
         points_to_win (int | None | Unset):
         player_spond_ids (list[UUID] | Unset):
+        court_names (list[str] | Unset):
     """
 
     name: str
@@ -30,6 +31,7 @@ class SpondTournamentCreate:
     created_by_spond_id: UUID
     points_to_win: int | None | Unset = UNSET
     player_spond_ids: list[UUID] | Unset = UNSET
+    court_names: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -54,6 +56,10 @@ class SpondTournamentCreate:
                 player_spond_ids_item = str(player_spond_ids_item_data)
                 player_spond_ids.append(player_spond_ids_item)
 
+        court_names: list[str] | Unset = UNSET
+        if not isinstance(self.court_names, Unset):
+            court_names = self.court_names
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -68,6 +74,8 @@ class SpondTournamentCreate:
             field_dict["points_to_win"] = points_to_win
         if player_spond_ids is not UNSET:
             field_dict["player_spond_ids"] = player_spond_ids
+        if court_names is not UNSET:
+            field_dict["court_names"] = court_names
 
         return field_dict
 
@@ -100,6 +108,8 @@ class SpondTournamentCreate:
 
                 player_spond_ids.append(player_spond_ids_item)
 
+        court_names = cast(list[str], d.pop("court_names", UNSET))
+
         spond_tournament_create = cls(
             name=name,
             type_=type_,
@@ -107,6 +117,7 @@ class SpondTournamentCreate:
             created_by_spond_id=created_by_spond_id,
             points_to_win=points_to_win,
             player_spond_ids=player_spond_ids,
+            court_names=court_names,
         )
 
         spond_tournament_create.additional_properties = d

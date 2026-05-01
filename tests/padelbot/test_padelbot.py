@@ -544,6 +544,7 @@ class TestExecuteAction:
             player_spond_ids=[UUID("22222222-2222-2222-2222-222222222222")],
             start_time=intent.start_time,
             points_to_win=None,
+            court_names=[],
         )
 
     @pytest.mark.asyncio

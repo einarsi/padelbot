@@ -27,6 +27,7 @@ class NacoTournamentCreator:
         player_spond_ids: list[UUID],
         start_time: datetime,
         points_to_win: int | None = None,
+        court_names: list[str] | None = None,
     ) -> bool:
         """Create a tournament in Naco for the given Spond event.
 
@@ -48,6 +49,7 @@ class NacoTournamentCreator:
             created_by_spond_id=created_by_spond_id,
             player_spond_ids=player_spond_ids if player_spond_ids else [],
             points_to_win=points_to_win,
+            court_names=court_names if court_names else [],
         )
 
         try:

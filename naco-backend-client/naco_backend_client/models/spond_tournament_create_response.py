@@ -16,13 +16,25 @@ T = TypeVar("T", bound="SpondTournamentCreateResponse")
 class SpondTournamentCreateResponse:
     """
     Attributes:
+        tournament_id (UUID):
+        view_code (str):
+        write_code (str):
         skipped_spond_ids (list[UUID] | Unset):
     """
 
+    tournament_id: UUID
+    view_code: str
+    write_code: str
     skipped_spond_ids: list[UUID] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        tournament_id = str(self.tournament_id)
+
+        view_code = self.view_code
+
+        write_code = self.write_code
+
         skipped_spond_ids: list[str] | Unset = UNSET
         if not isinstance(self.skipped_spond_ids, Unset):
             skipped_spond_ids = []
@@ -32,7 +44,13 @@ class SpondTournamentCreateResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
+        field_dict.update(
+            {
+                "tournament_id": tournament_id,
+                "view_code": view_code,
+                "write_code": write_code,
+            }
+        )
         if skipped_spond_ids is not UNSET:
             field_dict["skipped_spond_ids"] = skipped_spond_ids
 
@@ -41,6 +59,12 @@ class SpondTournamentCreateResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        tournament_id = UUID(d.pop("tournament_id"))
+
+        view_code = d.pop("view_code")
+
+        write_code = d.pop("write_code")
+
         _skipped_spond_ids = d.pop("skipped_spond_ids", UNSET)
         skipped_spond_ids: list[UUID] | Unset = UNSET
         if _skipped_spond_ids is not UNSET:
@@ -51,6 +75,9 @@ class SpondTournamentCreateResponse:
                 skipped_spond_ids.append(skipped_spond_ids_item)
 
         spond_tournament_create_response = cls(
+            tournament_id=tournament_id,
+            view_code=view_code,
+            write_code=write_code,
             skipped_spond_ids=skipped_spond_ids,
         )
 

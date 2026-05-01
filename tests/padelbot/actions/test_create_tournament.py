@@ -4,6 +4,7 @@ from uuid import UUID
 import pytest
 
 from src.padelbot.actions.create_tournament import (
+    MAX_COURT_NAME_LENGTH,
     ActionCreateTournament,
     CreateTournamentIntent,
 )
@@ -209,3 +210,99 @@ def test_evaluate_skips_event_with_invalid_uuid_id(sample_events):
     )
     intents = action.evaluate()
     assert all(i.event_id != "not-a-valid-uuid" for i in intents)
+
+
+class TestExtractCourtNames:
+    def _make_action(self, events):
+        return ActionCreateTournament(
+            action_name="test",
+            events=events,
+            header_regex=".*",
+            spond_profile_id=CREATOR_SPOND_ID,
+            minutes_before_start=5,
+        )
+
+    def _make_event(self, description=""):
+        return {"description": description}
+
+    def test_hash_and_number_prepends_court(self, sample_events):
+        action = self._make_action(sample_events)
+        assert action._extract_court_names(self._make_event("Court: #3")) == [
+            "Court #3"
+        ]
+
+    def test_bare_number_prepends_court(self, sample_events):
+        action = self._make_action(sample_events)
+        assert action._extract_court_names(self._make_event("Court: 2")) == ["Court 2"]
+
+    def test_named_court_no_prepend(self, sample_events):
+        action = self._make_action(sample_events)
+        assert action._extract_court_names(
+            self._make_event("Court: #3 Temple Blikk")
+        ) == ["#3 Temple Blikk"]
+
+    def test_no_court_line_returns_empty(self, sample_events):
+        action = self._make_action(sample_events)
+        assert action._extract_court_names(self._make_event("No court info here")) == []
+
+    def test_empty_description_returns_empty(self, sample_events):
+        action = self._make_action(sample_events)
+        assert action._extract_court_names(self._make_event("")) == []
+
+    def test_no_description_key_returns_empty(self, sample_events):
+        action = self._make_action(sample_events)
+        assert action._extract_court_names({}) == []
+
+    def test_court_in_multiline_description(self, sample_events):
+        action = self._make_action(sample_events)
+        desc = "Welcome to the event!\nCourt: #1 Main Hall\nBring your own racket."
+        assert action._extract_court_names(self._make_event(desc)) == ["#1 Main Hall"]
+
+    def test_case_insensitive(self, sample_events):
+        action = self._make_action(sample_events)
+        assert action._extract_court_names(self._make_event("court: #5")) == [
+            "Court #5"
+        ]
+
+    def test_whitespace_stripped(self, sample_events):
+        action = self._make_action(sample_events)
+        assert action._extract_court_names(self._make_event("Court:   #4  ")) == [
+            "Court #4"
+        ]
+
+    def test_long_name_truncated(self, sample_events):
+        action = self._make_action(sample_events)
+        long_name = "A" * 50
+        result = action._extract_court_names(self._make_event(f"Court: {long_name}"))
+        assert result == [long_name[:MAX_COURT_NAME_LENGTH]]
+
+
+def test_evaluate_includes_court_names_from_description(sample_events):
+    sample_events.upcoming[0]["description"] = "Court: #1"
+    action = ActionCreateTournament(
+        action_name="create_tournament",
+        events=sample_events,
+        header_regex=".*Americano.*",
+        spond_profile_id=CREATOR_SPOND_ID,
+        enforced=True,
+        minutes_before_start=5,
+    )
+    intents = action.evaluate()
+    assert len(intents) == 1
+    assert isinstance(intents[0], CreateTournamentIntent)
+    assert intents[0].court_names == ["Court #1"]
+
+
+def test_evaluate_empty_court_names_when_no_description(sample_events):
+    action = ActionCreateTournament(
+        action_name="create_tournament",
+        events=sample_events,
+        header_regex=".*Americano.*",
+        spond_profile_id=CREATOR_SPOND_ID,
+        enforced=True,
+        minutes_before_start=5,
+    )
+    intents = action.evaluate()
+    assert len(intents) == 1
+    assert isinstance(intents[0], CreateTournamentIntent)
+    assert intents[0].court_names == []
