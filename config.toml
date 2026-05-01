@@ -36,5 +36,5 @@ type = "CreateTournament"
 header_regex = ".*Americano.*"
 tournament_type = "americano"
 minutes_before_start = 5
-# points_to_win = 21
+# points_to_win = 24
 enforced = true

@@ -144,8 +144,6 @@ class PadelBot:
 
         all_rule_end_times = [
             dt for rule in self.get_rules(events) for dt in rule.expirationtimes()
-        ] + [
-            dt for action in self.get_actions(events) for dt in action.expirationtimes()
         ]
         now = datetime.now().astimezone()
         next_rule_end_time = min(
@@ -169,6 +167,21 @@ class PadelBot:
                         secs_to_quarantine_end - 59,
                     ),
                 )
+
+        # Cap sleep so we don't miss an action window
+        next_action_time = min(
+            (
+                dt
+                for action in self.get_actions(events)
+                for dt in action.expirationtimes()
+                if dt > now
+            ),
+            default=None,
+        )
+        if next_action_time:
+            secs_to_action = (next_action_time - now).total_seconds()
+            seconds_to_sleep = min(seconds_to_sleep, secs_to_action)
+
         return seconds_to_sleep
 
     def update_events_with_removal(

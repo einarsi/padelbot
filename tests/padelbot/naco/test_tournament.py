@@ -53,6 +53,7 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -78,6 +79,7 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -97,6 +99,7 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -116,6 +119,7 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -135,6 +139,7 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -153,6 +158,7 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -170,6 +176,7 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -195,6 +202,7 @@ class TestCreateTournament:
             await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -205,6 +213,7 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -224,6 +233,7 @@ class TestCreateTournament:
             await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,
@@ -234,6 +244,7 @@ class TestCreateTournament:
             result = await creator.create_tournament(
                 event_id=EVENT_ID,
                 event_heading="Tuesday Americano",
+                tournament_name="Tuesday 2026-05-01 18:00-19:30",
                 tournament_type="americano",
                 created_by_spond_id=CREATOR_ID,
                 player_spond_ids=PLAYER_IDS,

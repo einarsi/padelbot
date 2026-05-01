@@ -521,6 +521,7 @@ class TestExecuteAction:
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             enforced=True,
             event_heading="Tuesday Americano",
+            tournament_name="Tuesday 2026-05-01 18:00-19:30",
             start_time=datetime(
                 2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
             ),
@@ -539,6 +540,7 @@ class TestExecuteAction:
         mock_create.assert_awaited_once_with(
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             event_heading="Tuesday Americano",
+            tournament_name="Tuesday 2026-05-01 18:00-19:30",
             tournament_type="americano",
             created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
             player_spond_ids=[UUID("22222222-2222-2222-2222-222222222222")],
@@ -555,6 +557,7 @@ class TestExecuteAction:
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             enforced=True,
             event_heading="Tuesday Americano",
+            tournament_name="Tuesday 2026-05-01 18:00-19:30",
             created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
             start_time=datetime(
                 2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
@@ -578,6 +581,7 @@ class TestRunActions:
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             enforced=True,
             event_heading="Tuesday Americano",
+            tournament_name="Tuesday 2026-05-01 18:00-19:30",
             created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
             start_time=datetime(
                 2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
@@ -615,6 +619,7 @@ class TestRunActions:
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             enforced=True,
             event_heading="Tuesday Americano",
+            tournament_name="Tuesday 2026-05-01 18:00-19:30",
             created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
             start_time=datetime(
                 2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
@@ -652,6 +657,7 @@ class TestRunActions:
             event_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             enforced=False,
             event_heading="Tuesday Americano",
+            tournament_name="Tuesday 2026-05-01 18:00-19:30",
             created_by_spond_id=UUID("11111111-1111-1111-1111-111111111111"),
             start_time=datetime(
                 2026, 5, 1, 18, 0, tzinfo=datetime.now().astimezone().tzinfo
