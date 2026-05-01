@@ -26,7 +26,7 @@ class RuleMaxEventsPerWeek(RuleBase):
         self.grace_hours = grace_hours
 
     def _include(self, event: Event) -> bool:
-        if not re.search(self.header_regex, event["heading"]):
+        if not re.search(self.header_regex, event["heading"], re.IGNORECASE):
             return False
 
         event_start = datetime.fromisoformat(event["startTimestamp"]).astimezone()

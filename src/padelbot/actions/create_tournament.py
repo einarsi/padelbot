@@ -46,7 +46,7 @@ class ActionCreateTournament(ActionBase):
         self.spond_profile_id = UUID(spond_profile_id)
 
     def _include(self, event: Event) -> bool:
-        return bool(re.search(self.header_regex, event["heading"]))
+        return bool(re.search(self.header_regex, event["heading"], re.IGNORECASE))
 
     def _is_within_window(self, event: Event) -> bool:
         """Check if event starts within the configured minutes_before_start window."""
