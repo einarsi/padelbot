@@ -95,6 +95,8 @@
                 if (!this.log) return '';
                 // Split log into lines and colorize
                 return this.log.split('\n').map(line => {
+                    // Escape HTML entities to prevent log content from being interpreted as HTML
+                    line = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                     // Match timestamp with timezone offset (e.g., 2025-09-26 12:34:56+0100 or 2025-09-26 12:34:56+01:00)
                     const tsMatch = line.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}[+-]\d{2}:?\d{2})/);
                     let html = line;

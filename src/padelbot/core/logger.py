@@ -13,6 +13,10 @@ async def init_logger():
     que = Queue()
     log.addHandler(QueueHandler(que))
     log.setLevel(logging.DEBUG)
+
+    # Silence noisy third-party loggers
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
     file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=5)
     stream_handler = StreamHandler()

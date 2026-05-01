@@ -23,6 +23,7 @@ defaults: dict[str, Any] = {
         "api_key": "",
     },
     "rules": {},
+    "actions": {},
 }
 
 
