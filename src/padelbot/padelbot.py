@@ -151,7 +151,7 @@ class PadelBot:
         )
         if next_rule_end_time:
             secs_to_quarantine_end = (next_rule_end_time - now).total_seconds()
-            logging.info(
+            logging.debug(
                 f"Next quarantine ends at {next_rule_end_time.astimezone().replace(tzinfo=None)} (in {secs_to_quarantine_end:.2f} seconds)"
             )
 
