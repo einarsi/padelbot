@@ -306,3 +306,40 @@ def test_evaluate_empty_court_names_when_no_description(sample_events):
     assert len(intents) == 1
     assert isinstance(intents[0], CreateTournamentIntent)
     assert intents[0].court_names == []
+
+
+def test_evaluate_tournament_name_with_end_timestamp(sample_events):
+    """When endTimestamp is present, tournament_name includes start and end times."""
+    start = datetime(2026, 5, 5, 18, 0, tzinfo=datetime.now().astimezone().tzinfo)
+    end = datetime(2026, 5, 5, 19, 30, tzinfo=datetime.now().astimezone().tzinfo)
+    sample_events.upcoming[0]["startTimestamp"] = start.isoformat()
+    sample_events.upcoming[0]["endTimestamp"] = end.isoformat()
+    action = ActionNacoCreateTournament(
+        action_name="create_tournament",
+        events=sample_events,
+        header_regex="^Tuesday",
+        spond_profile_id=CREATOR_SPOND_ID,
+        minutes_before_start=999999,
+    )
+    intents = action.evaluate()
+    assert len(intents) == 1
+    assert isinstance(intents[0], CreateTournamentIntent)
+    assert intents[0].tournament_name == "Tuesday 2026-05-05 18:00-19:30"
+
+
+def test_evaluate_tournament_name_without_end_timestamp(sample_events):
+    """When endTimestamp is absent, tournament_name has start time only."""
+    start = datetime(2026, 5, 5, 18, 0, tzinfo=datetime.now().astimezone().tzinfo)
+    sample_events.upcoming[0]["startTimestamp"] = start.isoformat()
+    sample_events.upcoming[0].pop("endTimestamp", None)
+    action = ActionNacoCreateTournament(
+        action_name="create_tournament",
+        events=sample_events,
+        header_regex="^Tuesday",
+        spond_profile_id=CREATOR_SPOND_ID,
+        minutes_before_start=999999,
+    )
+    intents = action.evaluate()
+    assert len(intents) == 1
+    assert isinstance(intents[0], CreateTournamentIntent)
+    assert intents[0].tournament_name == "Tuesday 2026-05-05 18:00"
