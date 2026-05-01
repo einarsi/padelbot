@@ -46,7 +46,7 @@ class NacoTournamentCreator:
         body = SpondTournamentCreate(
             name=tournament_name,
             type_=tournament_type,
-            external_id=UUID(event_id),
+            external_id=event_id,
             created_by_spond_id=created_by_spond_id,
             player_spond_ids=player_spond_ids if player_spond_ids else [],
             points_to_win=points_to_win,
@@ -64,14 +64,16 @@ class NacoTournamentCreator:
             return False
 
         if isinstance(response.parsed, SpondTournamentCreateResponse):
+            logging.info(
+                f'Tournament created for "{event_heading}": '
+                f" view_url={response.parsed.view_url}, "
+                f" edit_url={response.parsed.edit_url}"
+            )
             skipped = response.parsed.skipped_spond_ids
             if not isinstance(skipped, Unset) and skipped:
                 logging.warning(
-                    f'Tournament created for "{event_heading}", '
-                    f"but {len(skipped)} player(s) were skipped (unknown Spond IDs)"
+                    f" {len(skipped)} player(s) were skipped (unknown Spond IDs)"
                 )
-            else:
-                logging.info(f'Tournament created for "{event_heading}"')
             self.cache_created_event_ids.add(event_id)
             return True
         elif response.status_code == HTTPStatus.CONFLICT:

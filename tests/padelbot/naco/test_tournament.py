@@ -40,8 +40,8 @@ class TestCreateTournament:
     async def test_success(self, creator):
         parsed = SpondTournamentCreateResponse(
             tournament_id=TOURNAMENT_ID,
-            view_code="ABCD1234",
-            write_code="EFGH5678",
+            view_url="https://naco.example.com/view/ABCD1234",
+            edit_url="https://naco.example.com/edit/EFGH5678",
             skipped_spond_ids=UNSET,
         )
         response = _make_response(HTTPStatus.CREATED, parsed)
@@ -66,8 +66,8 @@ class TestCreateTournament:
         skipped = [UUID("44444444-4444-4444-4444-444444444444")]
         parsed = SpondTournamentCreateResponse(
             tournament_id=TOURNAMENT_ID,
-            view_code="ABCD1234",
-            write_code="EFGH5678",
+            view_url="https://naco.example.com/view/ABCD1234",
+            edit_url="https://naco.example.com/edit/EFGH5678",
             skipped_spond_ids=skipped,
         )
         response = _make_response(HTTPStatus.CREATED, parsed)
@@ -189,8 +189,8 @@ class TestCreateTournament:
     async def test_cache_skips_second_call(self, creator):
         parsed = SpondTournamentCreateResponse(
             tournament_id=TOURNAMENT_ID,
-            view_code="ABCD1234",
-            write_code="EFGH5678",
+            view_url="https://naco.example.com/view/ABCD1234",
+            edit_url="https://naco.example.com/edit/EFGH5678",
             skipped_spond_ids=UNSET,
         )
         response = _make_response(HTTPStatus.CREATED, parsed)

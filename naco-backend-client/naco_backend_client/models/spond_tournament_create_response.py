@@ -17,23 +17,24 @@ class SpondTournamentCreateResponse:
     """
     Attributes:
         tournament_id (UUID):
-        view_code (str):
-        write_code (str):
-        skipped_spond_ids (list[UUID] | Unset):
+        view_url (str):
+        edit_url (str):
+        skipped_spond_ids (list[UUID] | Unset): Spond IDs that could not be resolved to users. Only populated on
+            creation (201); empty on idempotent returns (200).
     """
 
     tournament_id: UUID
-    view_code: str
-    write_code: str
+    view_url: str
+    edit_url: str
     skipped_spond_ids: list[UUID] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         tournament_id = str(self.tournament_id)
 
-        view_code = self.view_code
+        view_url = self.view_url
 
-        write_code = self.write_code
+        edit_url = self.edit_url
 
         skipped_spond_ids: list[str] | Unset = UNSET
         if not isinstance(self.skipped_spond_ids, Unset):
@@ -47,8 +48,8 @@ class SpondTournamentCreateResponse:
         field_dict.update(
             {
                 "tournament_id": tournament_id,
-                "view_code": view_code,
-                "write_code": write_code,
+                "view_url": view_url,
+                "edit_url": edit_url,
             }
         )
         if skipped_spond_ids is not UNSET:
@@ -61,9 +62,9 @@ class SpondTournamentCreateResponse:
         d = dict(src_dict)
         tournament_id = UUID(d.pop("tournament_id"))
 
-        view_code = d.pop("view_code")
+        view_url = d.pop("view_url")
 
-        write_code = d.pop("write_code")
+        edit_url = d.pop("edit_url")
 
         _skipped_spond_ids = d.pop("skipped_spond_ids", UNSET)
         skipped_spond_ids: list[UUID] | Unset = UNSET
@@ -76,8 +77,8 @@ class SpondTournamentCreateResponse:
 
         spond_tournament_create_response = cls(
             tournament_id=tournament_id,
-            view_code=view_code,
-            write_code=write_code,
+            view_url=view_url,
+            edit_url=edit_url,
             skipped_spond_ids=skipped_spond_ids,
         )
 

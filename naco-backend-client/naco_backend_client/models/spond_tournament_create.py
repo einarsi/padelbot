@@ -18,7 +18,7 @@ class SpondTournamentCreate:
     Attributes:
         name (str):
         type_ (str):
-        external_id (UUID):
+        external_id (str):
         created_by_spond_id (UUID):
         points_to_win (int | None | Unset):
         player_spond_ids (list[UUID] | Unset):
@@ -27,7 +27,7 @@ class SpondTournamentCreate:
 
     name: str
     type_: str
-    external_id: UUID
+    external_id: str
     created_by_spond_id: UUID
     points_to_win: int | None | Unset = UNSET
     player_spond_ids: list[UUID] | Unset = UNSET
@@ -39,7 +39,7 @@ class SpondTournamentCreate:
 
         type_ = self.type_
 
-        external_id = str(self.external_id)
+        external_id = self.external_id
 
         created_by_spond_id = str(self.created_by_spond_id)
 
@@ -86,7 +86,7 @@ class SpondTournamentCreate:
 
         type_ = d.pop("type")
 
-        external_id = UUID(d.pop("external_id"))
+        external_id = d.pop("external_id")
 
         created_by_spond_id = UUID(d.pop("created_by_spond_id"))
 
