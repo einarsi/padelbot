@@ -31,8 +31,8 @@ message = "Hi {firstName},\nYou were removed from the event \"{heading}\" becaus
 enforced = false
 
 [actions]
-[actions.create_tournament]
-type = "CreateTournament"
+[actions.naco_create_tournament]
+type = "NacoCreateTournament"
 header_regex = ".*Americano.*"
 tournament_type = "americano"
 minutes_before_start = 5

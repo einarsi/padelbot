@@ -3,9 +3,9 @@ from uuid import UUID
 
 import pytest
 
-from src.padelbot.actions.create_tournament import (
+from src.padelbot.actions.naco_create_tournament import (
     MAX_COURT_NAME_LENGTH,
-    ActionCreateTournament,
+    ActionNacoCreateTournament,
     CreateTournamentIntent,
 )
 from src.padelbot.utils import Events
@@ -89,7 +89,7 @@ def sample_events():
 
 
 def test_evaluate_returns_intent_for_matching_event_within_window(sample_events):
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
@@ -111,7 +111,7 @@ def test_evaluate_returns_intent_for_matching_event_within_window(sample_events)
 
 
 def test_evaluate_returns_empty_for_non_matching_header(sample_events):
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Mexicano.*",
@@ -124,7 +124,7 @@ def test_evaluate_returns_empty_for_non_matching_header(sample_events):
 
 
 def test_evaluate_returns_empty_for_event_too_far_in_future(sample_events):
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
@@ -138,7 +138,7 @@ def test_evaluate_returns_empty_for_event_too_far_in_future(sample_events):
 
 def test_evaluate_does_not_include_non_matching_event_in_window(sample_events):
     """e3 'Friday Social' is within the time window but doesn't match the regex."""
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
@@ -152,7 +152,7 @@ def test_evaluate_does_not_include_non_matching_event_in_window(sample_events):
 
 
 def test_expirationtimes_returns_trigger_times(sample_events):
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
@@ -171,7 +171,7 @@ def test_expirationtimes_returns_trigger_times(sample_events):
 
 
 def test_expirationtimes_excludes_non_matching(sample_events):
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Social.*",
@@ -184,7 +184,7 @@ def test_expirationtimes_excludes_non_matching(sample_events):
 
 
 def test_evaluate_not_enforced(sample_events):
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
@@ -200,7 +200,7 @@ def test_evaluate_not_enforced(sample_events):
 def test_evaluate_skips_event_with_invalid_uuid_id(sample_events):
     """Events with non-UUID IDs should be skipped with a warning."""
     sample_events.upcoming[0]["id"] = "not-a-valid-uuid"
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
@@ -214,7 +214,7 @@ def test_evaluate_skips_event_with_invalid_uuid_id(sample_events):
 
 class TestExtractCourtNames:
     def _make_action(self, events):
-        return ActionCreateTournament(
+        return ActionNacoCreateTournament(
             action_name="test",
             events=events,
             header_regex=".*",
@@ -279,7 +279,7 @@ class TestExtractCourtNames:
 
 def test_evaluate_includes_court_names_from_description(sample_events):
     sample_events.upcoming[0]["description"] = "Court: #1"
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",
@@ -294,7 +294,7 @@ def test_evaluate_includes_court_names_from_description(sample_events):
 
 
 def test_evaluate_empty_court_names_when_no_description(sample_events):
-    action = ActionCreateTournament(
+    action = ActionNacoCreateTournament(
         action_name="create_tournament",
         events=sample_events,
         header_regex=".*Americano.*",

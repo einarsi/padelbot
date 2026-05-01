@@ -1,2 +1,2 @@
 # Import to trigger registration
-from .create_tournament import ActionCreateTournament  # noqa: F401
+from .naco_create_tournament import ActionNacoCreateTournament  # noqa: F401

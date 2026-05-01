@@ -25,7 +25,7 @@ class CreateTournamentIntent(ActionIntent):
 MAX_COURT_NAME_LENGTH = 30
 
 
-class ActionCreateTournament(ActionBase):
+class ActionNacoCreateTournament(ActionBase):
     def __init__(
         self,
         action_name: str,
@@ -153,4 +153,4 @@ class ActionCreateTournament(ActionBase):
         return times
 
 
-register_action("CreateTournament", ActionCreateTournament)
+register_action("NacoCreateTournament", ActionNacoCreateTournament)

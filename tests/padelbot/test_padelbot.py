@@ -9,7 +9,7 @@ from naco_backend_client.models.user import User
 from naco_backend_client.types import Response
 
 from src.padelbot.actions.actionbase import ActionIntent
-from src.padelbot.actions.create_tournament import CreateTournamentIntent
+from src.padelbot.actions.naco_create_tournament import CreateTournamentIntent
 from src.padelbot.naco.registrar import NacoRegistrar
 from src.padelbot.padelbot import PadelBot
 from src.padelbot.rules.rulebase import RuleBase

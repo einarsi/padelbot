@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from spond import spond
 
 from .actions.actionbase import ActionBase, ActionIntent, create_action
-from .actions.create_tournament import CreateTournamentIntent
+from .actions.naco_create_tournament import CreateTournamentIntent
 from .naco.registrar import NacoRegistrar
 from .naco.tournament import NacoTournamentCreator
 from .rules.rulebase import RuleBase, create_rule
