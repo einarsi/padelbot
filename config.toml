@@ -7,7 +7,7 @@ group_id = "your_group_id"
 seconds_to_sleep = 600
 
 [naco]
-enabled = true
+enabled = false
 base_url = "http://localhost:8000"
 api_key = "your_api_key"
 
