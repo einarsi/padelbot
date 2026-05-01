@@ -63,7 +63,7 @@ class ActionNacoCreateTournament(ActionBase):
     def _extract_court_names(self, event: Event) -> list[str]:
         """Extract court names from event description lines matching 'Court: <name>'."""
         description = event.get("description", "") or ""
-        match = re.search(r"(?i)^Court:\s*(.+)$", description, re.MULTILINE)
+        match = re.search(r"^Court:\s*(.+)$", description, re.MULTILINE | re.IGNORECASE)
         if not match:
             return []
         name = match.group(1).strip()
@@ -102,21 +102,16 @@ class ActionNacoCreateTournament(ActionBase):
                         f"[{self.name}]: Could not resolve profile ID for player {player_id}"
                     )
 
-            start_timestamp = event.get("startTimestamp")
-            if start_timestamp:
-                start_time = datetime.fromisoformat(start_timestamp)
-                end_timestamp = event.get("endTimestamp")
-                if end_timestamp:
-                    end_time = datetime.fromisoformat(end_timestamp)
-                    tournament_name = (
-                        f"{start_time.strftime('%A %Y-%m-%d %H:%M')}"
-                        f"-{end_time.strftime('%H:%M')}"
-                    )
-                else:
-                    tournament_name = start_time.strftime("%A %Y-%m-%d %H:%M")
+            start_time = datetime.fromisoformat(event["startTimestamp"])
+            end_timestamp = event.get("endTimestamp")
+            if end_timestamp:
+                end_time = datetime.fromisoformat(end_timestamp)
+                tournament_name = (
+                    f"{start_time.strftime('%A %Y-%m-%d %H:%M')}"
+                    f"-{end_time.strftime('%H:%M')}"
+                )
             else:
-                start_time = datetime.now().astimezone()
-                tournament_name = start_time.strftime("%A %Y-%m-%d")
+                tournament_name = start_time.strftime("%A %Y-%m-%d %H:%M")
 
             logging.info(
                 f'[{self.name}]: Scheduling tournament creation for "{event["heading"]}" '
