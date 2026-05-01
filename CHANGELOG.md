@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.6.0](https://github.com/einarsi/padelbot/compare/v1.5.0...v1.6.0) (2026-05-01)
+
+
+### ✨ Features
+
+* auto-create tournament in Naco from Spond event ([#108](https://github.com/einarsi/padelbot/issues/108)) ([e33d352](https://github.com/einarsi/padelbot/commit/e33d352f4e042bbc643636f4732716e7f6a763f0))
+
+
+### 🧹 Chores
+
+* **deps:** bump googleapis/release-please-action from 4 to 5 ([#104](https://github.com/einarsi/padelbot/issues/104)) ([1667eda](https://github.com/einarsi/padelbot/commit/1667eda2448ce4876a95e5e7d9998c86f1b9df21))
+* **deps:** bump ruff from 0.15.9 to 0.15.12 ([#105](https://github.com/einarsi/padelbot/issues/105)) ([becaf7d](https://github.com/einarsi/padelbot/commit/becaf7d34155307461c7c1c28e26dfc4710236bc))
+* **deps:** bump spond from 1.1.1 to 1.2.0 ([#102](https://github.com/einarsi/padelbot/issues/102)) ([6b395c2](https://github.com/einarsi/padelbot/commit/6b395c2292ed2bf1cf513c462c914c5bcbc915df))
+* **deps:** bump types-aiofiles from 25.1.0.20251011 to 25.1.0.20260409 ([#100](https://github.com/einarsi/padelbot/issues/100)) ([413bc97](https://github.com/einarsi/padelbot/commit/413bc97fc373a5ebec8b68accd932afa4035b888))
+* **deps:** bump uvicorn from 0.44.0 to 0.46.0 ([#106](https://github.com/einarsi/padelbot/issues/106)) ([764e5a2](https://github.com/einarsi/padelbot/commit/764e5a288e2172bf8ec54dfc99cc719da000d443))
+
 ## [1.5.0](https://github.com/einarsi/padelbot/compare/v1.4.2...v1.5.0) (2026-04-09)
 
 
