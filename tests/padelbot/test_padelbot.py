@@ -382,7 +382,6 @@ class TestRegisterEventUsers:
             username="alice.alison",
             first_name="Alice",
             last_name="Alison",
-            email="alice@example.com",
             ranking=0.0,
             name="Alice Alison",
         )
@@ -407,7 +406,6 @@ class TestRegisterEventUsers:
             username="bob.bobson",
             first_name="Bob",
             last_name="Bobson",
-            email="bob@example.com",
             ranking=0.0,
             name="Bob Bobson",
         )
@@ -431,7 +429,6 @@ class TestRegisterEventUsers:
             username="alice.alison",
             first_name="Alice",
             last_name="Alison",
-            email="alice@example.com",
             ranking=0.0,
             name="Alice Alison",
         )
