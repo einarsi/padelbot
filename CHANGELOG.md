@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.6.1](https://github.com/einarsi/padelbot/compare/v1.6.0...v1.6.1) (2026-05-11)
+
+
+### 🐛 Bug Fixes
+
+* broken time-based test ([#112](https://github.com/einarsi/padelbot/issues/112)) ([9ce8e84](https://github.com/einarsi/padelbot/commit/9ce8e84e7b226a2f825ae9ea05b8389c48ccc703))
+
+
+### 🧹 Chores
+
+* **deps:** bump mypy from 1.20.2 to 2.1.0 ([#110](https://github.com/einarsi/padelbot/issues/110)) ([d0de512](https://github.com/einarsi/padelbot/commit/d0de51216a6bf20d2f3eafda732e87f638ea9997))
+* **deps:** bump types-aiofiles from 25.1.0.20260409 to 25.1.0.20260508 ([#111](https://github.com/einarsi/padelbot/issues/111)) ([e1b5ac2](https://github.com/einarsi/padelbot/commit/e1b5ac27aa1084ada523d050a4fb78346086e3b2))
+* **deps:** bump types-python-dateutil ([01aa5e4](https://github.com/einarsi/padelbot/commit/01aa5e4473e623441888543edfe48e51c7dbb91b))
+* **deps:** bump types-python-dateutil from 2.9.0.20260408 to 2.9.0.20260508 ([#109](https://github.com/einarsi/padelbot/issues/109)) ([01aa5e4](https://github.com/einarsi/padelbot/commit/01aa5e4473e623441888543edfe48e51c7dbb91b))
+
 ## [1.6.0](https://github.com/einarsi/padelbot/compare/v1.5.0...v1.6.0) (2026-05-01)
 
 
