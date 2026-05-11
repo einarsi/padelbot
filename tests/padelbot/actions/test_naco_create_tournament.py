@@ -310,8 +310,9 @@ def test_evaluate_empty_court_names_when_no_description(sample_events):
 
 def test_evaluate_end_time_with_end_timestamp(sample_events):
     """When endTimestamp is present, end_time is set on the intent."""
-    start = datetime(2026, 5, 5, 18, 0, tzinfo=datetime.now().astimezone().tzinfo)
-    end = datetime(2026, 5, 5, 19, 30, tzinfo=datetime.now().astimezone().tzinfo)
+    now = datetime.now().astimezone()
+    start = now + timedelta(hours=1)
+    end = now + timedelta(hours=2, minutes=30)
     sample_events.upcoming[0]["startTimestamp"] = start.isoformat()
     sample_events.upcoming[0]["endTimestamp"] = end.isoformat()
     action = ActionNacoCreateTournament(
@@ -329,7 +330,8 @@ def test_evaluate_end_time_with_end_timestamp(sample_events):
 
 def test_evaluate_end_time_without_end_timestamp(sample_events):
     """When endTimestamp is absent, end_time is None."""
-    start = datetime(2026, 5, 5, 18, 0, tzinfo=datetime.now().astimezone().tzinfo)
+    now = datetime.now().astimezone()
+    start = now + timedelta(hours=1)
     sample_events.upcoming[0]["startTimestamp"] = start.isoformat()
     sample_events.upcoming[0].pop("endTimestamp", None)
     action = ActionNacoCreateTournament(
