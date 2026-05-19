@@ -15,13 +15,13 @@ async def write_dump(filename, data):
 
 async def main():
     cfg = dotenv_values(".env")
-    username = cfg.get("USERNAME")
-    password = cfg.get("PASSWORD")
-    group_id = cfg.get("GROUP_ID")
+    username = cfg.get("SPOND_USERNAME")
+    password = cfg.get("SPOND_PASSWORD")
+    group_id = cfg.get("SPOND_GROUP_ID")
 
     if not username or not password or not group_id:
         raise ValueError(
-            "USERNAME, PASSWORD, and GROUP_ID must be set in the .env file"
+            "SPOND_USERNAME, SPOND_PASSWORD, and GROUP_ID must be set in the .env file"
         )
 
     s = spond.Spond(username, password)
