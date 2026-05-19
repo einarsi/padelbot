@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.6.1](https://github.com/einarsi/padelbot/compare/v1.6.0...v1.6.1) (2026-05-19)
+
+
+### 🐛 Bug Fixes
+
+* broken time-based test ([#112](https://github.com/einarsi/padelbot/issues/112)) ([9ce8e84](https://github.com/einarsi/padelbot/commit/9ce8e84e7b226a2f825ae9ea05b8389c48ccc703))
+* env variables used in dump_data.py ([#120](https://github.com/einarsi/padelbot/issues/120)) ([b60116c](https://github.com/einarsi/padelbot/commit/b60116ca7b526c6fc9d47f0787c1ca61d81ba7cf))
+
+
+### 🧹 Chores
+
+* **deps:** bump mypy from 1.20.2 to 2.1.0 ([#110](https://github.com/einarsi/padelbot/issues/110)) ([d0de512](https://github.com/einarsi/padelbot/commit/d0de51216a6bf20d2f3eafda732e87f638ea9997))
+* **deps:** bump openapi-python-client from 0.28.3 to 0.28.4 ([#115](https://github.com/einarsi/padelbot/issues/115)) ([a13922f](https://github.com/einarsi/padelbot/commit/a13922fa8278b14fb18ea1a04af17bf6eb877031))
+* **deps:** bump ruff from 0.15.12 to 0.15.13 ([#117](https://github.com/einarsi/padelbot/issues/117)) ([6d2bb1d](https://github.com/einarsi/padelbot/commit/6d2bb1d3ae8be5a2baaca2b213e856f146899d8c))
+* **deps:** bump spond from 1.2.0 to 1.2.1 ([#119](https://github.com/einarsi/padelbot/issues/119)) ([cb3a903](https://github.com/einarsi/padelbot/commit/cb3a903ab5fae0b6a0389372fec57a130e3446c9))
+* **deps:** bump types-aiofiles from 25.1.0.20260409 to 25.1.0.20260508 ([#111](https://github.com/einarsi/padelbot/issues/111)) ([e1b5ac2](https://github.com/einarsi/padelbot/commit/e1b5ac27aa1084ada523d050a4fb78346086e3b2))
+* **deps:** bump types-aiofiles from 25.1.0.20260508 to 25.1.0.20260518 ([#116](https://github.com/einarsi/padelbot/issues/116)) ([9c4b0aa](https://github.com/einarsi/padelbot/commit/9c4b0aac800d2d420dfd35043740ff17b8a4e906))
+* **deps:** bump types-python-dateutil ([01aa5e4](https://github.com/einarsi/padelbot/commit/01aa5e4473e623441888543edfe48e51c7dbb91b))
+* **deps:** bump types-python-dateutil from 2.9.0.20260408 to 2.9.0.20260508 ([#109](https://github.com/einarsi/padelbot/issues/109)) ([01aa5e4](https://github.com/einarsi/padelbot/commit/01aa5e4473e623441888543edfe48e51c7dbb91b))
+* **deps:** bump types-python-dateutil from 2.9.0.20260508 to 2.9.0.20260518 ([#118](https://github.com/einarsi/padelbot/issues/118)) ([7720b72](https://github.com/einarsi/padelbot/commit/7720b7285f729febf3613de750fe8d26f64e61b3))
+
 ## [1.6.0](https://github.com/einarsi/padelbot/compare/v1.5.0...v1.6.0) (2026-05-01)
 
 
