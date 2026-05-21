@@ -1,6 +1,8 @@
 import asyncio
 import logging
+from collections.abc import Callable, Coroutine
 from datetime import datetime, timedelta
+from typing import TypeVar
 
 from spond import spond
 
@@ -10,6 +12,8 @@ from .naco.registrar import NacoRegistrar
 from .naco.tournament import NacoTournamentCreator
 from .rules.rulebase import RuleBase, create_rule
 from .utils import Event, Events, eventid_to_event, memberid_to_member
+
+T = TypeVar("T")
 
 
 class PadelBot:
@@ -34,12 +38,25 @@ class PadelBot:
         self.spond_profile_id: str | None = None
         self.events = Events()  # Cache events for webapp access
 
+    async def _call_spond(
+        self, func: Callable[..., Coroutine[None, None, T]], *args, **kwargs
+    ) -> T:
+        """Call a Spond API method, retrying once on token expiry (401)."""
+        try:
+            return await func(*args, **kwargs)
+        except ValueError as e:
+            if "status 401" in str(e):
+                logging.info("Spond token expired, re-authenticating...")
+                self.spond.token = None
+                return await func(*args, **kwargs)
+            raise
+
     async def resolve_spond_profile_id(self) -> None:
         """Fetch the connected user's Spond profile ID on first run."""
         if self.spond_profile_id:
             return
         try:
-            profile = await self.spond.get_profile()
+            profile = await self._call_spond(self.spond.get_profile)
             self.spond_profile_id = profile.get("id")
             if self.spond_profile_id:
                 logging.info(f"Resolved my Spond profile ID: {self.spond_profile_id}")
@@ -59,7 +76,8 @@ class PadelBot:
         min_start = timestamp_now - timedelta(days=7)
         try:
             events = (
-                await self.spond.get_events(
+                await self._call_spond(
+                    self.spond.get_events,
                     group_id=self.cfg["auth"]["group_id"],
                     min_start=min_start,
                     max_start=None,
@@ -232,10 +250,14 @@ class PadelBot:
         )
         if enforce:
             try:
-                await self.spond.change_response(
-                    event_id, player_id, {"accepted": "false"}
+                await self._call_spond(
+                    self.spond.change_response,
+                    event_id,
+                    player_id,
+                    {"accepted": "false"},
                 )
-                await self.spond.send_message(
+                await self._call_spond(
+                    self.spond.send_message,
                     text=message,
                     user=player["id"],
                     group_uid=self.cfg["auth"]["group_id"],
@@ -255,7 +277,8 @@ class PadelBot:
 
         if self.naco_enabled:
             await self.naco_registrar.register_event_users(
-                events.upcoming, self.spond.get_person
+                events.upcoming,
+                lambda uid: self._call_spond(self.spond.get_person, uid),
             )
 
         all_removals = []
