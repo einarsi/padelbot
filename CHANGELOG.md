@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/einarsi/padelbot/compare/v1.6.1...v1.6.2) (2026-05-21)
+
+
+### 🐛 Bug Fixes
+
+* reauthenticate when token expires ([#121](https://github.com/einarsi/padelbot/issues/121)) ([0a7cfe1](https://github.com/einarsi/padelbot/commit/0a7cfe109f2ed50d5fe1e6d8307479aa9340d500))
+
 ## [1.6.1](https://github.com/einarsi/padelbot/compare/v1.6.0...v1.6.1) (2026-05-19)
 
 
