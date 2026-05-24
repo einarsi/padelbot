@@ -66,7 +66,7 @@ class NacoRegistrar:
             email = person.get("profile", {}).get("email") or None
 
             user_create = UserCreate(
-                username=f"{first_name}.{last_name}".lower(),
+                username=f"{first_name} {last_name}".lower().replace(" ", "."),
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
