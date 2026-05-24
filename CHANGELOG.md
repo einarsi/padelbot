@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3](https://github.com/einarsi/padelbot/compare/v1.6.2...v1.6.3) (2026-05-24)
+
+
+### 🔨 Refactor
+
+* dots between each name for naco users ([#123](https://github.com/einarsi/padelbot/issues/123)) ([4cd6cf8](https://github.com/einarsi/padelbot/commit/4cd6cf8711f6046bceee2980bd55a64b88815c7d))
+
 ## [1.6.2](https://github.com/einarsi/padelbot/compare/v1.6.1...v1.6.2) (2026-05-21)
 
 
