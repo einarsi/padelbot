@@ -51,6 +51,14 @@ class PadelBot:
                 return await func(*args, **kwargs)
             raise
 
+    async def _get_person_with_refresh(self, uid: str):
+        """Get person by uid, refreshing groups cache on KeyError."""
+        try:
+            return await self._call_spond(self.spond.get_person, uid)
+        except KeyError:
+            self.spond.groups = None
+            return await self._call_spond(self.spond.get_person, uid)
+
     async def resolve_spond_profile_id(self) -> None:
         """Fetch the connected user's Spond profile ID on first run."""
         if self.spond_profile_id:
@@ -278,7 +286,7 @@ class PadelBot:
         if self.naco_enabled:
             await self.naco_registrar.register_event_users(
                 events.upcoming,
-                lambda uid: self._call_spond(self.spond.get_person, uid),
+                self._get_person_with_refresh,
             )
 
         all_removals = []
