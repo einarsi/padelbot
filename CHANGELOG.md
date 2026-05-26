@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.6.4](https://github.com/einarsi/padelbot/compare/v1.6.3...v1.6.4) (2026-05-26)
+
+
+### 🐛 Bug Fixes
+
+* refresh groups cache on keyerror ([#128](https://github.com/einarsi/padelbot/issues/128)) ([f9f0e0c](https://github.com/einarsi/padelbot/commit/f9f0e0c89421ef97db0043fa456bb96c4aea1f1c))
+
+
+### 🧹 Chores
+
+* **deps:** bump ruff from 0.15.13 to 0.15.14 ([#126](https://github.com/einarsi/padelbot/issues/126)) ([fa5be4e](https://github.com/einarsi/padelbot/commit/fa5be4ed5ef3a30556606b1e37baa97657fb7f1e))
+* **deps:** bump starlette from 1.0.0 to 1.1.0 ([#125](https://github.com/einarsi/padelbot/issues/125)) ([aa6aa35](https://github.com/einarsi/padelbot/commit/aa6aa35c6942400df4bdf9da877ec2d3d30011af))
+* **deps:** bump uvicorn from 0.46.0 to 0.48.0 ([#127](https://github.com/einarsi/padelbot/issues/127)) ([5ff7387](https://github.com/einarsi/padelbot/commit/5ff738701cf7c4b062ab861ae72d6bb2d6ce2b03))
+
 ## [1.6.3](https://github.com/einarsi/padelbot/compare/v1.6.2...v1.6.3) (2026-05-24)
 
 
