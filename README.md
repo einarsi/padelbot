@@ -50,4 +50,5 @@ The web interface is available at `http://localhost:8000`.
 ## Naco integration
 
 This client can use the Naco API. To generate client based on Naco's openapi spec, make sure `openapi.json` is available
-at `../naco/openapi.json` and run `python tools/generate_client.py` to replace all files in `naco-backend-client`.
+at `../naco/openapi.json` and run `python tools/generate_client.py` to replace all files in `naco-backend-client`. Then
+run `uv pip install -e ./naco-backend-client` to update the local `.venv` with the new client files.

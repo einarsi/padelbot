@@ -1,6 +1,6 @@
 [project]
 name = "naco-backend-client"
-version = "0.1.0"
+version = "0.24.0+1.g5d1eb6c"
 description = "A client library for accessing Naco Backend"
 authors = []
 requires-python = ">=3.10"
@@ -16,7 +16,7 @@ module-name = "naco_backend_client"
 module-root = ""
 
 [build-system]
-requires = ["uv_build>=0.10.0,<0.11.0"]
+requires = ["uv_build>=0.11.0,<0.12.0"]
 build-backend = "uv_build"
 
 [tool.ruff]
