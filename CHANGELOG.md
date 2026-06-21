@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.5](https://github.com/einarsi/padelbot/compare/v1.6.4...v1.6.5) (2026-06-21)
+
+
+### 🧹 Chores
+
+* bump naco-backend-client to v1.0.0 ([#137](https://github.com/einarsi/padelbot/issues/137)) ([68a8264](https://github.com/einarsi/padelbot/commit/68a8264eb47289a83cf418f24d78e2fab744a88e))
+* update naco client to 0.24.0 ([#113](https://github.com/einarsi/padelbot/issues/113)) ([4be4624](https://github.com/einarsi/padelbot/commit/4be4624df51adaef7b37da78e430b9394bb51b9d))
+
 ## [1.6.4](https://github.com/einarsi/padelbot/compare/v1.6.3...v1.6.4) (2026-05-26)
 
 
