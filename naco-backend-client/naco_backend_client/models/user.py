@@ -7,6 +7,8 @@ from uuid import UUID
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..types import UNSET, Unset
+
 T = TypeVar("T", bound="User")
 
 
@@ -20,6 +22,7 @@ class User:
         last_name (str):
         ranking (float):
         name (str):
+        show_in_leaderboard (bool | Unset):  Default: True.
     """
 
     id: UUID
@@ -28,6 +31,7 @@ class User:
     last_name: str
     ranking: float
     name: str
+    show_in_leaderboard: bool | Unset = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -43,6 +47,8 @@ class User:
 
         name = self.name
 
+        show_in_leaderboard = self.show_in_leaderboard
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -55,6 +61,8 @@ class User:
                 "name": name,
             }
         )
+        if show_in_leaderboard is not UNSET:
+            field_dict["show_in_leaderboard"] = show_in_leaderboard
 
         return field_dict
 
@@ -73,6 +81,8 @@ class User:
 
         name = d.pop("name")
 
+        show_in_leaderboard = d.pop("show_in_leaderboard", UNSET)
+
         user = cls(
             id=id,
             username=username,
@@ -80,6 +90,7 @@ class User:
             last_name=last_name,
             ranking=ranking,
             name=name,
+            show_in_leaderboard=show_in_leaderboard,
         )
 
         user.additional_properties = d

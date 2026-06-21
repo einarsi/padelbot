@@ -1,6 +1,6 @@
 [project]
 name = "naco-backend-client"
-version = "0.24.0+1.g5d1eb6c"
+version = "1.0.0+1.gbf44064"
 description = "A client library for accessing Naco Backend"
 authors = []
 requires-python = ">=3.10"

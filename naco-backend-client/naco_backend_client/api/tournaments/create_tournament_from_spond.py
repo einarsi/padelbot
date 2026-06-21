@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: SpondTournamentCreate,
-    x_api_key: str | Unset = UNSET,
+    x_api_key: None | str | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_api_key, Unset):
@@ -67,12 +67,12 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: SpondTournamentCreate,
-    x_api_key: str | Unset = UNSET,
+    x_api_key: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | SpondTournamentCreateResponse]:
     """Create a tournament from Spond event
 
     Args:
-        x_api_key (str | Unset):
+        x_api_key (None | str | Unset):
         body (SpondTournamentCreate):
 
     Raises:
@@ -99,12 +99,12 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     body: SpondTournamentCreate,
-    x_api_key: str | Unset = UNSET,
+    x_api_key: None | str | Unset = UNSET,
 ) -> HTTPValidationError | SpondTournamentCreateResponse | None:
     """Create a tournament from Spond event
 
     Args:
-        x_api_key (str | Unset):
+        x_api_key (None | str | Unset):
         body (SpondTournamentCreate):
 
     Raises:
@@ -126,12 +126,12 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: SpondTournamentCreate,
-    x_api_key: str | Unset = UNSET,
+    x_api_key: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | SpondTournamentCreateResponse]:
     """Create a tournament from Spond event
 
     Args:
-        x_api_key (str | Unset):
+        x_api_key (None | str | Unset):
         body (SpondTournamentCreate):
 
     Raises:
@@ -156,12 +156,12 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     body: SpondTournamentCreate,
-    x_api_key: str | Unset = UNSET,
+    x_api_key: None | str | Unset = UNSET,
 ) -> HTTPValidationError | SpondTournamentCreateResponse | None:
     """Create a tournament from Spond event
 
     Args:
-        x_api_key (str | Unset):
+        x_api_key (None | str | Unset):
         body (SpondTournamentCreate):
 
     Raises:
