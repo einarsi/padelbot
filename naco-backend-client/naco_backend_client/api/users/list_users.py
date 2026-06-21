@@ -14,7 +14,11 @@ def _get_kwargs(
     *,
     limit: int | Unset = 20,
     offset: int | Unset = 0,
+    x_api_key: None | str | Unset = UNSET,
 ) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+    if not isinstance(x_api_key, Unset):
+        headers["x-api-key"] = x_api_key
 
     params: dict[str, Any] = {}
 
@@ -30,6 +34,7 @@ def _get_kwargs(
         "params": params,
     }
 
+    _kwargs["headers"] = headers
     return _kwargs
 
 
@@ -68,6 +73,7 @@ def sync_detailed(
     client: AuthenticatedClient | Client,
     limit: int | Unset = 20,
     offset: int | Unset = 0,
+    x_api_key: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | PaginatedResponseUser]:
     """List all users
 
@@ -76,6 +82,7 @@ def sync_detailed(
     Args:
         limit (int | Unset):  Default: 20.
         offset (int | Unset):  Default: 0.
+        x_api_key (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -88,6 +95,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         limit=limit,
         offset=offset,
+        x_api_key=x_api_key,
     )
 
     response = client.get_httpx_client().request(
@@ -102,6 +110,7 @@ def sync(
     client: AuthenticatedClient | Client,
     limit: int | Unset = 20,
     offset: int | Unset = 0,
+    x_api_key: None | str | Unset = UNSET,
 ) -> HTTPValidationError | PaginatedResponseUser | None:
     """List all users
 
@@ -110,6 +119,7 @@ def sync(
     Args:
         limit (int | Unset):  Default: 20.
         offset (int | Unset):  Default: 0.
+        x_api_key (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -123,6 +133,7 @@ def sync(
         client=client,
         limit=limit,
         offset=offset,
+        x_api_key=x_api_key,
     ).parsed
 
 
@@ -131,6 +142,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient | Client,
     limit: int | Unset = 20,
     offset: int | Unset = 0,
+    x_api_key: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | PaginatedResponseUser]:
     """List all users
 
@@ -139,6 +151,7 @@ async def asyncio_detailed(
     Args:
         limit (int | Unset):  Default: 20.
         offset (int | Unset):  Default: 0.
+        x_api_key (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -151,6 +164,7 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         limit=limit,
         offset=offset,
+        x_api_key=x_api_key,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -163,6 +177,7 @@ async def asyncio(
     client: AuthenticatedClient | Client,
     limit: int | Unset = 20,
     offset: int | Unset = 0,
+    x_api_key: None | str | Unset = UNSET,
 ) -> HTTPValidationError | PaginatedResponseUser | None:
     """List all users
 
@@ -171,6 +186,7 @@ async def asyncio(
     Args:
         limit (int | Unset):  Default: 20.
         offset (int | Unset):  Default: 0.
+        x_api_key (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -185,5 +201,6 @@ async def asyncio(
             client=client,
             limit=limit,
             offset=offset,
+            x_api_key=x_api_key,
         )
     ).parsed
