@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.6](https://github.com/einarsi/padelbot/compare/v1.6.5...v1.6.6) (2026-06-29)
+
+
+### 🧹 Chores
+
+* **deps:** bump actions/checkout from 6 to 7 ([#138](https://github.com/einarsi/padelbot/issues/138)) ([f5478c0](https://github.com/einarsi/padelbot/commit/f5478c098966f14726876e7d8ec82184669e0085))
+
 ## [1.6.5](https://github.com/einarsi/padelbot/compare/v1.6.4...v1.6.5) (2026-06-21)
 
 
