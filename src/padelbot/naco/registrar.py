@@ -9,6 +9,8 @@ from naco_backend_client.models.user_create import UserCreate
 
 from ..utils import Event, memberid_to_member
 
+logger = logging.getLogger(__name__)
+
 
 class NacoRegistrar:
     def __init__(self, base_url: str, api_key: str):
@@ -57,9 +59,9 @@ class NacoRegistrar:
 
             try:
                 person = await get_person(player_id)
-            except Exception as e:
-                logging.warning(
-                    f"Failed to get person details for {first_name} {last_name}: {e}"
+            except Exception:
+                logger.exception(
+                    f"Failed to get person details for {first_name} {last_name}"
                 )
                 continue
 
@@ -79,27 +81,27 @@ class NacoRegistrar:
                     body=user_create,
                     x_api_key=self.api_key,
                 )
-            except Exception as e:
-                logging.error(f"Failed to register user {first_name} {last_name}: {e}")
+            except Exception:
+                logger.exception(f"Failed to register user {first_name} {last_name}")
                 continue
 
             if isinstance(response.parsed, User):
-                logging.info(
+                logger.info(
                     f"Registered user {first_name} {last_name} in Naco database"
                 )
             elif response.status_code.value == 409:
-                logging.debug(
+                logger.debug(
                     f"User {first_name} {last_name} already exists in Naco database"
                 )
             else:
                 status = response.status_code.value
                 if status in (401, 403):
-                    logging.error(
+                    logger.error(
                         f"Naco API authentication failed (HTTP {status}). "
                         f"Check your api_key in [naco] config."
                     )
                 else:
-                    logging.error(
+                    logger.error(
                         f"Failed to register user {first_name} {last_name}: "
                         f"HTTP {status}"
                     )

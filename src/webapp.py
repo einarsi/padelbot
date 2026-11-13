@@ -3,19 +3,23 @@ import logging
 import tomllib
 from contextlib import asynccontextmanager
 
+import aiofiles
 from starlette.applications import Starlette
-from starlette.responses import HTMLResponse, PlainTextResponse
+from starlette.responses import FileResponse, PlainTextResponse
 from starlette.routing import Route
 
 from padelbot.core.config import readconfig
 from padelbot.core.logger import LOG_FILE, start_logger
 
+logger = logging.getLogger(__name__)
+
 
 async def get_logs(request):
     try:
-        with open(LOG_FILE, "r") as f:
-            return PlainTextResponse(f.read())
+        async with aiofiles.open(LOG_FILE, "r") as f:
+            return PlainTextResponse(await f.read())
     except Exception as e:
+        logger.exception("Error reading log file")
         return PlainTextResponse(f"Error: {e}", status_code=500)
 
 
@@ -75,7 +79,7 @@ async def get_events(request):
 
         return JSONResponse({"events": events_data})
     except Exception as e:
-        logging.error(f"Error fetching events: {e}")
+        logger.exception("Error fetching events")
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
@@ -85,9 +89,7 @@ async def log_viewer(request):
     template_path = os.path.join(
         os.path.dirname(__file__), "templates", "log_viewer.html"
     )
-    with open(template_path, "r") as f:
-        html = f.read()
-    return HTMLResponse(content=html)
+    return FileResponse(template_path)
 
 
 async def show_logs(request):
@@ -105,13 +107,13 @@ async def show_logs(request):
 @asynccontextmanager
 async def lifespan(app):
     await start_logger()
-    with open("pyproject.toml", "rb") as f:
-        data = tomllib.load(f)
+    async with aiofiles.open("pyproject.toml", "rb") as f:
+        data = tomllib.loads((await f.read()).decode())
     version = data["project"]["version"]
-    logging.info(f"Starting padelbot v{version}")
+    logger.info(f"Starting padelbot v{version}")
     cfg = readconfig()
     if cfg is None:
-        logging.error("Missing configuration")
+        logger.error("Missing configuration")
     else:
         logging.getLogger().setLevel(cfg["logging"]["level"])
         from padelbot.padelbot import PadelBot

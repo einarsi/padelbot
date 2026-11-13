@@ -7,6 +7,8 @@ from uuid import UUID
 from ..utils import Event, Events, memberid_to_member
 from .actionbase import ActionBase, ActionIntent, register_action
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass(kw_only=True)
 class CreateTournamentIntent(ActionIntent):
@@ -82,7 +84,7 @@ class ActionNacoCreateTournament(ActionBase):
             try:
                 UUID(event["id"])
             except ValueError:
-                logging.warning(
+                logger.warning(
                     f'[{self.name}]: Skipping event "{event["heading"]}" — '
                     f'invalid event ID "{event["id"]}" (not a valid UUID)'
                 )
@@ -98,7 +100,7 @@ class ActionNacoCreateTournament(ActionBase):
                     if profile_id:
                         player_spond_ids.append(UUID(profile_id))
                 except (ValueError, KeyError):
-                    logging.warning(
+                    logger.warning(
                         f"[{self.name}]: Could not resolve profile ID for player {player_id}"
                     )
 
@@ -106,7 +108,7 @@ class ActionNacoCreateTournament(ActionBase):
             end_timestamp = event.get("endTimestamp")
             end_time = datetime.fromisoformat(end_timestamp) if end_timestamp else None
 
-            logging.info(
+            logger.info(
                 f'[{self.name}]: Scheduling tournament creation for "{event["heading"]}" '
                 f"starting at {start_time.replace(tzinfo=None)}"
             )

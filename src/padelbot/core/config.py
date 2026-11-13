@@ -5,6 +5,8 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+logger = logging.getLogger(__name__)
+
 defaults: dict[str, Any] = {
     "auth": {
         "username": "your_username",
@@ -48,7 +50,7 @@ def readconfig() -> dict[str, Any] | None:
     config = {**defaults, **config}
 
     if not all(config["auth"].get(k) for k in ("username", "password", "group_id")):
-        logging.error("username, password or group_id is missing. Bailing.")
+        logger.error("username, password or group_id is missing. Bailing.")
         return None
 
     return config

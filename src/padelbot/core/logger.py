@@ -31,7 +31,7 @@ async def init_logger():
         while True:
             await asyncio.sleep(60)
     finally:
-        logging.debug("Stopping logger")
+        log.debug("Stopping logger")
         listener.stop()
 
 

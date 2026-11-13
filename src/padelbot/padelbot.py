@@ -13,6 +13,8 @@ from .naco.tournament import NacoTournamentCreator
 from .rules.rulebase import RuleBase, create_rule
 from .utils import Event, Events, eventid_to_event, memberid_to_member
 
+logger = logging.getLogger(__name__)
+
 T = TypeVar("T")
 
 
@@ -22,7 +24,7 @@ class PadelBot:
         try:
             self.spond = spond.Spond(cfg["auth"]["username"], cfg["auth"]["password"])
         except Exception as e:
-            logging.error(f"Failed to initialize Spond client: {e}")
+            logger.error(f"Failed to initialize Spond client: {e}")
             raise
         self.naco_enabled = cfg["naco"].get("enabled", False)
         if self.naco_enabled:
@@ -46,7 +48,7 @@ class PadelBot:
             return await func(*args, **kwargs)
         except ValueError as e:
             if "status 401" in str(e):
-                logging.info("Spond token expired, re-authenticating...")
+                logger.info("Spond token expired, re-authenticating...")
                 self.spond.token = None
                 return await func(*args, **kwargs)
             raise
@@ -67,16 +69,16 @@ class PadelBot:
             profile = await self._call_spond(self.spond.get_profile)
             self.spond_profile_id = profile.get("id")
             if self.spond_profile_id:
-                logging.info(f"Resolved my Spond profile ID: {self.spond_profile_id}")
+                logger.info(f"Resolved my Spond profile ID: {self.spond_profile_id}")
             else:
-                logging.error(
+                logger.error(
                     "Spond profile response did not contain an 'id' field. "
                     "Tournament creation will be disabled."
                 )
-        except Exception as e:
-            logging.error(
-                f"Failed to fetch Spond profile: {e}. "
-                f"Tournament creation will be disabled until resolved."
+        except Exception:
+            logger.exception(
+                "Failed to fetch Spond profile. "
+                "Tournament creation will be disabled until resolved."
             )
 
     async def get_events(self) -> Events:
@@ -92,8 +94,8 @@ class PadelBot:
                 )
                 or []
             )
-        except Exception as e:
-            logging.error(f"Failed to fetch events from Spond: {e}")
+        except Exception:
+            logger.exception("Failed to fetch events from Spond")
             return Events()
 
         timestamp_now = datetime.now().astimezone()
@@ -108,7 +110,7 @@ class PadelBot:
             else:
                 retval.ongoing.append(event)
 
-        logging.debug(
+        logger.debug(
             f"Found {len(retval.upcoming)} upcoming, {len(retval.previous)} previous and {len(retval.ongoing)} ongoing events"
         )
         return retval
@@ -119,7 +121,7 @@ class PadelBot:
             try:
                 rule = create_rule(rule_name, events, rule_def)
             except ValueError as e:
-                logging.error(f"Skipping rule {rule_name}: {e}")
+                logger.error(f"Skipping rule {rule_name}: {e}")
                 continue
             rules.append(rule)
         return rules
@@ -128,7 +130,7 @@ class PadelBot:
         actions: list[ActionBase] = []
         if not self.spond_profile_id:
             if self.cfg["actions"]:
-                logging.error(
+                logger.error(
                     "Cannot create actions: Spond profile ID not resolved. "
                     "Check connectivity to Spond."
                 )
@@ -138,7 +140,7 @@ class PadelBot:
                 not self.naco_enabled
                 and action_def.get("type") == "NacoCreateTournament"
             ):
-                logging.warning(
+                logger.warning(
                     f"Skipping action {action_name}: Naco is disabled. "
                     "Enable Naco in config to use this action."
                 )
@@ -147,7 +149,7 @@ class PadelBot:
             try:
                 action = create_action(action_name, events, action_def)
             except ValueError as e:
-                logging.error(f"Skipping action {action_name}: {e}")
+                logger.error(f"Skipping action {action_name}: {e}")
                 continue
             actions.append(action)
         return actions
@@ -155,7 +157,7 @@ class PadelBot:
     async def execute_action(self, intent: ActionIntent) -> bool:
         if isinstance(intent, CreateTournamentIntent):
             if not self.naco_enabled:
-                logging.warning(
+                logger.warning(
                     f'Cannot create tournament for "{intent.event_heading}": Naco is disabled'
                 )
                 return False
@@ -170,7 +172,7 @@ class PadelBot:
                 points_to_win=intent.points_to_win,
                 court_names=intent.court_names,
             )
-        logging.error(f"Unknown action intent type: {type(intent).__name__}")
+        logger.error(f"Unknown action intent type: {type(intent).__name__}")
         return False
 
     def get_sleep_time(self, default_sleep_time: float, events: Events) -> float:
@@ -186,7 +188,7 @@ class PadelBot:
         )
         if next_rule_end_time:
             secs_to_quarantine_end = (next_rule_end_time - now).total_seconds()
-            logging.debug(
+            logger.debug(
                 f"Next quarantine ends at {next_rule_end_time.astimezone().replace(tzinfo=None)} (in {secs_to_quarantine_end:.2f} seconds)"
             )
 
@@ -245,7 +247,7 @@ class PadelBot:
         try:
             event = eventid_to_event(event_id, events)
         except ValueError:
-            logging.error(f"Event ID {event_id} not found")
+            logger.error(f"Event ID {event_id} not found")
             return False
 
         player = memberid_to_member(
@@ -253,7 +255,7 @@ class PadelBot:
             event["recipients"]["group"]["members"],
         )
 
-        logging.info(
+        logger.info(
             f'{"Removing" if enforce else "Not enforcing removal of"} player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}" ({event["startTimestamp"]})'
         )
         if enforce:
@@ -271,9 +273,9 @@ class PadelBot:
                     group_uid=self.cfg["auth"]["group_id"],
                 )
                 return True
-            except Exception as e:
-                logging.error(
-                    f'Failed to remove player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}": {e}'
+            except Exception:
+                logger.exception(
+                    f'Failed to remove player {player["firstName"]} {player["lastName"]} from event "{event["heading"]}"'
                 )
                 return False
         return False
@@ -326,5 +328,5 @@ class PadelBot:
             self.cfg["general"]["seconds_to_sleep"], events
         )
 
-        logging.info(f"Sleeping for {seconds_to_sleep:.1f} seconds")
+        logger.info(f"Sleeping for {seconds_to_sleep:.1f} seconds")
         await asyncio.sleep(seconds_to_sleep)

@@ -35,12 +35,14 @@ def get_last_event_in_series(event: Event, events: list[Event]) -> Event | None:
 
     result = None
     for previous_event in events:
-        if previous_event.get("seriesId") == event_series_id:
-            if (result is None) or (
+        if previous_event.get("seriesId") == event_series_id and (
+            result is None
+            or (
                 datetime.fromisoformat(previous_event["startTimestamp"])
                 > datetime.fromisoformat(result["startTimestamp"])
-            ):
-                result = previous_event
+            )
+        ):
+            result = previous_event
     return result
 
 
