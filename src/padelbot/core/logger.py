@@ -15,8 +15,8 @@ async def init_logger():
     log.setLevel(logging.DEBUG)
 
     # Silence noisy third-party loggers
-    logging.getLogger("httpx").setLevel(logging.WARNING)
-    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    for name in ("httpx", "httpcore", "httpx2", "httpcore2"):
+        logging.getLogger(name).setLevel(logging.WARNING)
     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
     file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=5)
     stream_handler = StreamHandler()
