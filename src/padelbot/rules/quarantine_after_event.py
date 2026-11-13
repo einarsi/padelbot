@@ -11,6 +11,8 @@ from ..utils import (
 )
 from .rulebase import RemovalInfo, RuleBase, register_rule
 
+logger = logging.getLogger(__name__)
+
 
 class RuleQuarantineAfterEvent(RuleBase):
     def __init__(
@@ -30,9 +32,7 @@ class RuleQuarantineAfterEvent(RuleBase):
         self.quarantine_hours = quarantine_hours
 
     def _include(self, event: Event) -> bool:
-        if not re.search(self.header_regex, event["heading"], re.IGNORECASE):
-            return False
-        return True
+        return bool(re.search(self.header_regex, event["heading"], re.IGNORECASE))
 
     def _get_last_similar_event(self, event: Event) -> Event | None:
         last_event = get_last_event_in_series(event, self.events.previous)
@@ -55,11 +55,9 @@ class RuleQuarantineAfterEvent(RuleBase):
         if not last_event_end:
             return False
 
-        if datetime.now().astimezone() > last_event_end + timedelta(
+        return datetime.now().astimezone() <= last_event_end + timedelta(
             hours=self.quarantine_hours
-        ):
-            return False
-        return True
+        )
 
     def expirationtimes(self) -> list[datetime]:
         result: list[datetime] = []
@@ -79,12 +77,12 @@ class RuleQuarantineAfterEvent(RuleBase):
             if not self._include(event):
                 continue
 
-            logging.info(f'[{self.name}]: Processing event "{event["heading"]}"')
+            logger.info(f'[{self.name}]: Processing event "{event["heading"]}"')
 
             if not self._isactive(event):
                 continue
 
-            logging.info(
+            logger.info(
                 f'[{self.name}]: "{event["heading"]}" is in quarantine for players that played last time'
             )
 
@@ -92,9 +90,9 @@ class RuleQuarantineAfterEvent(RuleBase):
                 event["responses"]["acceptedIds"] + event["responses"]["waitinglistIds"]
             )
 
-            if logging.getLogger().isEnabledFor(logging.DEBUG):
+            if logger.isEnabledFor(logging.DEBUG):
                 participating_names = get_participating_player_names(event)
-                logging.debug(
+                logger.debug(
                     f"[{self.name}]: Participating players: {', '.join(participating_names)}"
                 )
 
@@ -104,15 +102,15 @@ class RuleQuarantineAfterEvent(RuleBase):
                     event, self.events.previous
                 )
                 if last_event:
-                    logging.warning(
+                    logger.warning(
                         f"[{self.name}]: Found last similar event by timestamp and title: {last_event['heading']} at {last_event['startTimestamp']}"
                     )
             if not last_event:
-                logging.warning(
+                logger.warning(
                     f'[{self.name}]: No last event found for "{event["heading"]}". Skipping further processing.'
                 )
                 continue
-            logging.debug(
+            logger.debug(
                 f"[{self.name}]: Last event in series was {datetime.fromisoformat(last_event['startTimestamp']).astimezone()}"
             )
 

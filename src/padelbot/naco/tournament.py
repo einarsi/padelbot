@@ -11,6 +11,8 @@ from naco_backend_client.models.spond_tournament_create_response import (
 )
 from naco_backend_client.types import Unset
 
+logger = logging.getLogger(__name__)
+
 
 class NacoTournamentCreator:
     def __init__(self, base_url: str, api_key: str):
@@ -38,7 +40,7 @@ class NacoTournamentCreator:
         if event_id in self.cache_created_event_ids:
             return True
 
-        logging.info(
+        logger.info(
             f'Creating tournament in Naco for "{event_heading}" '
             f"with {len(player_spond_ids)} players, starting at {start_time.replace(tzinfo=None)}"
         )
@@ -61,35 +63,35 @@ class NacoTournamentCreator:
                 body=body,
                 x_api_key=self.api_key,
             )
-        except Exception as e:
-            logging.error(f'Failed to create tournament for "{event_heading}": {e}')
+        except Exception:
+            logger.exception(f'Failed to create tournament for "{event_heading}"')
             return False
 
         if isinstance(response.parsed, SpondTournamentCreateResponse):
-            logging.info(
+            logger.info(
                 f'Tournament created for "{event_heading}": '
                 f" view_url={response.parsed.view_url}, "
                 f" edit_url={response.parsed.edit_url}"
             )
             skipped = response.parsed.skipped_spond_ids
             if not isinstance(skipped, Unset) and skipped:
-                logging.warning(
+                logger.warning(
                     f" {len(skipped)} player(s) were skipped (unknown Spond IDs)"
                 )
             self.cache_created_event_ids.add(event_id)
             return True
         elif response.status_code == HTTPStatus.CONFLICT:
-            logging.debug(f'Tournament for "{event_heading}" already exists')
+            logger.debug(f'Tournament for "{event_heading}" already exists')
             self.cache_created_event_ids.add(event_id)
             return True
         else:
             if response.status_code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
-                logging.error(
+                logger.error(
                     f"Naco API authentication failed (HTTP {response.status_code.value}). "
                     f"Check your api_key in [naco] config."
                 )
             else:
-                logging.error(
+                logger.error(
                     f'Failed to create tournament for "{event_heading}": HTTP {response.status_code.value}'
                 )
             return False

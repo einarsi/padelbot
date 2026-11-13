@@ -106,6 +106,7 @@ def main() -> None:
                 str(OUTPUT_DIR),
             ],
             cwd=REPO_ROOT,
+            check=False,
         )
     finally:
         Path(tmp_path).unlink()

@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from ..utils import Event, Events, get_participating_player_names, memberid_to_member
 from .rulebase import RemovalInfo, RuleBase, register_rule
 
+logger = logging.getLogger(__name__)
+
 
 class RuleMaxEventsPerWeek(RuleBase):
     def __init__(
@@ -35,10 +37,8 @@ class RuleMaxEventsPerWeek(RuleBase):
         # Event is not in grace period
         if now > event_start - timedelta(hours=self.grace_hours):
             return False
-        # Event is not within the next week
-        if event_start > now + timedelta(days=7):
-            return False
-        return True
+        # Event is within the next week
+        return event_start <= now + timedelta(days=7)
 
     def expirationtimes(self) -> list[datetime]:
         result: list[datetime] = []
@@ -56,10 +56,10 @@ class RuleMaxEventsPerWeek(RuleBase):
         for event in self.events.upcoming:
             if not self._include(event):
                 continue
-            logging.info(f'[{self.name}]: Processing "{event["heading"]}"')
-            if logging.getLogger().isEnabledFor(logging.DEBUG):
+            logger.info(f'[{self.name}]: Processing "{event["heading"]}"')
+            if logger.isEnabledFor(logging.DEBUG):
                 participating_names = get_participating_player_names(event)
-                logging.debug(
+                logger.debug(
                     f"[{self.name}]: -> Participating players: {', '.join(participating_names)}"
                 )
 
@@ -76,7 +76,7 @@ class RuleMaxEventsPerWeek(RuleBase):
                     player_id, events[0]["recipients"]["group"]["members"]
                 )
                 if player:
-                    logging.info(
+                    logger.info(
                         f"[{self.name}]: {player['firstName']} {player['lastName']} is signed up for {len(events)} > {self.max_events} events."
                     )
 
