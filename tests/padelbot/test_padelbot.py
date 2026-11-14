@@ -90,6 +90,12 @@ async def mockbot(cfg):
         patch.object(bot.spond, "send_message", new_callable=AsyncMock),
         patch.object(bot.spond, "get_events", new_callable=AsyncMock),
         patch.object(bot.spond, "get_person", new_callable=AsyncMock),
+        patch.object(
+            bot.spond,
+            "get_profile",
+            new_callable=AsyncMock,
+            return_value={"id": "11111111-1111-1111-1111-111111111111"},
+        ),
     ):
         yield bot
 
