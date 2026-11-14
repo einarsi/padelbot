@@ -120,8 +120,8 @@ class PadelBot:
         for rule_name, rule_def in self.cfg["rules"].items():
             try:
                 rule = create_rule(rule_name, events, rule_def)
-            except ValueError as e:
-                logger.error(f"Skipping rule {rule_name}: {e}")
+            except (ValueError, TypeError, KeyError) as e:
+                logger.error(f"Skipping rule {rule_name}: {e!r}")
                 continue
             rules.append(rule)
         return rules
@@ -148,8 +148,8 @@ class PadelBot:
             action_def = {**action_def, "spond_profile_id": self.spond_profile_id}
             try:
                 action = create_action(action_name, events, action_def)
-            except ValueError as e:
-                logger.error(f"Skipping action {action_name}: {e}")
+            except (ValueError, TypeError, KeyError) as e:
+                logger.error(f"Skipping action {action_name}: {e!r}")
                 continue
             actions.append(action)
         return actions
