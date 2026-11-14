@@ -1,6 +1,7 @@
 import logging
 import shutil
 import time
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from logging.handlers import QueueHandler
 from pathlib import Path
@@ -76,8 +77,8 @@ def fake_spond():
 
 
 @pytest.fixture
-def client(fake_spond, tmp_path, monkeypatch, caplog):
-    """The real app, started with the shipped config and a fake Spond."""
+def app_dir(tmp_path, monkeypatch):
+    """A working directory like the container's: the shipped config and no credentials."""
     # The app reads these from the working directory, as it does in the container.
     for name in ("pyproject.toml", "config.toml"):
         shutil.copy(REPO_ROOT / name, tmp_path)
@@ -88,6 +89,10 @@ def client(fake_spond, tmp_path, monkeypatch, caplog):
     for name in CONFIG_ENV_VARS:
         monkeypatch.delenv(name, raising=False)
 
+
+@contextmanager
+def _started(fake_spond):
+    """Start the real app with a fake Spond client, and undo its logging setup after."""
     root = logging.getLogger()
     level = root.level
     try:
@@ -95,16 +100,35 @@ def client(fake_spond, tmp_path, monkeypatch, caplog):
             patch.object(spond, "Spond", return_value=fake_spond),
             TestClient(webapp.app) as client,
         ):
-            # The bot loop runs in the background; wait for its first cycle to end.
-            _wait_for(
-                lambda: "Sleeping for" in caplog.text or "Run failed" in caplog.text
-            )
             yield client
     finally:
         for handler in root.handlers[:]:
             if isinstance(handler, QueueHandler):
                 root.removeHandler(handler)
         root.setLevel(level)
+
+
+@pytest.fixture
+def client(app_dir, fake_spond, monkeypatch, caplog):
+    """The real app, started with the shipped config, credentials and a fake Spond."""
+    for name in ("SPOND_USERNAME", "SPOND_PASSWORD", "SPOND_GROUP_ID"):
+        monkeypatch.setenv(name, "dummy")
+
+    with _started(fake_spond) as client:
+        # The bot loop runs in the background; wait for its first cycle to end.
+        _wait_for(lambda: "Sleeping for" in caplog.text or "Run failed" in caplog.text)
+        yield client
+
+
+def test_starts_without_credentials_but_runs_no_bot(app_dir, fake_spond, caplog):
+    with _started(fake_spond) as client:
+        assert client.get("/").status_code == 200
+        assert client.get("/logs").status_code == 200
+        assert client.get("/events").status_code == 500
+
+    assert "Missing configuration" in caplog.text
+    fake_spond.get_profile.assert_not_awaited()
+    fake_spond.get_events.assert_not_awaited()
 
 
 def test_serves_all_routes(client):

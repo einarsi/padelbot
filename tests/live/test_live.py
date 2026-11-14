@@ -34,7 +34,7 @@ pytestmark = [pytest.mark.live, pytest.mark.asyncio(loop_scope="module")]
 @pytest.fixture(scope="module")
 def cfg():
     cfg = config.readconfig()
-    if cfg is None or cfg["auth"]["username"] == "your_username":
+    if cfg is None:
         pytest.fail(
             "No Spond credentials. Set SPOND_USERNAME, SPOND_PASSWORD and "
             "SPOND_GROUP_ID in .env or the environment."
