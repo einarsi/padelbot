@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 from http import HTTPStatus
 from unittest.mock import AsyncMock, patch
@@ -679,3 +680,17 @@ class TestRunActions:
         ):
             await mockbot.run()
         mock_exec.assert_not_awaited()
+
+
+class TestRunForever:
+    @pytest.mark.asyncio
+    async def test_keeps_running_after_run_raises(self, mockbot):
+        run = AsyncMock(side_effect=[RuntimeError("boom"), asyncio.CancelledError()])
+        with (
+            patch.object(mockbot, "run", run),
+            patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep,
+            pytest.raises(asyncio.CancelledError),
+        ):
+            await mockbot.run_forever()
+        assert run.await_count == 2
+        mock_sleep.assert_awaited_once_with(60)

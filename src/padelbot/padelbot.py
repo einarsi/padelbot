@@ -330,3 +330,11 @@ class PadelBot:
 
         logger.info(f"Sleeping for {seconds_to_sleep:.1f} seconds")
         await asyncio.sleep(seconds_to_sleep)
+
+    async def run_forever(self):
+        while True:
+            try:
+                await self.run()
+            except Exception:
+                logger.exception("Run failed, retrying in 60 seconds")
+                await asyncio.sleep(60)
