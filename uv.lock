@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.13"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -779,7 +779,7 @@ wheels = [
 [[package]]
 name = "naco-backend-client"
 version = "1.3.0+31.gef89149"
-source = { directory = "naco-backend-client" }
+source = { editable = "naco-backend-client" }
 dependencies = [
     { name = "attrs" },
     { name = "httpx2" },
@@ -848,7 +848,7 @@ dev = [
 requires-dist = [
     { name = "aiofiles", specifier = ">=25.1.0" },
     { name = "configparser", specifier = ">=7.2.0" },
-    { name = "naco-backend-client", directory = "naco-backend-client" },
+    { name = "naco-backend-client", editable = "naco-backend-client" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "spond", specifier = ">=1.2.1" },
     { name = "starlette", specifier = ">=1.1.0" },

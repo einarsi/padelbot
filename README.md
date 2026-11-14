@@ -63,7 +63,8 @@ The same settings can be given in the `[naco]` section of `config.toml`; environ
 ### Updating the Naco client
 
 The bot talks to Naco through a client in `naco-backend-client/`, generated from Naco's OpenAPI spec. Only the endpoints
-listed in `ALLOWED_PATHS` in `tools/generate_client.py` are included. To update it after a change in Naco:
+listed in `ALLOWED_PATHS` in `tools/generate_client.py` are included. The client is installed in editable mode, so the
+bot and the tests import it straight from that folder. To update it after a change in Naco:
 
 1. Make the new spec available at `../naco/openapi.json`.
 2. Regenerate the client. This replaces all files in `naco-backend-client/`:
@@ -72,17 +73,13 @@ listed in `ALLOWED_PATHS` in `tools/generate_client.py` are included. To update 
    uv run python tools/generate_client.py
    ```
 
-3. Reinstall the client into the local `.venv`. The bot and the tests import the installed copy, not the folder:
-
-   ```sh
-   uv sync --reinstall-package naco-backend-client
-   ```
-
-4. Run the tests. `tests/padelbot/naco/test_wire.py` fails if the requests the bot sends, or the responses it can
-   parse, have changed:
+3. Run the tests. `tests/padelbot/naco/test_wire.py` fails if the requests the bot sends, or the responses it can
+   parse, have changed. `uv run` also installs any new dependencies of the client and updates `uv.lock`:
 
    ```sh
    uv run pytest
    ```
 
-5. Commit `naco-backend-client/` together with `uv.lock`.
+4. Commit `naco-backend-client/` together with `uv.lock`.
+
+The Docker image installs a regular copy of the client instead (`--no-editable` in the `Dockerfile`).
