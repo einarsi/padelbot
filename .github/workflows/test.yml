@@ -34,3 +34,33 @@ jobs:
       - name: ✨ Run linter
         run: |
           uv run ruff check .
+
+  container:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 🐳 Build image
+        run: |
+          docker build -t padelbot:smoke .
+
+      # No network: the Spond login fails and is caught, so no secrets are
+      # needed and nothing depends on Spond being reachable.
+      - name: 💨 Start container and wait for a completed bot cycle
+        run: |
+          docker run -d --name padelbot --network none --health-interval 2s padelbot:smoke
+          for _ in $(seq 60); do
+            if [ "$(docker inspect -f '{{.State.Health.Status}}' padelbot)" = healthy ] &&
+              docker logs padelbot 2>&1 | grep -q "Sleeping for"; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Container is not healthy or the bot loop did not complete a cycle"
+          exit 1
+
+      - name: 📜 Show container logs
+        if: always()
+        run: |
+          docker logs padelbot
