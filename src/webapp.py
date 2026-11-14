@@ -104,6 +104,18 @@ async def show_logs(request):
         return PlainTextResponse(info)
 
 
+async def health(request):
+    """Report whether the bot is working, for the container healthcheck."""
+    padelbot = getattr(request.app.state, "padelbot", None)
+    if padelbot is None:
+        return PlainTextResponse("Bot is not running", status_code=503)
+    if not padelbot.is_healthy():
+        return PlainTextResponse(
+            "Bot has not completed a cycle when expected", status_code=503
+        )
+    return PlainTextResponse("ok")
+
+
 @asynccontextmanager
 async def lifespan(app):
     await start_logger()
@@ -129,6 +141,7 @@ app = Starlette(
         Route("/", log_viewer),
         Route("/logs", get_logs),
         Route("/events", get_events),
+        Route("/health", health),
     ],
     lifespan=lifespan,
 )
