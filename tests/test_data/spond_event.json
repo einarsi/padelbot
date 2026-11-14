@@ -1,0 +1,244 @@
+{
+  "attachments": [],
+  "autoAccept": false,
+  "autoReminderType": "DISABLED",
+  "behalfOfIds": [
+    "00000000000000000000000000000001"
+  ],
+  "comments": [],
+  "commentsDisabled": false,
+  "createdTime": "redacted",
+  "creatorId": "00000000000000000000000000000002",
+  "description": "redacted",
+  "endTimestamp": "2026-05-28T19:30:00Z",
+  "expired": false,
+  "heading": "Thursday Americano",
+  "hidden": false,
+  "id": "00000000000000000000000000000003",
+  "location": {
+    "address": "redacted",
+    "administrativeAreaLevel1": "redacted",
+    "administrativeAreaLevel2": "redacted",
+    "country": "redacted",
+    "feature": "redacted",
+    "id": "00000000000000000000000000000004",
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "postalCode": "redacted"
+  },
+  "matchEvent": false,
+  "maxAccepted": 6,
+  "modifiedFromSeries": false,
+  "owners": [
+    {
+      "id": "00000000000000000000000000000002",
+      "response": "unanswered"
+    }
+  ],
+  "participantsHidden": false,
+  "recipients": {
+    "group": {
+      "activity": "redacted",
+      "contactPersonId": "00000000000000000000000000000002",
+      "createdTime": 0,
+      "id": "00000000000000000000000000000005",
+      "imageUrl": "redacted",
+      "members": [
+        {
+          "firstName": "First6",
+          "guardians": [],
+          "id": "00000000000000000000000000000006",
+          "lastName": "Last6",
+          "profile": {
+            "id": "00000000000000000000000000000007",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First8",
+          "guardians": [],
+          "id": "00000000000000000000000000000008",
+          "lastName": "Last8",
+          "profile": {
+            "id": "00000000000000000000000000000009",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First10",
+          "guardians": [],
+          "id": "0000000000000000000000000000000A",
+          "lastName": "Last10",
+          "profile": {
+            "id": "0000000000000000000000000000000B",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First12",
+          "guardians": [],
+          "id": "0000000000000000000000000000000C",
+          "lastName": "Last12",
+          "profile": {
+            "id": "0000000000000000000000000000000D",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First14",
+          "guardians": [],
+          "id": "0000000000000000000000000000000E",
+          "lastName": "Last14",
+          "profile": {
+            "id": "0000000000000000000000000000000F",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First16",
+          "guardians": [],
+          "id": "00000000000000000000000000000010",
+          "lastName": "Last16",
+          "profile": {
+            "id": "00000000000000000000000000000011",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First18",
+          "guardians": [],
+          "id": "00000000000000000000000000000012",
+          "lastName": "Last18",
+          "profile": {
+            "id": "00000000000000000000000000000013",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First20",
+          "guardians": [],
+          "id": "00000000000000000000000000000014",
+          "lastName": "Last20",
+          "profile": {
+            "id": "00000000000000000000000000000015",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First22",
+          "guardians": [],
+          "id": "00000000000000000000000000000016",
+          "lastName": "Last22",
+          "profile": {
+            "id": "00000000000000000000000000000017",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First24",
+          "guardians": [],
+          "id": "00000000000000000000000000000018",
+          "lastName": "Last24",
+          "profile": {
+            "id": "00000000000000000000000000000019",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First26",
+          "guardians": [],
+          "id": "0000000000000000000000000000001A",
+          "lastName": "Last26",
+          "profile": {
+            "id": "0000000000000000000000000000001B",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First28",
+          "guardians": [],
+          "id": "0000000000000000000000000000001C",
+          "lastName": "Last28",
+          "profile": {
+            "id": "0000000000000000000000000000001D",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First30",
+          "guardians": [],
+          "id": "0000000000000000000000000000001E",
+          "lastName": "Last30",
+          "profile": {
+            "id": "0000000000000000000000000000001F",
+            "unableToReach": false
+          },
+          "respondent": true
+        },
+        {
+          "firstName": "First32",
+          "guardians": [],
+          "id": "00000000000000000000000000000020",
+          "lastName": "Last32",
+          "profile": {
+            "id": "00000000000000000000000000000021",
+            "unableToReach": false
+          },
+          "respondent": true
+        }
+      ],
+      "name": "redacted",
+      "type": 1
+    },
+    "guardians": [],
+    "profiles": []
+  },
+  "registered": false,
+  "responses": {
+    "acceptedIds": [
+      "00000000000000000000000000000012",
+      "00000000000000000000000000000014",
+      "0000000000000000000000000000000C",
+      "00000000000000000000000000000006",
+      "0000000000000000000000000000000E",
+      "00000000000000000000000000000010"
+    ],
+    "declineMessages": {},
+    "declinedIds": [
+      "00000000000000000000000000000016",
+      "0000000000000000000000000000001A",
+      "0000000000000000000000000000001C",
+      "00000000000000000000000000000008",
+      "00000000000000000000000000000018"
+    ],
+    "unansweredIds": [
+      "0000000000000000000000000000000A",
+      "00000000000000000000000000000020",
+      "0000000000000000000000000000001E"
+    ],
+    "unconfirmedIds": [],
+    "waitinglistIds": []
+  },
+  "seriesId": "00000000000000000000000000000022",
+  "seriesOrdinal": 8,
+  "startTimestamp": "2026-05-28T18:00:00Z",
+  "tasks": {
+    "assignedTasks": [],
+    "openTasks": []
+  },
+  "type": "RECURRING",
+  "updated": 0,
+  "visibility": "ALL"
+}

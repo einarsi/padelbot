@@ -1,0 +1,433 @@
+{
+  "activity": "redacted",
+  "addressFormat": [
+    "redacted",
+    "redacted",
+    "redacted"
+  ],
+  "adminsCanAddMembers": true,
+  "ageGroup": "redacted",
+  "allowPrivatePayoutAccounts": true,
+  "allowSmsNag": false,
+  "bonusEnabled": false,
+  "contactInfoHidden": false,
+  "contactPerson": {
+    "contactMethod": "redacted",
+    "email": "player2@example.com",
+    "firstName": "First2",
+    "id": "00000000000000000000000000000002",
+    "lastName": "Last2",
+    "phoneNumber": "redacted",
+    "unableToReach": false
+  },
+  "countryCode": "redacted",
+  "createdTime": "redacted",
+  "defaultFields": {
+    "field_member_address": {
+      "locked": false,
+      "permission": "redacted",
+      "required": false
+    },
+    "field_member_dob": {
+      "locked": false,
+      "permission": "redacted",
+      "required": false
+    },
+    "field_member_guardian": {
+      "locked": false,
+      "permission": "redacted",
+      "required": false
+    }
+  },
+  "eventVisibility": "redacted",
+  "experiments": {},
+  "fieldDefs": [],
+  "guardianPermissions": [
+    "redacted"
+  ],
+  "id": "00000000000000000000000000000005",
+  "imageUrl": "redacted",
+  "invitedToAppTime": "redacted",
+  "memberPermissions": [
+    "redacted"
+  ],
+  "members": [
+    {
+      "createdTime": "redacted",
+      "email": "player6@example.com",
+      "fields": {},
+      "firstName": "First6",
+      "guardians": [],
+      "id": "00000000000000000000000000000006",
+      "lastName": "Last6",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player6@example.com",
+        "firstName": "First6",
+        "id": "00000000000000000000000000000007",
+        "lastName": "Last6",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000023"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player8@example.com",
+      "fields": {},
+      "firstName": "First8",
+      "guardians": [],
+      "id": "00000000000000000000000000000008",
+      "lastName": "Last8",
+      "phoneNumber": "redacted",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player8@example.com",
+        "firstName": "First8",
+        "id": "00000000000000000000000000000009",
+        "imageUrl": "redacted",
+        "lastName": "Last8",
+        "phoneNumber": "redacted",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000024",
+        "00000000000000000000000000000025"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "fields": {},
+      "firstName": "First10",
+      "guardians": [],
+      "id": "0000000000000000000000000000000A",
+      "lastName": "Last10",
+      "phoneNumber": "redacted",
+      "profile": {
+        "contactMethod": "redacted",
+        "firstName": "First10",
+        "id": "0000000000000000000000000000000B",
+        "lastName": "Last10",
+        "phoneNumber": "redacted",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": []
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player12@example.com",
+      "fields": {},
+      "firstName": "First12",
+      "guardians": [],
+      "id": "0000000000000000000000000000000C",
+      "lastName": "Last12",
+      "phoneNumber": "redacted",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player12@example.com",
+        "firstName": "First12",
+        "id": "0000000000000000000000000000000D",
+        "lastName": "Last12",
+        "phoneNumber": "redacted",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": []
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player14@example.com",
+      "fields": {},
+      "firstName": "First14",
+      "guardians": [],
+      "id": "0000000000000000000000000000000E",
+      "lastName": "Last14",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player14@example.com",
+        "firstName": "First14",
+        "id": "0000000000000000000000000000000F",
+        "lastName": "Last14",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000023"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player16@example.com",
+      "fields": {},
+      "firstName": "First16",
+      "guardians": [],
+      "id": "00000000000000000000000000000010",
+      "lastName": "Last16",
+      "phoneNumber": "redacted",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player16@example.com",
+        "firstName": "First16",
+        "id": "00000000000000000000000000000011",
+        "lastName": "Last16",
+        "phoneNumber": "redacted",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000024",
+        "00000000000000000000000000000023",
+        "00000000000000000000000000000025"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player18@example.com",
+      "fields": {},
+      "firstName": "First18",
+      "guardians": [],
+      "id": "00000000000000000000000000000012",
+      "lastName": "Last18",
+      "phoneNumber": "redacted",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player18@example.com",
+        "firstName": "First18",
+        "id": "00000000000000000000000000000013",
+        "lastName": "Last18",
+        "phoneNumber": "redacted",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000024",
+        "00000000000000000000000000000023"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player20@example.com",
+      "fields": {},
+      "firstName": "First20",
+      "guardians": [],
+      "id": "00000000000000000000000000000014",
+      "lastName": "Last20",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player20@example.com",
+        "firstName": "First20",
+        "id": "00000000000000000000000000000015",
+        "imageUrl": "redacted",
+        "lastName": "Last20",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000023"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player22@example.com",
+      "fields": {},
+      "firstName": "First22",
+      "guardians": [],
+      "id": "00000000000000000000000000000016",
+      "lastName": "Last22",
+      "phoneNumber": "redacted",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player22@example.com",
+        "firstName": "First22",
+        "id": "00000000000000000000000000000017",
+        "lastName": "Last22",
+        "phoneNumber": "redacted",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000025"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player24@example.com",
+      "fields": {},
+      "firstName": "First24",
+      "guardians": [],
+      "id": "00000000000000000000000000000018",
+      "lastName": "Last24",
+      "phoneNumber": "redacted",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player24@example.com",
+        "firstName": "First24",
+        "id": "00000000000000000000000000000019",
+        "lastName": "Last24",
+        "phoneNumber": "redacted",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000023"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player26@example.com",
+      "fields": {},
+      "firstName": "First26",
+      "guardians": [],
+      "id": "0000000000000000000000000000001A",
+      "lastName": "Last26",
+      "phoneNumber": "redacted",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player26@example.com",
+        "firstName": "First26",
+        "id": "0000000000000000000000000000001B",
+        "lastName": "Last26",
+        "phoneNumber": "redacted",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000023"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player28@example.com",
+      "fields": {},
+      "firstName": "First28",
+      "guardians": [],
+      "id": "0000000000000000000000000000001C",
+      "lastName": "Last28",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player28@example.com",
+        "firstName": "First28",
+        "id": "0000000000000000000000000000001D",
+        "imageUrl": "redacted",
+        "lastName": "Last28",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000023"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player30@example.com",
+      "fields": {},
+      "firstName": "First30",
+      "guardians": [],
+      "id": "0000000000000000000000000000001E",
+      "lastName": "Last30",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player30@example.com",
+        "firstName": "First30",
+        "id": "0000000000000000000000000000001F",
+        "lastName": "Last30",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000023"
+      ]
+    },
+    {
+      "createdTime": "redacted",
+      "email": "player32@example.com",
+      "fields": {},
+      "firstName": "First32",
+      "guardians": [],
+      "id": "00000000000000000000000000000020",
+      "lastName": "Last32",
+      "profile": {
+        "contactMethod": "redacted",
+        "email": "player32@example.com",
+        "firstName": "First32",
+        "id": "00000000000000000000000000000021",
+        "lastName": "Last32",
+        "unableToReach": false
+      },
+      "respondent": true,
+      "subGroups": [
+        "00000000000000000000000000000023"
+      ]
+    }
+  ],
+  "membershipRequests": [],
+  "name": "redacted",
+  "organizationType": "redacted",
+  "roles": [
+    {
+      "id": "00000000000000000000000000000026",
+      "name": "redacted",
+      "permissions": [
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted"
+      ]
+    },
+    {
+      "id": "00000000000000000000000000000027",
+      "name": "redacted",
+      "permissions": [
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted",
+        "redacted"
+      ]
+    },
+    {
+      "id": "00000000000000000000000000000028",
+      "name": "redacted",
+      "permissions": [
+        "redacted",
+        "redacted",
+        "redacted"
+      ]
+    }
+  ],
+  "shareContactInfo": true,
+  "signupUrl": "redacted",
+  "subGroups": [
+    {
+      "color": "redacted",
+      "id": "00000000000000000000000000000025",
+      "name": "redacted"
+    },
+    {
+      "color": "redacted",
+      "id": "00000000000000000000000000000024",
+      "imageUrl": "redacted",
+      "name": "redacted"
+    },
+    {
+      "color": "redacted",
+      "id": "00000000000000000000000000000023",
+      "name": "redacted"
+    }
+  ],
+  "type": 1,
+  "welcomeMessage": "redacted"
+}
