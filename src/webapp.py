@@ -119,8 +119,7 @@ async def lifespan(app):
         from padelbot.padelbot import PadelBot
 
         app.state.padelbot = PadelBot(cfg)
-        # Run padelbot.run() in the background
-        asyncio.create_task(run_padelbot(app))
+        asyncio.create_task(app.state.padelbot.run_forever())
     yield
 
 
@@ -133,11 +132,6 @@ app = Starlette(
     ],
     lifespan=lifespan,
 )
-
-
-async def run_padelbot(app):
-    while True:
-        await app.state.padelbot.run()
 
 
 if __name__ == "__main__":

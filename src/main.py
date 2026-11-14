@@ -29,8 +29,7 @@ async def main():
 
     padelbot = PadelBot(cfg)
 
-    while True:
-        await padelbot.run()
+    await padelbot.run_forever()
 
     await padelbot.spond.clientsession.close()
     logger.info("Main complete")
