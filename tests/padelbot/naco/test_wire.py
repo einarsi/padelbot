@@ -9,7 +9,8 @@ import logging
 from datetime import UTC, datetime
 from uuid import UUID
 
-import httpx
+# The HTTP library the generated client is built on.
+import httpx2 as httpx
 import pytest
 from attrs import evolve
 
