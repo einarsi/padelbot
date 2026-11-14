@@ -4,7 +4,7 @@ from collections.abc import Callable, Coroutine
 from datetime import datetime, timedelta
 from typing import TypeVar
 
-from spond import spond
+from spond import AuthenticationError, spond
 
 from .actions.actionbase import ActionBase, ActionIntent, create_action
 from .actions.naco_create_tournament import CreateTournamentIntent
@@ -45,12 +45,20 @@ class PadelBot:
     ) -> T:
         """Call a Spond API method, retrying once on token expiry (401)."""
         try:
-            return await func(*args, **kwargs)
-        except ValueError as e:
-            if "status 401" in str(e):
-                logger.info("Spond token expired, re-authenticating...")
-                self.spond.token = None
+            try:
                 return await func(*args, **kwargs)
+            except ValueError as e:
+                if "status 401" in str(e):
+                    logger.info("Spond token expired, re-authenticating...")
+                    self.spond.token = None
+                    return await func(*args, **kwargs)
+                raise
+        except AuthenticationError:
+            # spond closes its HTTP session on a failed login, so the client
+            # is dead; replace it so the next call can log in again.
+            self.spond = spond.Spond(
+                self.cfg["auth"]["username"], self.cfg["auth"]["password"]
+            )
             raise
 
     async def _get_person_with_refresh(self, uid: str):
