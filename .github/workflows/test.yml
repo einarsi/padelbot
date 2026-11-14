@@ -49,11 +49,13 @@ jobs:
         run: |
           docker build -t padelbot:smoke .
 
-      # No network: the Spond login fails and is caught, so no secrets are
-      # needed and nothing depends on Spond being reachable.
+      # No network, and dummy credentials: the Spond login fails and is caught,
+      # so no secrets are needed and nothing depends on Spond being reachable.
       - name: 💨 Start container and wait for a completed bot cycle
         run: |
-          docker run -d --name padelbot --network none --health-interval 2s padelbot:smoke
+          docker run -d --name padelbot --network none --health-interval 2s \
+            -e SPOND_USERNAME=dummy -e SPOND_PASSWORD=dummy -e SPOND_GROUP_ID=dummy \
+            padelbot:smoke
           for _ in $(seq 60); do
             if [ "$(docker inspect -f '{{.State.Health.Status}}' padelbot)" = healthy ] &&
               docker logs padelbot 2>&1 | grep -q "Sleeping for"; then

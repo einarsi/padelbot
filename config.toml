@@ -1,7 +1,7 @@
-[auth] # Authentication parameters can be overridden in .env file
-username = "your_username"
-password = "your_password"
-group_id = "your_group_id"
+[auth] # Set SPOND_USERNAME, SPOND_PASSWORD and SPOND_GROUP_ID in .env or the environment instead
+username = ""
+password = ""
+group_id = ""
 
 [general]
 seconds_to_sleep = 600
@@ -9,7 +9,7 @@ seconds_to_sleep = 600
 [naco]
 enabled = false
 base_url = "http://localhost:8000"
-api_key = "your_api_key"
+api_key = ""
 
 [logging]
 level = "DEBUG"
