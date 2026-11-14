@@ -62,6 +62,10 @@ docker run -d \
 
 The web interface is available at `http://localhost:8000`.
 
+The container healthcheck uses `/health`, which answers 200 only when the bot has completed a cycle and the next one
+is not more than two minutes overdue. It answers 503 when credentials are missing or the bot loop keeps failing. A
+cycle in which Spond could not be reached still counts as completed.
+
 ## Naco integration
 
 When enabled, the bot registers event participants as users in Naco and creates tournaments for events that match a

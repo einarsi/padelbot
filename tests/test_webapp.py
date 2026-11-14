@@ -12,6 +12,7 @@ from spond import spond
 from starlette.testclient import TestClient
 
 import webapp
+from padelbot.padelbot import HEALTH_GRACE_SECONDS
 
 REPO_ROOT = Path(__file__).parents[1]
 CONFIG_ENV_VARS = (
@@ -102,6 +103,9 @@ def _started(fake_spond):
         ):
             yield client
     finally:
+        # The app object is shared between tests; do not leave a bot behind on it.
+        if hasattr(webapp.app.state, "padelbot"):
+            del webapp.app.state.padelbot
         for handler in root.handlers[:]:
             if isinstance(handler, QueueHandler):
                 root.removeHandler(handler)
@@ -125,6 +129,7 @@ def test_starts_without_credentials_but_runs_no_bot(app_dir, fake_spond, caplog)
         assert client.get("/").status_code == 200
         assert client.get("/logs").status_code == 200
         assert client.get("/events").status_code == 500
+        assert client.get("/health").status_code == 503
 
     assert "Missing configuration" in caplog.text
     fake_spond.get_profile.assert_not_awaited()
@@ -132,8 +137,36 @@ def test_starts_without_credentials_but_runs_no_bot(app_dir, fake_spond, caplog)
 
 
 def test_serves_all_routes(client):
-    for path in ("/", "/logs", "/events"):
+    for path in ("/", "/logs", "/events", "/health"):
         assert client.get(path).status_code == 200, path
+
+
+@pytest.fixture
+def unreadable_events(fake_spond):
+    """Spond returns an event the bot cannot handle, so every cycle fails."""
+    fake_spond.get_events.return_value = [{"id": "e1", "heading": "Broken"}]
+
+
+def test_health_fails_while_the_bot_loop_keeps_failing(
+    unreadable_events, client, caplog
+):
+    startup_log = "\n".join(r.getMessage() for r in caplog.get_records("setup"))
+
+    assert "Run failed" in startup_log
+    assert client.get("/health").status_code == 503
+    assert client.get("/").status_code == 200
+
+
+def test_health_fails_when_the_next_cycle_is_overdue(client):
+    bot = webapp.app.state.padelbot
+    now = datetime.now().astimezone()
+
+    # One failed cycle is retried after 60 seconds, which is within the grace period.
+    bot.next_cycle_due = now - timedelta(seconds=HEALTH_GRACE_SECONDS - 5)
+    assert client.get("/health").status_code == 200
+
+    bot.next_cycle_due = now - timedelta(seconds=HEALTH_GRACE_SECONDS + 1)
+    assert client.get("/health").status_code == 503
 
 
 def test_first_cycle_completes_without_changing_spond(client, fake_spond, caplog):

@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
+# How late the next cycle may finish before the bot counts as unhealthy. Covers
+# the cycle's own duration and one failed cycle, which is retried after 60 seconds.
+HEALTH_GRACE_SECONDS = 120
+
 
 class PadelBot:
     def __init__(self, cfg: dict):
@@ -39,6 +43,14 @@ class PadelBot:
         self.first_run = True
         self.spond_profile_id: str | None = None
         self.events = Events()  # Cache events for webapp access
+        self.next_cycle_due: datetime | None = None
+
+    def is_healthy(self) -> bool:
+        """True if a cycle has completed and the next one is not overdue."""
+        if self.next_cycle_due is None:
+            return False
+        overdue_at = self.next_cycle_due + timedelta(seconds=HEALTH_GRACE_SECONDS)
+        return datetime.now().astimezone() <= overdue_at
 
     async def _call_spond(
         self, func: Callable[..., Coroutine[None, None, T]], *args, **kwargs
@@ -337,6 +349,9 @@ class PadelBot:
         )
 
         logger.info(f"Sleeping for {seconds_to_sleep:.1f} seconds")
+        self.next_cycle_due = datetime.now().astimezone() + timedelta(
+            seconds=seconds_to_sleep
+        )
         await asyncio.sleep(seconds_to_sleep)
 
     async def run_forever(self):
