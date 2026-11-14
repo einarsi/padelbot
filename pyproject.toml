@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-naco-backend-client = { path = "naco-backend-client" }
+naco-backend-client = { path = "naco-backend-client", editable = true }
 
 [dependency-groups]
 dev = [

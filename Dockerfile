@@ -16,7 +16,7 @@ COPY --from=uv /uv /usr/local/bin/uv
 COPY uv.lock pyproject.toml ./
 COPY naco-backend-client/ naco-backend-client/
 
-RUN uv sync --locked --no-install-project --no-dev
+RUN uv sync --locked --no-install-project --no-dev --no-editable
 
 FROM python:3.14-alpine
 
