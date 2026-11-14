@@ -305,6 +305,80 @@ class TestGetPersonWithRefresh:
             await bot._get_person_with_refresh("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
 
 
+async def _run_cycle(bot) -> None:
+    # Only the bot's own sleep is replaced, not asyncio.sleep everywhere.
+    with patch("src.padelbot.padelbot.asyncio") as bot_asyncio:
+        bot_asyncio.sleep = AsyncMock()
+        await bot.run()
+
+
+class TestLoginAttemptsPerCycle:
+    """Spond rate-limits logins, so a cycle must not log in more than once."""
+
+    REJECTIONS = pytest.mark.parametrize(
+        ("status", "body"),
+        [
+            (401, {"message": "Invalid credentials"}),
+            (429, "<html>Too many requests</html>"),
+        ],
+        ids=["wrong-credentials", "rate-limited"],
+    )
+
+    @staticmethod
+    def _logins(fake_spond) -> int:
+        return len(fake_spond.received("POST /auth2/login"))
+
+    @pytest.mark.asyncio
+    @REJECTIONS
+    async def test_logs_in_once_per_cycle_while_login_keeps_failing(
+        self, bot, fake_spond, status, body
+    ):
+        for _ in range(10):
+            fake_spond.script("POST /auth2/login", status, body)
+
+        logins = []
+        for _ in range(3):
+            await _run_cycle(bot)
+            logins.append(self._logins(fake_spond))
+
+        assert logins == [1, 2, 3]
+        assert fake_spond.received("GET /sponds/") == []
+
+    @pytest.mark.asyncio
+    @REJECTIONS
+    async def test_fetches_events_in_the_cycle_after_a_failed_login(
+        self, bot, fake_spond, event, status, body
+    ):
+        fake_spond.script("POST /auth2/login", status, body)
+
+        await _run_cycle(bot)
+        assert bot.events.upcoming == []
+
+        await _run_cycle(bot)
+        assert [e["id"] for e in bot.events.upcoming] == [event["id"]]
+        assert bot.spond_profile_id == PROFILE_ID
+        assert self._logins(fake_spond) == 2
+
+    @pytest.mark.asyncio
+    @REJECTIONS
+    async def test_recovers_from_a_failed_login_after_the_token_expired(
+        self, bot, fake_spond, event, status, body
+    ):
+        await _run_cycle(bot)
+        assert self._logins(fake_spond) == 1
+
+        # The token expires, and the new login is rejected.
+        fake_spond.script("GET /sponds/", 401, {"message": "Unauthorized"})
+        fake_spond.script("POST /auth2/login", status, body)
+        await _run_cycle(bot)
+        assert bot.events.upcoming == []
+        assert self._logins(fake_spond) == 2
+
+        await _run_cycle(bot)
+        assert [e["id"] for e in bot.events.upcoming] == [event["id"]]
+        assert self._logins(fake_spond) == 3
+
+
 class TestFirstCycle:
     """One `run()` with the shipped rules and actions, real Spond and Naco clients."""
 
