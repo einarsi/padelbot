@@ -6,8 +6,10 @@ from uuid import UUID
 
 import pytest
 import pytest_asyncio
+from aiohttp import test_utils, web
 from naco_backend_client.models.user import User
 from naco_backend_client.types import Response
+from spond import spond
 
 from src.padelbot.actions.actionbase import ActionIntent
 from src.padelbot.actions.naco_create_tournament import CreateTournamentIntent
@@ -724,3 +726,35 @@ class TestRunForever:
             await mockbot.run_forever()
         assert run.await_count == 2
         mock_sleep.assert_awaited_once_with(60)
+
+
+class TestSpondLoginRecovery:
+    @pytest.mark.asyncio
+    async def test_fetches_events_again_after_failed_login(self, cfg):
+        logins = iter([{"error": "nope"}, {"accessToken": {"token": "t"}}])
+        start = datetime.now().astimezone() + timedelta(days=1)
+        event = {
+            "id": "e1",
+            "startTimestamp": start.isoformat(),
+            "endTimestamp": (start + timedelta(hours=1)).isoformat(),
+        }
+
+        async def login(request):
+            return web.json_response(next(logins))
+
+        async def sponds(request):
+            return web.json_response([event])
+
+        app = web.Application()
+        app.router.add_post("/auth2/login", login)
+        app.router.add_get("/sponds/", sponds)
+
+        async with test_utils.TestServer(app) as server:
+            with patch.object(spond.Spond, "_API_BASE_URL", str(server.make_url("/"))):
+                bot = PadelBot(cfg)
+                after_failed_login = await bot.get_events()
+                after_retry = await bot.get_events()
+                await bot.spond.clientsession.close()
+
+        assert after_failed_login.upcoming == []
+        assert [e["id"] for e in after_retry.upcoming] == ["e1"]
