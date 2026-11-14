@@ -1,5 +1,62 @@
 # Changelog
 
+## [1.7.0](https://github.com/einarsi/padelbot/compare/v1.6.5...v1.7.0) (2026-11-14)
+
+
+### ✨ Features
+
+* add /health endpoint, used by container chk ([#172](https://github.com/einarsi/padelbot/issues/172)) ([7f9cf45](https://github.com/einarsi/padelbot/commit/7f9cf45913ae97ea6740bed6daba04937f3a31b0))
+
+
+### 🐛 Bug Fixes
+
+* keep bot loop running after an exception in run() ([#157](https://github.com/einarsi/padelbot/issues/157)) ([f512896](https://github.com/einarsi/padelbot/commit/f51289608541c10ba4b91fbe4394ac14d7d54cd2))
+* log in to Spond at most once per cycle ([#173](https://github.com/einarsi/padelbot/issues/173)) ([83b00c6](https://github.com/einarsi/padelbot/commit/83b00c678ab58141b78005c017dfed6b9dd3a336))
+* merge config defaults per key ([#168](https://github.com/einarsi/padelbot/issues/168)) ([1e68276](https://github.com/einarsi/padelbot/commit/1e68276da554168969942f4757a04b90c92e8362))
+* recover from a failed Spond login ([#159](https://github.com/einarsi/padelbot/issues/159)) ([482adb8](https://github.com/einarsi/padelbot/commit/482adb855bef4fcce382e0e852971cdc581eef2b))
+* ship config.toml with empty credentials ([#170](https://github.com/einarsi/padelbot/issues/170)) ([0db8656](https://github.com/einarsi/padelbot/commit/0db86564b1a8467a0926c53e6f7978add4d71f6c))
+* skip rules and actions with malformed config ([#158](https://github.com/einarsi/padelbot/issues/158)) ([b453d2a](https://github.com/einarsi/padelbot/commit/b453d2afa963b01ca527e374de4278f44f3777bc))
+
+
+### 🧹 Chores
+
+* bump naco-backend-client to v1.3.0 ([#164](https://github.com/einarsi/padelbot/issues/164)) ([31242b4](https://github.com/einarsi/padelbot/commit/31242b463a0949a8c73657e0138af5466bd1618f))
+* **deps:** bump actions/checkout from 6 to 7 ([#138](https://github.com/einarsi/padelbot/issues/138)) ([f5478c0](https://github.com/einarsi/padelbot/commit/f5478c098966f14726876e7d8ec82184669e0085))
+* **deps:** bump aiohttp from 3.13.5 to 3.14.4 ([#152](https://github.com/einarsi/padelbot/issues/152)) ([8a4d704](https://github.com/einarsi/padelbot/commit/8a4d704733f44f1824d1de84105a25fa09d6e3e9))
+* **deps:** bump anyio from 4.13.0 to 4.14.2 ([#150](https://github.com/einarsi/padelbot/issues/150)) ([029f494](https://github.com/einarsi/padelbot/commit/029f494fb91ac4103eb7856e4c9014e8e1259bf7))
+* **deps:** bump astral-sh/uv from 0.11.3 to 0.13.8 ([#156](https://github.com/einarsi/padelbot/issues/156)) ([a0b7d77](https://github.com/einarsi/padelbot/commit/a0b7d777e7c1d4b55ee8587220a1c2d3f87ff239))
+* **deps:** bump certifi from 2026.2.25 to 2026.10.18 ([#151](https://github.com/einarsi/padelbot/issues/151)) ([8bdc993](https://github.com/einarsi/padelbot/commit/8bdc993198ae8b104a20092cf85d7cd879c83b71))
+* **deps:** bump configparser from 7.2.0 to 7.3.0 ([#148](https://github.com/einarsi/padelbot/issues/148)) ([c8acb3c](https://github.com/einarsi/padelbot/commit/c8acb3ca4387cf1b3f9f20851a45a106d93611cc))
+* **deps:** bump multidict from 6.7.1 to 6.9.1 ([#154](https://github.com/einarsi/padelbot/issues/154)) ([0488b17](https://github.com/einarsi/padelbot/commit/0488b17a167b866b9917d4d5c885dedebdc4e7f1))
+* **deps:** bump mypy from 2.1.0 to 2.4.1 ([#146](https://github.com/einarsi/padelbot/issues/146)) ([4de02b8](https://github.com/einarsi/padelbot/commit/4de02b83df190f8ea0d37dc27c013c6b5e5a6946))
+* **deps:** bump openapi-python-client from 0.28.4 to 0.30.0 ([#141](https://github.com/einarsi/padelbot/issues/141)) ([2da200b](https://github.com/einarsi/padelbot/commit/2da200b81889373d653300cea0176c739ee2d619))
+* **deps:** bump pytest from 9.0.2 to 9.0.3 ([#153](https://github.com/einarsi/padelbot/issues/153)) ([f7746e1](https://github.com/einarsi/padelbot/commit/f7746e19ea4acfef7386e2f496298a288912c92a))
+* **deps:** bump pytest-asyncio from 1.3.0 to 1.4.1.post1 ([#140](https://github.com/einarsi/padelbot/issues/140)) ([b4362fb](https://github.com/einarsi/padelbot/commit/b4362fb8f0154dc92931ae158d94cfa485da5e1c))
+* **deps:** bump python-dotenv from 1.2.2 to 1.2.4 ([#147](https://github.com/einarsi/padelbot/issues/147)) ([a3f0af8](https://github.com/einarsi/padelbot/commit/a3f0af83ac6f5535192591086eeefff7ca892272))
+* **deps:** bump ruff from 0.15.14 to 0.17.4 ([#143](https://github.com/einarsi/padelbot/issues/143)) ([59f1618](https://github.com/einarsi/padelbot/commit/59f1618536ac426c60f1fabb12621279a6a97501))
+* **deps:** bump starlette from 1.1.0 to 1.10.0 ([#144](https://github.com/einarsi/padelbot/issues/144)) ([0af9fe4](https://github.com/einarsi/padelbot/commit/0af9fe435baddb722b4525bf7793acd84580f873))
+* **deps:** bump types-aiofiles from 25.1.0.20260518 to 25.1.0.20261107 ([#145](https://github.com/einarsi/padelbot/issues/145)) ([44ad912](https://github.com/einarsi/padelbot/commit/44ad912b1aa459b93e611e8b3be5ef1827325053))
+* **deps:** bump types-python-dateutil ([c97d7ab](https://github.com/einarsi/padelbot/commit/c97d7ab78f35d06615016757c977db54b293a1d3))
+* **deps:** bump types-python-dateutil from 2.9.0.20260518 to 2.9.0.20261104 ([#149](https://github.com/einarsi/padelbot/issues/149)) ([c97d7ab](https://github.com/einarsi/padelbot/commit/c97d7ab78f35d06615016757c977db54b293a1d3))
+* **deps:** bump uvicorn from 0.48.0 to 0.54.0 ([#142](https://github.com/einarsi/padelbot/issues/142)) ([a2bbd19](https://github.com/einarsi/padelbot/commit/a2bbd19b75f06ad35925acd27058ef3a442b0407))
+
+
+### 👷 CI/CD
+
+* add container smoke test ([#161](https://github.com/einarsi/padelbot/issues/161)) ([8d0807c](https://github.com/einarsi/padelbot/commit/8d0807c7dbc3285d03c875805f2c001e955f79db))
+* **dependabot:** add docker ecosystem ([#155](https://github.com/einarsi/padelbot/issues/155)) ([86b42bf](https://github.com/einarsi/padelbot/commit/86b42bf8ae1e937f492fa1acef28b3bc02515be2))
+* run mypy on src ([#167](https://github.com/einarsi/padelbot/issues/167)) ([f6ec628](https://github.com/einarsi/padelbot/commit/f6ec6289cfc05748cbc85b0faa39ea7350b3d484))
+
+
+### 🧪 Tests
+
+* add config tests ([#166](https://github.com/einarsi/padelbot/issues/166)) ([a2199f4](https://github.com/einarsi/padelbot/commit/a2199f47f528d82f547974e34e0280dca4b02cdb))
+* add in-process startup test for the web app ([#162](https://github.com/einarsi/padelbot/issues/162)) ([1f12b7f](https://github.com/einarsi/padelbot/commit/1f12b7f164560160c6ccf91bbc8e91313ae71b9f))
+* add Naco wire tests using the real generated client ([#163](https://github.com/einarsi/padelbot/issues/163)) ([3c987ff](https://github.com/einarsi/padelbot/commit/3c987ff3e89e7bfeb5b2b2a46f1d75572989d793))
+* add opt-in live checks against Spond and Naco ([#169](https://github.com/einarsi/padelbot/issues/169)) ([68c93ac](https://github.com/einarsi/padelbot/commit/68c93ac400e34c688952a9d9c64bafbd353463e2))
+* add Spond wire tests on anonymised real data ([#165](https://github.com/einarsi/padelbot/issues/165)) ([8080e8b](https://github.com/einarsi/padelbot/commit/8080e8becda8996c43f774782513050684519ff1))
+* stop unit tests from reaching the real Spond ([#171](https://github.com/einarsi/padelbot/issues/171)) ([f0a7f60](https://github.com/einarsi/padelbot/commit/f0a7f60edd2a717ff485dc510b12e6441a23c7fb))
+
 ## [1.6.5](https://github.com/einarsi/padelbot/compare/v1.6.4...v1.6.5) (2026-06-21)
 
 
