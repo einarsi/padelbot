@@ -19,6 +19,7 @@ ENV_VARS = (
 )
 FILE_AUTH = {"username": "file-user", "password": "file-pass", "group_id": "file-group"}
 FILE_NACO = {"enabled": False, "base_url": "http://file.test", "api_key": "file-key"}
+DEFAULT_NACO = {"enabled": False, "base_url": "http://localhost:8000", "api_key": ""}
 
 
 def _section(name, values):
@@ -70,16 +71,35 @@ class TestFileAndDefaults:
 
         assert config.readconfig() == {
             "auth": FILE_AUTH,
-            "naco": {
-                "enabled": False,
-                "base_url": "http://localhost:8000",
-                "api_key": "",
-            },
+            "naco": DEFAULT_NACO,
             "general": {"seconds_to_sleep": 600},
             "logging": {"level": "INFO"},
             "rules": {},
             "actions": {},
         }
+
+    @pytest.mark.parametrize(
+        ("section", "expected"),
+        [
+            ("naco", DEFAULT_NACO),
+            ("general", {"seconds_to_sleep": 600}),
+            ("logging", {"level": "INFO"}),
+        ],
+        ids=["naco", "general", "logging"],
+    )
+    def test_uses_defaults_for_keys_a_section_leaves_out(
+        self, config_file, section, expected
+    ):
+        config_file.write_text(_section("auth", FILE_AUTH) + f"[{section}]\n")
+
+        assert _readconfig()[section] == expected
+
+    def test_keeps_the_keys_a_partial_section_sets(self, config_file):
+        config_file.write_text(
+            _section("auth", FILE_AUTH) + _section("naco", {"enabled": True})
+        )
+
+        assert _readconfig()["naco"] == {**DEFAULT_NACO, "enabled": True}
 
 
 class TestEnvironmentOverrides:
@@ -151,6 +171,35 @@ class TestEnvironmentOverrides:
         assert cfg["auth"] == FILE_AUTH
         assert cfg["naco"] == file_naco
 
+    def test_naco_enabled_works_without_a_naco_section(self, config_file, monkeypatch):
+        config_file.write_text(_section("auth", FILE_AUTH))
+        monkeypatch.setenv("NACO_ENABLED", "true")
+
+        assert _readconfig()["naco"] == {**DEFAULT_NACO, "enabled": True}
+
+    def test_spond_variables_work_without_an_auth_section(
+        self, config_file, monkeypatch
+    ):
+        monkeypatch.setenv("SPOND_USERNAME", "env-user")
+        monkeypatch.setenv("SPOND_PASSWORD", "env-pass")
+        monkeypatch.setenv("SPOND_GROUP_ID", "env-group")
+
+        assert _readconfig()["auth"] == {
+            "username": "env-user",
+            "password": "env-pass",
+            "group_id": "env-group",
+        }
+
+    def test_an_override_does_not_leak_into_the_next_read(
+        self, config_file, monkeypatch
+    ):
+        config_file.write_text(_section("auth", FILE_AUTH))
+        monkeypatch.setenv("NACO_BASE_URL", "http://env.test")
+        assert _readconfig()["naco"]["base_url"] == "http://env.test"
+
+        monkeypatch.delenv("NACO_BASE_URL")
+        assert _readconfig()["naco"] == DEFAULT_NACO
+
 
 class TestMissingCredentials:
     @pytest.mark.parametrize("key", ["username", "password", "group_id"])
@@ -164,6 +213,9 @@ class TestMissingCredentials:
         with caplog.at_level(logging.ERROR):
             assert config.readconfig() is None
         assert "username, password or group_id is missing" in caplog.text
+
+    def test_returns_none_without_an_auth_section_or_variables(self, config_file):
+        assert config.readconfig() is None
 
     def test_variable_supplies_a_credential_the_file_leaves_empty(
         self, config_file, monkeypatch
