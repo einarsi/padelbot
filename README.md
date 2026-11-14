@@ -26,6 +26,21 @@ SPOND_GROUP_ID=your_group_id
 
 From the top directory, execute `python src/webapp.py`.
 
+### Tests
+
+```sh
+uv run pytest
+```
+
+This runs everything except the live checks, and needs no credentials or network.
+
+Before a deploy, the live checks confirm that the bot can still talk to the real Spond and Naco. They use the
+configuration the bot uses (`config.toml`, `.env` and environment variables) and only read:
+
+```sh
+uv run pytest -m live
+```
+
 ## Docker
 
 ### Build
