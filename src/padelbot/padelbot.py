@@ -302,7 +302,13 @@ class PadelBot:
 
     async def run(self):
         await self.resolve_spond_profile_id()
-        events = await self.get_events()
+        if not self.spond_profile_id and not self.spond.token:
+            # The profile lookup could not log in. Spond rate-limits logins, so
+            # wait for the next cycle instead of trying again right away.
+            logger.warning("Not logged in to Spond, skipping this cycle's event fetch")
+            events = Events()
+        else:
+            events = await self.get_events()
         self.events = events  # Cache events for webapp access
 
         if self.naco_enabled:
