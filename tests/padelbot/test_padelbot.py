@@ -163,6 +163,36 @@ class TestGetRules:
         rules = bot.get_rules(events)
         assert rules == []
 
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "bad_def",
+        [
+            {"type": "MaxEventsPerWeek", "header_regex": ".*", "max_event": 2},
+            {"header_regex": ".*"},
+        ],
+        ids=["misspelled_key", "missing_type"],
+    )
+    async def test_get_rules_skips_malformed_rule(self, cfg, events, bad_def, caplog):
+        good = {"type": "MaxEventsPerWeek", "header_regex": ".*", "message": "m"}
+        bot = PadelBot(
+            {**cfg, "rules": {"bad": {"message": "m", **bad_def}, "good": good}}
+        )
+        rules = bot.get_rules(events)
+        assert [r.name for r in rules] == ["good"]
+        assert "Skipping rule bad" in caplog.text
+
+
+class TestGetActions:
+    @pytest.mark.asyncio
+    async def test_get_actions_skips_malformed_action(self, cfg, events, caplog):
+        good = {"type": "NacoCreateTournament", "header_regex": ".*"}
+        bad = {**good, "minutes_before": 5}
+        bot = PadelBot({**cfg, "actions": {"bad": bad, "good": good}})
+        bot.spond_profile_id = "11111111-1111-1111-1111-111111111111"
+        actions = bot.get_actions(events)
+        assert [a.name for a in actions] == ["good"]
+        assert "Skipping action bad" in caplog.text
+
 
 class TestGetSleepTime:
     def create_dummy_expirationtimes(self, dt: datetime) -> tuple[list[datetime], ...]:
