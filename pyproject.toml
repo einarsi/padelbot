@@ -29,3 +29,7 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = [".", "src"]
+addopts = "-m 'not live'"
+markers = [
+    "live: read-only checks against the real Spond and Naco; run with `pytest -m live`",
+]
