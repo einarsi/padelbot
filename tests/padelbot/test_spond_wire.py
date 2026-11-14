@@ -335,7 +335,7 @@ class TestFirstCycle:
         _schedule(last_week, start - timedelta(days=7))
         fake_spond.events.append(last_week)
 
-        registered: list[dict] = []
+        registered = []
 
         def naco(request: httpx2.Request) -> httpx2.Response:
             user = json.loads(request.content)
@@ -356,8 +356,9 @@ class TestFirstCycle:
         )
 
         # Only the bot's own sleep is replaced, not asyncio.sleep everywhere.
+        sleep = AsyncMock()
         with patch("src.padelbot.padelbot.asyncio") as bot_asyncio:
-            bot_asyncio.sleep = AsyncMock()
+            bot_asyncio.sleep = sleep
             await bot.run()
 
         responses = event["responses"]
@@ -392,5 +393,6 @@ class TestFirstCycle:
             "GET /sponds/",
             "GET /groups/",
         }
-        (seconds,) = bot_asyncio.sleep.await_args.args
+        (slept,) = sleep.await_args_list
+        (seconds,) = slept.args
         assert 0 < seconds <= 600
