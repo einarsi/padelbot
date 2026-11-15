@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/einarsi/padelbot/compare/v1.8.0...v1.8.1) (2026-11-15)
+
+
+### 🧹 Chores
+
+* bump Naco api to Naco v2.0 ([#178](https://github.com/einarsi/padelbot/issues/178)) ([d36b355](https://github.com/einarsi/padelbot/commit/d36b355cb6b5faa8871434d59f6b2de79f6bff12))
+
 ## [1.8.0](https://github.com/einarsi/padelbot/compare/v1.7.0...v1.8.0) (2026-11-15)
 
 
