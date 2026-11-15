@@ -1,6 +1,7 @@
 import logging
 import shutil
 import time
+import tomllib
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from logging.handlers import QueueHandler
@@ -139,6 +140,16 @@ def test_starts_without_credentials_but_runs_no_bot(app_dir, fake_spond, caplog)
 def test_serves_all_routes(client):
     for path in ("/", "/logs", "/events", "/health"):
         assert client.get(path).status_code == 200, path
+
+
+def test_page_shows_the_version_in_the_heading(client):
+    project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())["project"]
+
+    page = client.get("/").text
+
+    assert f">PadelBot v{project['version']} Log and Event Viewer</h2>" in page
+    assert "<title>PadelBot Log and Event Viewer</title>" in page
+    assert "__VERSION__" not in page
 
 
 @pytest.fixture
