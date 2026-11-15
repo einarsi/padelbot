@@ -122,10 +122,11 @@ def group() -> dict:
 @pytest.fixture
 def cfg(group) -> dict:
     return {
-        "auth": {
+        "spond": {
             "username": "bot@example.com",
             "password": "secret",
             "group_id": group["id"],
+            "include_hidden_events": True,
         },
         "general": {"seconds_to_sleep": 600},
         "naco": {"enabled": False},
@@ -172,12 +173,26 @@ class TestGetEvents:
             _min_start(after),
         }
         assert sponds.query == {
-            "groupId": cfg["auth"]["group_id"],
+            "groupId": cfg["spond"]["group_id"],
             "max": "100",
             "scheduled": "False",
+            # Without this, Spond leaves out invitee-only events that the bot's
+            # account is not invited to.
+            "includeHidden": "true",
         }
         assert [e["id"] for e in events.upcoming] == [event["id"]]
         assert events.previous == events.ongoing == []
+
+    @pytest.mark.asyncio
+    async def test_does_not_ask_for_hidden_events_when_switched_off(
+        self, bot, fake_spond, cfg
+    ):
+        cfg["spond"]["include_hidden_events"] = False
+
+        await bot.get_events()
+
+        (sponds,) = fake_spond.received("GET /sponds/")
+        assert "includeHidden" not in sponds.query
 
     @pytest.mark.asyncio
     async def test_logs_in_again_when_the_token_has_expired(
@@ -231,7 +246,7 @@ class TestRemovePlayerFromEvent:
             "text": "You were removed",
             "type": "TEXT",
             "recipient": player["profile"]["id"],
-            "groupId": cfg["auth"]["group_id"],
+            "groupId": cfg["spond"]["group_id"],
         }
         assert message.headers["auth"] == "chat-auth"
 

@@ -13,13 +13,21 @@ ENV_VARS = (
     "SPOND_USERNAME",
     "SPOND_PASSWORD",
     "SPOND_GROUP_ID",
+    "SPOND_INCLUDE_HIDDEN_EVENTS",
     "NACO_ENABLED",
     "NACO_BASE_URL",
     "NACO_API_KEY",
 )
-FILE_AUTH = {"username": "file-user", "password": "file-pass", "group_id": "file-group"}
+CREDENTIALS = {
+    "username": "file-user",
+    "password": "file-pass",
+    "group_id": "file-group",
+}
+FILE_SPOND = {**CREDENTIALS, "include_hidden_events": False}
 FILE_NACO = {"enabled": False, "base_url": "http://file.test", "api_key": "file-key"}
 DEFAULT_NACO = {"enabled": False, "base_url": "http://localhost:8000", "api_key": ""}
+DEFAULT_GENERAL = {"seconds_to_sleep": 600}
+FILE_GENERAL = {"seconds_to_sleep": 30}
 
 
 def _section(name, values):
@@ -49,30 +57,30 @@ def config_file(tmp_path, monkeypatch):
 class TestFileAndDefaults:
     def test_returns_the_values_in_the_file(self, config_file):
         config_file.write_text(
-            _section("auth", FILE_AUTH)
+            _section("spond", FILE_SPOND)
             + _section("naco", FILE_NACO)
-            + _section("general", {"seconds_to_sleep": 30})
+            + _section("general", FILE_GENERAL)
             + _section("logging", {"level": "WARNING"})
             + _section("rules.r1", {"type": "MaxEventsPerWeek", "max_events": 2})
             + _section("actions.a1", {"type": "NacoCreateTournament"})
         )
 
         assert config.readconfig() == {
-            "auth": FILE_AUTH,
+            "spond": FILE_SPOND,
             "naco": FILE_NACO,
-            "general": {"seconds_to_sleep": 30},
+            "general": FILE_GENERAL,
             "logging": {"level": "WARNING"},
             "rules": {"r1": {"type": "MaxEventsPerWeek", "max_events": 2}},
             "actions": {"a1": {"type": "NacoCreateTournament"}},
         }
 
     def test_uses_defaults_for_sections_the_file_leaves_out(self, config_file):
-        config_file.write_text(_section("auth", FILE_AUTH))
+        config_file.write_text(_section("spond", FILE_SPOND))
 
         assert config.readconfig() == {
-            "auth": FILE_AUTH,
+            "spond": FILE_SPOND,
             "naco": DEFAULT_NACO,
-            "general": {"seconds_to_sleep": 600},
+            "general": DEFAULT_GENERAL,
             "logging": {"level": "INFO"},
             "rules": {},
             "actions": {},
@@ -82,7 +90,7 @@ class TestFileAndDefaults:
         ("section", "expected"),
         [
             ("naco", DEFAULT_NACO),
-            ("general", {"seconds_to_sleep": 600}),
+            ("general", DEFAULT_GENERAL),
             ("logging", {"level": "INFO"}),
         ],
         ids=["naco", "general", "logging"],
@@ -90,13 +98,18 @@ class TestFileAndDefaults:
     def test_uses_defaults_for_keys_a_section_leaves_out(
         self, config_file, section, expected
     ):
-        config_file.write_text(_section("auth", FILE_AUTH) + f"[{section}]\n")
+        config_file.write_text(_section("spond", FILE_SPOND) + f"[{section}]\n")
 
         assert _readconfig()[section] == expected
 
+    def test_includes_hidden_events_unless_the_file_says_otherwise(self, config_file):
+        config_file.write_text(_section("spond", CREDENTIALS))
+
+        assert _readconfig()["spond"] == {**CREDENTIALS, "include_hidden_events": True}
+
     def test_keeps_the_keys_a_partial_section_sets(self, config_file):
         config_file.write_text(
-            _section("auth", FILE_AUTH) + _section("naco", {"enabled": True})
+            _section("spond", FILE_SPOND) + _section("naco", {"enabled": True})
         )
 
         assert _readconfig()["naco"] == {**DEFAULT_NACO, "enabled": True}
@@ -114,10 +127,10 @@ class TestEnvironmentOverrides:
     def test_spond_variable_overrides_the_file(
         self, config_file, monkeypatch, variable, key
     ):
-        config_file.write_text(_section("auth", FILE_AUTH))
+        config_file.write_text(_section("spond", FILE_SPOND))
         monkeypatch.setenv(variable, "from-env")
 
-        assert _readconfig()["auth"] == {**FILE_AUTH, key: "from-env"}
+        assert _readconfig()["spond"] == {**FILE_SPOND, key: "from-env"}
 
     @pytest.mark.parametrize(
         ("variable", "key"),
@@ -127,7 +140,7 @@ class TestEnvironmentOverrides:
         self, config_file, monkeypatch, variable, key
     ):
         config_file.write_text(
-            _section("auth", FILE_AUTH) + _section("naco", FILE_NACO)
+            _section("spond", FILE_SPOND) + _section("naco", FILE_NACO)
         )
         monkeypatch.setenv(variable, "from-env")
 
@@ -152,48 +165,66 @@ class TestEnvironmentOverrides:
         # The file says the opposite, so the result can only come from the variable.
         file_naco = {**FILE_NACO, "enabled": not enabled}
         config_file.write_text(
-            _section("auth", FILE_AUTH) + _section("naco", file_naco)
+            _section("spond", FILE_SPOND) + _section("naco", file_naco)
         )
         monkeypatch.setenv("NACO_ENABLED", value)
 
         assert _readconfig()["naco"] == {**FILE_NACO, "enabled": enabled}
 
+    @pytest.mark.parametrize(
+        ("value", "included"),
+        [("1", True), ("True", True), ("yes", True), ("0", False), ("false", False)],
+    )
+    def test_include_hidden_events_overrides_the_file(
+        self, config_file, monkeypatch, value, included
+    ):
+        # The file says the opposite, so the result can only come from the variable.
+        file_spond = {**FILE_SPOND, "include_hidden_events": not included}
+        config_file.write_text(_section("spond", file_spond))
+        monkeypatch.setenv("SPOND_INCLUDE_HIDDEN_EVENTS", value)
+
+        assert _readconfig()["spond"] == {
+            **FILE_SPOND,
+            "include_hidden_events": included,
+        }
+
     def test_empty_variables_are_ignored(self, config_file, monkeypatch):
         file_naco = {**FILE_NACO, "enabled": True}
         config_file.write_text(
-            _section("auth", FILE_AUTH) + _section("naco", file_naco)
+            _section("spond", FILE_SPOND) + _section("naco", file_naco)
         )
         for name in ENV_VARS:
             monkeypatch.setenv(name, "")
 
         cfg = _readconfig()
 
-        assert cfg["auth"] == FILE_AUTH
+        assert cfg["spond"] == FILE_SPOND
         assert cfg["naco"] == file_naco
 
     def test_naco_enabled_works_without_a_naco_section(self, config_file, monkeypatch):
-        config_file.write_text(_section("auth", FILE_AUTH))
+        config_file.write_text(_section("spond", FILE_SPOND))
         monkeypatch.setenv("NACO_ENABLED", "true")
 
         assert _readconfig()["naco"] == {**DEFAULT_NACO, "enabled": True}
 
-    def test_spond_variables_work_without_an_auth_section(
+    def test_spond_variables_work_without_a_spond_section(
         self, config_file, monkeypatch
     ):
         monkeypatch.setenv("SPOND_USERNAME", "env-user")
         monkeypatch.setenv("SPOND_PASSWORD", "env-pass")
         monkeypatch.setenv("SPOND_GROUP_ID", "env-group")
 
-        assert _readconfig()["auth"] == {
+        assert _readconfig()["spond"] == {
             "username": "env-user",
             "password": "env-pass",
             "group_id": "env-group",
+            "include_hidden_events": True,
         }
 
     def test_an_override_does_not_leak_into_the_next_read(
         self, config_file, monkeypatch
     ):
-        config_file.write_text(_section("auth", FILE_AUTH))
+        config_file.write_text(_section("spond", FILE_SPOND))
         monkeypatch.setenv("NACO_BASE_URL", "http://env.test")
         assert _readconfig()["naco"]["base_url"] == "http://env.test"
 
@@ -205,25 +236,30 @@ class TestMissingCredentials:
     @pytest.mark.parametrize("key", ["username", "password", "group_id"])
     @pytest.mark.parametrize("how", ["empty", "absent"])
     def test_returns_none_and_logs_an_error(self, config_file, caplog, key, how):
-        auth = {**FILE_AUTH, key: ""}
+        section = {**FILE_SPOND, key: ""}
         if how == "absent":
-            del auth[key]
-        config_file.write_text(_section("auth", auth))
+            del section[key]
+        config_file.write_text(_section("spond", section))
 
         with caplog.at_level(logging.ERROR):
             assert config.readconfig() is None
         assert "username, password or group_id is missing" in caplog.text
 
-    def test_returns_none_without_an_auth_section_or_variables(self, config_file):
+    def test_returns_none_without_a_spond_section_or_variables(self, config_file):
+        assert config.readconfig() is None
+
+    def test_does_not_read_credentials_from_the_old_auth_section(self, config_file):
+        config_file.write_text(_section("auth", CREDENTIALS))
+
         assert config.readconfig() is None
 
     def test_variable_supplies_a_credential_the_file_leaves_empty(
         self, config_file, monkeypatch
     ):
-        config_file.write_text(_section("auth", {**FILE_AUTH, "password": ""}))
+        config_file.write_text(_section("spond", {**FILE_SPOND, "password": ""}))
         monkeypatch.setenv("SPOND_PASSWORD", "from-env")
 
-        assert _readconfig()["auth"] == {**FILE_AUTH, "password": "from-env"}
+        assert _readconfig()["spond"] == {**FILE_SPOND, "password": "from-env"}
 
 
 class TestShippedConfig:
@@ -238,10 +274,11 @@ class TestShippedConfig:
 
         cfg = _readconfig()
 
-        assert cfg["auth"] == {
+        assert cfg["spond"] == {
             "username": "env-user",
             "password": "env-pass",
             "group_id": "env-group",
+            "include_hidden_events": True,
         }
         # Everything the bot reads without a fallback at startup or in a cycle.
         assert isinstance(logging.getLevelNamesMapping()[cfg["logging"]["level"]], int)

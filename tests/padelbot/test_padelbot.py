@@ -22,7 +22,12 @@ from src.padelbot.utils import Events
 @pytest.fixture
 def cfg():
     return {
-        "auth": {"username": "user", "password": "pass", "group_id": "group-id"},
+        "spond": {
+            "username": "user",
+            "password": "pass",
+            "group_id": "group-id",
+            "include_hidden_events": True,
+        },
         "rules": {
             "rule1": {"rule": "DummyRule1"},
             "rule2": {"rule": "DummyRule2"},
