@@ -26,7 +26,7 @@ class PadelBot:
     def __init__(self, cfg: dict):
         self.cfg = cfg
         try:
-            self.spond = spond.Spond(cfg["auth"]["username"], cfg["auth"]["password"])
+            self.spond = spond.Spond(cfg["spond"]["username"], cfg["spond"]["password"])
         except Exception as e:
             logger.error(f"Failed to initialize Spond client: {e}")
             raise
@@ -69,7 +69,7 @@ class PadelBot:
             # spond closes its HTTP session on a failed login, so the client
             # is dead; replace it so the next call can log in again.
             self.spond = spond.Spond(
-                self.cfg["auth"]["username"], self.cfg["auth"]["password"]
+                self.cfg["spond"]["username"], self.cfg["spond"]["password"]
             )
             raise
 
@@ -108,8 +108,8 @@ class PadelBot:
             events = (
                 await self._call_spond(
                     self.spond.get_events,
-                    group_id=self.cfg["auth"]["group_id"],
-                    include_hidden=self.cfg["general"]["include_hidden_events"],
+                    group_id=self.cfg["spond"]["group_id"],
+                    include_hidden=self.cfg["spond"]["include_hidden_events"],
                     min_start=min_start,
                     max_start=None,
                 )
@@ -291,7 +291,7 @@ class PadelBot:
                     self.spond.send_message,
                     text=message,
                     user=player["id"],
-                    group_uid=self.cfg["auth"]["group_id"],
+                    group_uid=self.cfg["spond"]["group_id"],
                 )
                 return True
             except Exception:

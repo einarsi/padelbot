@@ -1,11 +1,11 @@
-[auth] # Set SPOND_USERNAME, SPOND_PASSWORD and SPOND_GROUP_ID in .env or the environment instead
+[spond] # Set SPOND_USERNAME, SPOND_PASSWORD and SPOND_GROUP_ID in .env or the environment instead
 username = ""
 password = ""
 group_id = ""
+include_hidden_events = true
 
 [general]
 seconds_to_sleep = 600
-include_hidden_events = true
 
 [naco]
 enabled = false
