@@ -472,6 +472,10 @@ class TestFirstCycle:
         assert [e["id"] for e in bot.events.upcoming] == [event["id"]]
         assert [e["id"] for e in bot.events.previous] == [last_week["id"]]
         assert bot.first_run is False
+        # The rules and actions are kept for the web page, also after a first cycle.
+        assert [rule.tag for rule in bot.rules] == ["Quarantine", "MaxEvents"]
+        assert [action.tag for action in bot.actions] == ["Naco"]
+        assert all(item.applies_to(event) for item in bot.rules + bot.actions)
         assert "Skipping" not in caplog.text
         assert caplog.text.count("Not enforcing removal of player") == len(
             responses["acceptedIds"]

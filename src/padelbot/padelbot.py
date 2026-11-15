@@ -43,6 +43,8 @@ class PadelBot:
         self.first_run = True
         self.spond_profile_id: str | None = None
         self.events = Events()  # Cache events for webapp access
+        self.rules: list[RuleBase] = []
+        self.actions: list[ActionBase] = []
         self.next_cycle_due: datetime | None = None
 
     def is_healthy(self) -> bool:
@@ -319,7 +321,8 @@ class PadelBot:
             )
 
         all_removals = []
-        for rule in self.get_rules(events):
+        self.rules = self.get_rules(events)  # Cache rules for webapp access
+        for rule in self.rules:
             removals = rule.evaluate()
             for removal in removals:
                 # Update events so that subsequent rules see the to-be-updated state
@@ -339,9 +342,10 @@ class PadelBot:
             )
 
         # Evaluate and execute actions
+        self.actions = self.get_actions(events)  # Cache actions for webapp access
         if not self.first_run:
             all_intents = []
-            for action in self.get_actions(events):
+            for action in self.actions:
                 intents = action.evaluate()
                 all_intents.extend(intents)
 

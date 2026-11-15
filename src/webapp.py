@@ -75,6 +75,16 @@ async def get_events(request):
                         member_map.get(id, id)
                         for id in responses.get("unansweredIds", [])
                     ],
+                    # The rules and actions configured for this event
+                    "tags": [
+                        {"tag": item.tag, "kind": kind, "description": item.tooltip()}
+                        for kind, items in (
+                            ("rule", padelbot.rules),
+                            ("action", padelbot.actions),
+                        )
+                        for item in items
+                        if item.applies_to(event)
+                    ],
                 }
             )
 
