@@ -20,6 +20,8 @@ ENV_VARS = (
 FILE_AUTH = {"username": "file-user", "password": "file-pass", "group_id": "file-group"}
 FILE_NACO = {"enabled": False, "base_url": "http://file.test", "api_key": "file-key"}
 DEFAULT_NACO = {"enabled": False, "base_url": "http://localhost:8000", "api_key": ""}
+DEFAULT_GENERAL = {"seconds_to_sleep": 600, "include_hidden_events": True}
+FILE_GENERAL = {"seconds_to_sleep": 30, "include_hidden_events": False}
 
 
 def _section(name, values):
@@ -51,7 +53,7 @@ class TestFileAndDefaults:
         config_file.write_text(
             _section("auth", FILE_AUTH)
             + _section("naco", FILE_NACO)
-            + _section("general", {"seconds_to_sleep": 30})
+            + _section("general", FILE_GENERAL)
             + _section("logging", {"level": "WARNING"})
             + _section("rules.r1", {"type": "MaxEventsPerWeek", "max_events": 2})
             + _section("actions.a1", {"type": "NacoCreateTournament"})
@@ -60,7 +62,7 @@ class TestFileAndDefaults:
         assert config.readconfig() == {
             "auth": FILE_AUTH,
             "naco": FILE_NACO,
-            "general": {"seconds_to_sleep": 30},
+            "general": FILE_GENERAL,
             "logging": {"level": "WARNING"},
             "rules": {"r1": {"type": "MaxEventsPerWeek", "max_events": 2}},
             "actions": {"a1": {"type": "NacoCreateTournament"}},
@@ -72,7 +74,7 @@ class TestFileAndDefaults:
         assert config.readconfig() == {
             "auth": FILE_AUTH,
             "naco": DEFAULT_NACO,
-            "general": {"seconds_to_sleep": 600},
+            "general": DEFAULT_GENERAL,
             "logging": {"level": "INFO"},
             "rules": {},
             "actions": {},
@@ -82,7 +84,7 @@ class TestFileAndDefaults:
         ("section", "expected"),
         [
             ("naco", DEFAULT_NACO),
-            ("general", {"seconds_to_sleep": 600}),
+            ("general", DEFAULT_GENERAL),
             ("logging", {"level": "INFO"}),
         ],
         ids=["naco", "general", "logging"],

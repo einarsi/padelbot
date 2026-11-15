@@ -109,6 +109,7 @@ class PadelBot:
                 await self._call_spond(
                     self.spond.get_events,
                     group_id=self.cfg["auth"]["group_id"],
+                    include_hidden=self.cfg["general"]["include_hidden_events"],
                     min_start=min_start,
                     max_start=None,
                 )

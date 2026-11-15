@@ -127,7 +127,7 @@ def cfg(group) -> dict:
             "password": "secret",
             "group_id": group["id"],
         },
-        "general": {"seconds_to_sleep": 600},
+        "general": {"seconds_to_sleep": 600, "include_hidden_events": True},
         "naco": {"enabled": False},
         "rules": {},
         "actions": {},
@@ -175,9 +175,23 @@ class TestGetEvents:
             "groupId": cfg["auth"]["group_id"],
             "max": "100",
             "scheduled": "False",
+            # Without this, Spond leaves out invitee-only events that the bot's
+            # account is not invited to.
+            "includeHidden": "true",
         }
         assert [e["id"] for e in events.upcoming] == [event["id"]]
         assert events.previous == events.ongoing == []
+
+    @pytest.mark.asyncio
+    async def test_does_not_ask_for_hidden_events_when_switched_off(
+        self, bot, fake_spond, cfg
+    ):
+        cfg["general"]["include_hidden_events"] = False
+
+        await bot.get_events()
+
+        (sponds,) = fake_spond.received("GET /sponds/")
+        assert "includeHidden" not in sponds.query
 
     @pytest.mark.asyncio
     async def test_logs_in_again_when_the_token_has_expired(

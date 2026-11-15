@@ -5,6 +5,7 @@ group_id = ""
 
 [general]
 seconds_to_sleep = 600
+include_hidden_events = true
 
 [naco]
 enabled = false

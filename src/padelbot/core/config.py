@@ -18,6 +18,7 @@ defaults: dict[str, Any] = {
     },
     "general": {
         "seconds_to_sleep": 600,
+        "include_hidden_events": True,
     },
     "naco": {
         "enabled": False,

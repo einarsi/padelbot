@@ -28,7 +28,7 @@ def cfg():
             "rule2": {"rule": "DummyRule2"},
         },
         "actions": {},
-        "general": {"seconds_to_sleep": 10},
+        "general": {"seconds_to_sleep": 10, "include_hidden_events": True},
         "naco": {
             "enabled": True,
             "base_url": "http://localhost:8000",
