@@ -1,5 +1,4 @@
 import logging
-import re
 from datetime import datetime, timedelta
 
 from ..utils import Event, Events, get_participating_player_names, memberid_to_member
@@ -9,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 class RuleMaxEventsPerWeek(RuleBase):
+    tag = "MaxEvents"
+
     def __init__(
         self,
         rule_name: str,
@@ -27,8 +28,14 @@ class RuleMaxEventsPerWeek(RuleBase):
         self.max_events = max(0, max_events)
         self.grace_hours = grace_hours
 
+    def describe(self) -> str:
+        return (
+            f"at most {self.max_events} sign-ups per player among the events of the "
+            f"next 7 days; events starting within {self.grace_hours} hours do not count"
+        )
+
     def _include(self, event: Event) -> bool:
-        if not re.search(self.header_regex, event["heading"], re.IGNORECASE):
+        if not self.applies_to(event):
             return False
 
         event_start = datetime.fromisoformat(event["startTimestamp"]).astimezone()

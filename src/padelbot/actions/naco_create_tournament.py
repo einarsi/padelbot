@@ -28,6 +28,8 @@ MAX_COURT_NAME_LENGTH = 30
 
 
 class ActionNacoCreateTournament(ActionBase):
+    tag = "Naco"
+
     def __init__(
         self,
         action_name: str,
@@ -48,8 +50,14 @@ class ActionNacoCreateTournament(ActionBase):
         self.points_to_win = points_to_win
         self.spond_profile_id = UUID(spond_profile_id)
 
+    def describe(self) -> str:
+        return (
+            f"creates a Naco tournament ({self.tournament_type}) "
+            f"{self.minutes_before_start} minutes before the event starts"
+        )
+
     def _include(self, event: Event) -> bool:
-        return bool(re.search(self.header_regex, event["heading"], re.IGNORECASE))
+        return self.applies_to(event)
 
     def _is_within_window(self, event: Event) -> bool:
         """Check if event starts within the configured minutes_before_start window."""

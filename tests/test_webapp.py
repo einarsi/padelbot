@@ -7,13 +7,16 @@ from datetime import datetime, timedelta
 from logging.handlers import QueueHandler
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
+from uuid import UUID
 
 import pytest
 from spond import spond
 from starlette.testclient import TestClient
 
 import webapp
+from padelbot.actions.actionbase import create_action
 from padelbot.padelbot import HEALTH_GRACE_SECONDS
+from padelbot.utils import Events
 
 REPO_ROOT = Path(__file__).parents[1]
 CONFIG_ENV_VARS = (
@@ -192,27 +195,63 @@ def test_first_cycle_completes_without_changing_spond(client, fake_spond, caplog
 
 
 def test_events_lists_upcoming_events_with_member_names(client):
-    assert client.get("/events").json() == {
-        "events": [
-            {
-                "heading": "Tuesday Americano",
-                "startTimestamp": TUESDAY["startTimestamp"],
-                "endTimestamp": TUESDAY["endTimestamp"],
-                "accepted": ["Alice Alison"],
-                "unconfirmed": [],
-                "waitinglist": ["Bob Bobson"],
-                "declined": [],
-                "unanswered": ["not-a-member-id"],
-            },
-            {
-                "heading": "Thursday Social",
-                "startTimestamp": THURSDAY["startTimestamp"],
-                "endTimestamp": THURSDAY["endTimestamp"],
-                "accepted": [],
-                "unconfirmed": [],
-                "waitinglist": [],
-                "declined": [],
-                "unanswered": [],
-            },
-        ]
-    }
+    events = client.get("/events").json()["events"]
+    for event in events:
+        del event["tags"]
+
+    assert events == [
+        {
+            "heading": "Tuesday Americano",
+            "startTimestamp": TUESDAY["startTimestamp"],
+            "endTimestamp": TUESDAY["endTimestamp"],
+            "accepted": ["Alice Alison"],
+            "unconfirmed": [],
+            "waitinglist": ["Bob Bobson"],
+            "declined": [],
+            "unanswered": ["not-a-member-id"],
+        },
+        {
+            "heading": "Thursday Social",
+            "startTimestamp": THURSDAY["startTimestamp"],
+            "endTimestamp": THURSDAY["endTimestamp"],
+            "accepted": [],
+            "unconfirmed": [],
+            "waitinglist": [],
+            "declined": [],
+            "unanswered": [],
+        },
+    ]
+
+
+def test_events_are_tagged_with_the_rules_and_actions_that_apply(client):
+    """The shipped rules and action are all for events with "Americano" in the heading."""
+    # Naco is disabled in the shipped config, so the bot skips the action; add it by hand.
+    shipped = tomllib.loads((REPO_ROOT / "config.toml").read_text())
+    webapp.app.state.padelbot.actions = [
+        create_action(
+            name, Events(), {**definition, "spond_profile_id": str(UUID(int=1))}
+        )
+        for name, definition in shipped["actions"].items()
+    ]
+
+    tuesday_americano, thursday_social = client.get("/events").json()["events"]
+
+    assert thursday_social["tags"] == []
+    assert [(t["tag"], t["kind"]) for t in tuesday_americano["tags"]] == [
+        ("Quarantine", "rule"),
+        ("MaxEvents", "rule"),
+        ("Naco", "action"),
+    ]
+    descriptions = {t["tag"]: t["description"] for t in tuesday_americano["tags"]}
+    assert descriptions["Quarantine"] == (
+        "quarantine_after_event: players who played the previous event cannot sign up "
+        "until 24 hours after it ended (not enforced)"
+    )
+    assert descriptions["MaxEvents"] == (
+        "max_per_week: at most 2 sign-ups per player among the events of the next "
+        "7 days; events starting within 24 hours do not count (not enforced)"
+    )
+    assert descriptions["Naco"] == (
+        "naco_create_tournament: creates a Naco tournament (americano) 5 minutes "
+        "before the event starts"
+    )

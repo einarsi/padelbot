@@ -1,5 +1,4 @@
 import logging
-import re
 from datetime import datetime, timedelta
 
 from ..utils import (
@@ -15,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class RuleQuarantineAfterEvent(RuleBase):
+    tag = "Quarantine"
+
     def __init__(
         self,
         rule_name: str,
@@ -31,8 +32,14 @@ class RuleQuarantineAfterEvent(RuleBase):
         self.enforced = enforced
         self.quarantine_hours = quarantine_hours
 
+    def describe(self) -> str:
+        return (
+            "players who played the previous event cannot sign up until "
+            f"{self.quarantine_hours} hours after it ended"
+        )
+
     def _include(self, event: Event) -> bool:
-        return bool(re.search(self.header_regex, event["heading"], re.IGNORECASE))
+        return self.applies_to(event)
 
     def _get_last_similar_event(self, event: Event) -> Event | None:
         last_event = get_last_event_in_series(event, self.events.previous)

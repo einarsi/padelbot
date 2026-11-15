@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 
-from ..utils import Events, memberid_to_member
+from ..utils import EventMatcher, Events, memberid_to_member
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +16,8 @@ class RemovalInfo:
     enforced: bool = False
 
 
-class RuleBase(ABC):
-    name: str = ""
+class RuleBase(EventMatcher, ABC):
     message: str = ""
-    enforced: bool = False
 
     @abstractmethod
     def __init__(self, rule_name: str, events: Events, *args) -> None:

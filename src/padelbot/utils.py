@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -10,6 +11,27 @@ class Events:
     previous: list[Event] = field(default_factory=list)
     ongoing: list[Event] = field(default_factory=list)
     upcoming: list[Event] = field(default_factory=list)
+
+
+class EventMatcher:
+    """What rules and actions share, so the web page can tag the events they apply to."""
+
+    name: str = ""
+    enforced: bool = False
+    header_regex: str = ""
+    tag: str = ""  # Short label shown on the event
+
+    def applies_to(self, event: Event) -> bool:
+        """True if this is configured for the event, judged by its heading alone."""
+        return bool(re.search(self.header_regex, event["heading"], re.IGNORECASE))
+
+    def describe(self) -> str:
+        """One line about what this does, with its settings."""
+        return ""
+
+    def tooltip(self) -> str:
+        suffix = "" if self.enforced else " (not enforced)"
+        return f"{self.name}: {self.describe()}{suffix}"
 
 
 def memberid_to_member(member_id: str, members: list[dict[str, Any]]) -> dict[str, Any]:

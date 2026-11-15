@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 
-from ..utils import Events
+from ..utils import EventMatcher, Events
 
 
 @dataclass(kw_only=True)
@@ -13,10 +13,7 @@ class ActionIntent:
     enforced: bool = False
 
 
-class ActionBase(ABC):
-    name: str = ""
-    enforced: bool = False
-
+class ActionBase(EventMatcher, ABC):
     @abstractmethod
     def __init__(self, action_name: str, events: Events, *args) -> None:
         pass
