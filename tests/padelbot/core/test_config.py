@@ -13,6 +13,7 @@ ENV_VARS = (
     "SPOND_USERNAME",
     "SPOND_PASSWORD",
     "SPOND_GROUP_ID",
+    "SPOND_INCLUDE_HIDDEN_EVENTS",
     "NACO_ENABLED",
     "NACO_BASE_URL",
     "NACO_API_KEY",
@@ -160,6 +161,25 @@ class TestEnvironmentOverrides:
 
         assert _readconfig()["naco"] == {**FILE_NACO, "enabled": enabled}
 
+    @pytest.mark.parametrize(
+        ("value", "included"),
+        [("1", True), ("True", True), ("yes", True), ("0", False), ("false", False)],
+    )
+    def test_include_hidden_events_overrides_the_file(
+        self, config_file, monkeypatch, value, included
+    ):
+        # The file says the opposite, so the result can only come from the variable.
+        file_general = {**FILE_GENERAL, "include_hidden_events": not included}
+        config_file.write_text(
+            _section("auth", FILE_AUTH) + _section("general", file_general)
+        )
+        monkeypatch.setenv("SPOND_INCLUDE_HIDDEN_EVENTS", value)
+
+        assert _readconfig()["general"] == {
+            **FILE_GENERAL,
+            "include_hidden_events": included,
+        }
+
     def test_empty_variables_are_ignored(self, config_file, monkeypatch):
         file_naco = {**FILE_NACO, "enabled": True}
         config_file.write_text(
@@ -172,6 +192,7 @@ class TestEnvironmentOverrides:
 
         assert cfg["auth"] == FILE_AUTH
         assert cfg["naco"] == file_naco
+        assert cfg["general"] == DEFAULT_GENERAL
 
     def test_naco_enabled_works_without_a_naco_section(self, config_file, monkeypatch):
         config_file.write_text(_section("auth", FILE_AUTH))

@@ -8,11 +8,16 @@ The bot requires Spond credentials for a user that does not have 2FA enabled.
 
 ### Environment variables
 
-| Variable         | Description    | Required |
-| ---------------- | -------------- | -------- |
-| `SPOND_USERNAME` | Spond username | Yes      |
-| `SPOND_PASSWORD` | Spond password | Yes      |
-| `SPOND_GROUP_ID` | Spond group ID | Yes      |
+| Variable                      | Description                           | Required |
+| ----------------------------- | ------------------------------------- | -------- |
+| `SPOND_USERNAME`              | Spond username                        | Yes      |
+| `SPOND_PASSWORD`              | Spond password                        | Yes      |
+| `SPOND_GROUP_ID`              | Spond group ID                        | Yes      |
+| `SPOND_INCLUDE_HIDDEN_EVENTS` | Fetch invitee-only events (see below) | No       |
+
+By default the bot also fetches events that only invitees can see when its own Spond account is not one of them. Set
+`SPOND_INCLUDE_HIDDEN_EVENTS` to `false` to leave them out, or to `true`, `1` or `yes` to include them. It overrides
+`include_hidden_events` under `[general]` in `config.toml`.
 
 ### Local development
 

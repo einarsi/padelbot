@@ -30,6 +30,10 @@ defaults: dict[str, Any] = {
 }
 
 
+def _is_true(value: str) -> bool:
+    return value.lower() in ("1", "true", "yes")
+
+
 def readconfig() -> dict[str, Any] | None:
     with open("config.toml", "rb") as f:
         config = tomllib.load(f)
@@ -45,12 +49,15 @@ def readconfig() -> dict[str, Any] | None:
         if value := os.environ.get(f"SPOND_{key}"):
             config["auth"][key.lower()] = value
 
+    if value := os.environ.get("SPOND_INCLUDE_HIDDEN_EVENTS"):
+        config["general"]["include_hidden_events"] = _is_true(value)
+
     for key in ("BASE_URL", "API_KEY"):
         if value := os.environ.get(f"NACO_{key}"):
             config["naco"][key.lower()] = value
 
     if value := os.environ.get("NACO_ENABLED"):
-        config["naco"]["enabled"] = value.lower() in ("1", "true", "yes")
+        config["naco"]["enabled"] = _is_true(value)
 
     if not all(config["auth"].get(k) for k in ("username", "password", "group_id")):
         logger.error("username, password or group_id is missing. Bailing.")
