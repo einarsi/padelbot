@@ -117,6 +117,11 @@ def main() -> None:
 
     print(f"Client generated at {OUTPUT_DIR.name}/")
 
+    # `uv run` checks the lockfile before this script starts, so it cannot see the
+    # client version and dependencies that were just regenerated.
+    subprocess.run(["uv", "lock"], cwd=REPO_ROOT, check=True)
+    print("Updated uv.lock")
+
 
 if __name__ == "__main__":
     main()

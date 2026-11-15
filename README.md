@@ -92,14 +92,14 @@ listed in `ALLOWED_PATHS` in `tools/generate_client.py` are included. The client
 bot and the tests import it straight from that folder. To update it after a change in Naco:
 
 1. Make the new spec available at `../naco/openapi.json`.
-2. Regenerate the client. This replaces all files in `naco-backend-client/`:
+2. Regenerate the client. This replaces all files in `naco-backend-client/` and updates `uv.lock`:
 
    ```sh
    uv run python tools/generate_client.py
    ```
 
 3. Run the tests. `tests/padelbot/naco/test_wire.py` fails if the requests the bot sends, or the responses it can
-   parse, have changed. `uv run` also installs any new dependencies of the client and updates `uv.lock`:
+   parse, have changed. `uv run` also installs any new dependencies of the client:
 
    ```sh
    uv run pytest
