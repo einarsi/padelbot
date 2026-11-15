@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.8.0](https://github.com/einarsi/padelbot/compare/v1.7.0...v1.8.0) (2026-11-15)
+
+
+### ✨ Features
+
+* rename [auth] to [spond], optionally include invitee-only events ([#174](https://github.com/einarsi/padelbot/issues/174)) ([f08c30c](https://github.com/einarsi/padelbot/commit/f08c30cda4d2577e768f7429100fffc78e7bf497))
+* show the version in the web page title ([#175](https://github.com/einarsi/padelbot/issues/175)) ([a92801e](https://github.com/einarsi/padelbot/commit/a92801edb92e8c33bce49a2bbcdc6a9b2a8e0325))
+* tag events with applicable rules and actions ([#177](https://github.com/einarsi/padelbot/issues/177)) ([17999bb](https://github.com/einarsi/padelbot/commit/17999bb11ad406371e12e7e4352de5ac7f579f78))
+
 ## [1.7.0](https://github.com/einarsi/padelbot/compare/v1.6.5...v1.7.0) (2026-11-14)
 
 
