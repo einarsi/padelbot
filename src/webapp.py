@@ -2,10 +2,11 @@ import asyncio
 import logging
 import tomllib
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import aiofiles
 from starlette.applications import Starlette
-from starlette.responses import FileResponse, PlainTextResponse
+from starlette.responses import HTMLResponse, PlainTextResponse
 from starlette.routing import Route
 
 from padelbot.core.config import readconfig
@@ -84,12 +85,9 @@ async def get_events(request):
 
 
 async def log_viewer(request):
-    import os
-
-    template_path = os.path.join(
-        os.path.dirname(__file__), "templates", "log_viewer.html"
-    )
-    return FileResponse(template_path)
+    template = Path(__file__).parent / "templates" / "log_viewer.html"
+    html = template.read_text().replace("__VERSION__", request.app.state.version)
+    return HTMLResponse(html)
 
 
 async def show_logs(request):
@@ -122,6 +120,7 @@ async def lifespan(app):
     async with aiofiles.open("pyproject.toml", "rb") as f:
         data = tomllib.loads((await f.read()).decode())
     version = data["project"]["version"]
+    app.state.version = version
     logger.info(f"Starting padelbot v{version}")
     cfg = readconfig()
     if cfg is None:
