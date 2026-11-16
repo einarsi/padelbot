@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:0.13.8 AS uv
 
-FROM python:3.14-alpine AS builder
+FROM python:3.15-alpine AS builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ COPY naco-backend-client/ naco-backend-client/
 
 RUN uv sync --locked --no-install-project --no-dev --no-editable
 
-FROM python:3.14-alpine
+FROM python:3.15-alpine
 
 WORKDIR /app
 
