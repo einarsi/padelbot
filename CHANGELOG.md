@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.2](https://github.com/einarsi/padelbot/compare/v1.8.1...v1.8.2) (2026-11-25)
+
+
+### 🧹 Chores
+
+* **deps:** bump astral-sh/uv from 0.13.9 to 0.13.10 ([#187](https://github.com/einarsi/padelbot/issues/187)) ([32faf29](https://github.com/einarsi/padelbot/commit/32faf2971c31546d164b863ad52d056e52c5a1e3))
+* **deps:** bump types-python-dateutil from 2.9.0.20261116 to 2.9.0.20261122 ([#186](https://github.com/einarsi/padelbot/issues/186)) ([3593135](https://github.com/einarsi/padelbot/commit/3593135113754bf9695125bafbde519d70d516ae))
+
 ## [1.8.1](https://github.com/einarsi/padelbot/compare/v1.8.0...v1.8.1) (2026-11-25)
 
 
