@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.1](https://github.com/einarsi/padelbot/compare/v1.8.0...v1.8.1) (2026-11-25)
+
+
+### 🧹 Chores
+
+* bump Naco api to Naco v2.0 ([#178](https://github.com/einarsi/padelbot/issues/178)) ([d36b355](https://github.com/einarsi/padelbot/commit/d36b355cb6b5faa8871434d59f6b2de79f6bff12))
+* **deps:** bump astral-sh/uv from 0.13.8 to 0.13.9 ([#185](https://github.com/einarsi/padelbot/issues/185)) ([2ca4ed2](https://github.com/einarsi/padelbot/commit/2ca4ed27774a6fe426718052012c5598b8d490c7))
+* **deps:** bump pytest-asyncio from 1.4.1.post1 to 1.5.0 ([#180](https://github.com/einarsi/padelbot/issues/180)) ([9c80caf](https://github.com/einarsi/padelbot/commit/9c80cafdc61ab94556af16c4bc40886fa6500d05))
+* **deps:** bump python from 3.14-alpine to 3.15-alpine ([#182](https://github.com/einarsi/padelbot/issues/182)) ([4ba5f22](https://github.com/einarsi/padelbot/commit/4ba5f22d6870f4b04d500244aedb6dc926cbf23f))
+* **deps:** bump ruff from 0.17.4 to 0.17.6 ([#183](https://github.com/einarsi/padelbot/issues/183)) ([3a93a26](https://github.com/einarsi/padelbot/commit/3a93a26f5e106174b521af5b409728d7522fbefa))
+* **deps:** bump types-python-dateutil from 2.9.0.20261104 to 2.9.0.20261116 ([#184](https://github.com/einarsi/padelbot/issues/184)) ([9a4946c](https://github.com/einarsi/padelbot/commit/9a4946c7f133a25e78b9f208a11a8a94fdd3009c))
+
 ## [1.8.0](https://github.com/einarsi/padelbot/compare/v1.7.0...v1.8.0) (2026-11-15)
 
 
